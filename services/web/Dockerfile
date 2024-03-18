@@ -2,7 +2,7 @@
 FROM nginx:alpine
 
 # Copy index.html from the current directory to nginx root directory
-COPY index.html /usr/share/nginx/html
+COPY static/* /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80
