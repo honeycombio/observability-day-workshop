@@ -1,3 +1,3 @@
 # Reporting Security Issues
 
-If you discover a security vulnerability, please open an issue with label `type: security`.
+This app is not secure. Please do not use it in a production environment.
