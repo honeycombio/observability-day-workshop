@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Display Picture</title>
 </head>
+
 <body>
     <h1>Display Picture</h1>
     <img id="picture" src="#" alt="Picture">
@@ -13,7 +15,7 @@
         // Function to fetch the image binary data from the server
         async function fetchPicture() {
             try {
-                const response = await fetch('/createPicture', {
+                const response = await fetch('/backend/createPicture', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -43,4 +45,5 @@
         window.onload = fetchPicture;
     </script>
 </body>
+
 </html>

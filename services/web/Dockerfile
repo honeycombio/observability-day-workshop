@@ -2,7 +2,7 @@
 FROM nginx:alpine
 
 # Copy index.html from the current directory to nginx root directory
-COPY static/* /usr/share/nginx/html
+# COPY static/* /usr/share/nginx/html # it's this or mount the volume, which supports updates
 
 # Copy nginx configuration file to the container
 COPY nginx.conf /etc/nginx/nginx.conf

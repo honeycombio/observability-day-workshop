@@ -12,6 +12,8 @@ services:
     build:
       context: services/web
       dockerfile: Dockerfile
+    volumes:
+      - ./services/web/static:/usr/share/nginx/html # Mount directory containing static files
     ports:
       - "8080:80" # Expose port 8080 for Nginx
     depends_on:
