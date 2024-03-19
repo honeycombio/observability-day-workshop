@@ -33,6 +33,7 @@ app.get('/createPicture', (req, res) => {
         });
     } else {
         // If the file does not exist, send a 404 Not Found response
+        console.log("404")
         res.status(404).send('File not found');
     }
 });
