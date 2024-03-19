@@ -7,6 +7,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000" # Expose the port your Express app is listening on
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT="https://api.honeycomb.io" # US instance
+      - OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=${HONEYCOMB_API_KEY}"
+      - OTEL_SERVICE_NAME="backend-for-frontend"
 
   nginx:
     build:
