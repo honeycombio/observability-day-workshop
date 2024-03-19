@@ -1,5 +1,8 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
+import fs from 'fs';
+import path from 'path';
+import { trace } from '@opentelemetry/api';
 
 const app = express();
 const PORT = 3000; // You can change the port number as needed
@@ -11,34 +14,29 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here", status_code: 0 });
 });
 
-// POST endpoint for creating a picture
-app.post('/createPicture', (req: Request, res: Response) => {
-    // Replace this with your logic to generate or retrieve the image binary data
-    const imageBinaryData = generateImageBinary();
-
-    // Set appropriate headers for binary data
-    res.setHeader('Content-Type', 'image/jpeg');
-    // Set other headers if needed, like Content-Length, Cache-Control, etc.
-
-    // Send the image binary data as response
-    res.send(imageBinaryData);
+app.get('/createPicture', (req, res) => {
+    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.filePath": 'tmp/BusinessWitch.png' });
+    const imagePath = path.join(__dirname, 'tmp/BusinessWitch.png'); // Path to your .png file
+    // Check if the file exists
+    if (fs.existsSync(imagePath)) {
+        // Read the file and send it as the response
+        fs.readFile(imagePath, (err, data) => {
+            if (err) {
+                console.error('Error reading file:', err);
+                trace.getActiveSpan()?.recordException(err); // TODO: add during the workshop
+                res.status(500).send('Internal Server Error');
+            } else {
+                // Set the appropriate content type for a .png file
+                res.contentType('image/png');
+                res.send(data);
+            }
+        });
+    } else {
+        // If the file does not exist, send a 404 Not Found response
+        res.status(404).send('File not found');
+    }
 });
 
-// Function to generate image binary data (replace with your logic)
-function generateImageBinary(): Buffer {
-    // Replace this with your logic to generate or retrieve the image binary data
-    // For demonstration purposes, let's assume we're creating a simple image
-    // Here we're creating a small blank JPEG image
-    const width = 100;
-    const height = 100;
-    const channels = 3; // RGB
-    const imageData = Buffer.alloc(width * height * channels);
-
-    // Fill the buffer with white color
-    imageData.fill(255);
-
-    return imageData;
-}
 
 // Start the server
 app.listen(PORT, () => {
