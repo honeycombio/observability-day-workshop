@@ -1,8 +1,28 @@
 version: '3'
+
 services:
-  web:
+  create-picture:
     build:
-      context: ./services/web
+      context: services/backend-for-frontend
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "3000:3000" # Expose the port your Express app is listening on
+    networks:
+      - backend
+
+  nginx:
+    build:
+      context: services/web
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80" # Expose port 8080 for Nginx
+    volumes:
+      - ./nginx:/etc/nginx/conf.d # Mount Nginx configuration
+      - ./static:/usr/share/nginx/html # Mount directory containing static files
+    networks:
+      - backend
+    depends_on:
+      - create-picture
+
+networks:
+  backend: # Define a custom network for communication between services
