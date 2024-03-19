@@ -15,8 +15,9 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 app.get('/createPicture', (req, res) => {
-    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.filePath": 'tmp/BusinessWitch.png' });
-    const imagePath = path.join(__dirname, 'tmp/BusinessWitch.png'); // Path to your .png file
+    const relativePath = '../tmp/BusinessWitch.png';
+    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.filePath": relativePath });
+    const imagePath = path.join(__dirname, relativePath); // Path to your .png file
     // Check if the file exists
     if (fs.existsSync(imagePath)) {
         // Read the file and send it as the response
