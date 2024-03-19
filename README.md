@@ -18,3 +18,18 @@ Access the app:
 after making changes:
 
 `docker-compose up --build`
+
+## structure of the application
+
+### web
+
+The frontend is static files in `services/web/static`
+
+The `services/web` directory also contains a Dockerfile and config for nginx to serve these. The nginx config also directs anything to /backend toward the backend-for-frontend service.
+
+### backend-for-frontend
+
+in `services/backend-for-frontend` is an express app that receives /createPicture.
+
+It returns a .png, not a reference but the contents of the .png
+
