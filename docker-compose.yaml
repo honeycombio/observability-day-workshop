@@ -13,17 +13,21 @@ services:
       - OTEL_SERVICE_NAME=backend-for-frontend
     depends_on:
       - meminator
+    networks:
+      - backend
 
   meminator:
     build:
       context: services/meminator
       dockerfile: Dockerfile
     ports:
-      - "3000:3000" # is it OK that these are the same? I think so
+      - "3001:3000" # they can't be the same
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
       - OTEL_SERVICE_NAME=meminator
+    networks:
+      - backend
 
   nginx:
     build:
@@ -35,3 +39,8 @@ services:
       - "8080:80" # Expose port 8080 for Nginx
     depends_on:
       - create-picture
+    networks:
+      - backend
+
+networks:
+  backend:

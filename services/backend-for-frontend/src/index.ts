@@ -17,7 +17,7 @@ app.get("/health", (req: Request, res: Response) => {
 app.get('/createPicture', async (req, res) => {
     try {
         // Make a request to the meminator service
-        const response = await fetch('http://meminator:3000/applyPhraseToPicture');
+        const response = await fetch('http://meminator:3001/applyPhraseToPicture');
 
         // Check if the response was successful (status code 200)
         if (!response.ok) {

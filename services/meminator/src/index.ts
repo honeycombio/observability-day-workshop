@@ -11,7 +11,7 @@ const PORT = 3000; // You can change the port number as needed
 app.use(express.json());
 
 app.get("/health", (req: Request, res: Response) => {
-    res.send({ message: "I am here", status_code: 0 });
+    res.send({ message: "I am here, ready to meminate", status_code: 0 });
 });
 
 app.get('/applyPhraseToPicture', (req, res) => {

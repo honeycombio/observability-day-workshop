@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY} OTEL_SERVICE_NAME=backend-for-frontend node src/index.js"
+    "start-local": "tsc && OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY} OTEL_SERVICE_NAME=backend-for-frontend node src/index.js",
+    "start": "node src/index.js"
   },
   "author": "",
   "license": "ISC",
