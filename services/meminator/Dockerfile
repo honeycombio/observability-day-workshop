@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 # Install dependencies
 # RUN npm install
 
-# Copy the rest of the application code to the working directory
+# Copy the application code to the working directory
 COPY . .
 
 # Expose the port that your app runs on

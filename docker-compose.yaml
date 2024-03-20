@@ -11,6 +11,19 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
       - OTEL_SERVICE_NAME=backend-for-frontend
+    depends_on:
+      - meminator
+
+  meminator:
+    build:
+      context: services/meminator
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000" # is it OK that these are the same? I think so
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
+      - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
+      - OTEL_SERVICE_NAME=meminator
 
   nginx:
     build:

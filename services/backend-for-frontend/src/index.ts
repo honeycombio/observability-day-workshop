@@ -14,28 +14,38 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here", status_code: 0 });
 });
 
-app.get('/createPicture', (req, res) => {
-    const relativePath = '../tmp/BusinessWitch.png';
-    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.filePath": relativePath });
-    const imagePath = path.join(__dirname, relativePath); // Path to your .png file
-    // Check if the file exists
-    if (fs.existsSync(imagePath)) {
-        // Read the file and send it as the response
-        fs.readFile(imagePath, (err, data) => {
-            if (err) {
-                console.error('Error reading file:', err);
-                trace.getActiveSpan()?.recordException(err); // TODO: add during the workshop
-                res.status(500).send('Internal Server Error');
-            } else {
-                // Set the appropriate content type for a .png file
-                res.contentType('image/png');
-                res.send(data);
+app.get('/createPicture', async (req, res) => {
+    try {
+        // Make a request to the meminator service
+        const response = await fetch('http://meminator:3000/applyPhraseToPicture');
+
+        // Check if the response was successful (status code 200)
+        if (!response.ok) {
+            throw new Error(`Failed to fetch picture from meminator: ${response.status} ${response.statusText}`);
+        }
+        if (response.body === null) {
+            throw new Error(`Failed to fetch picture from meminator: ${response.status} ${response.statusText}`);
+        }
+
+        res.contentType('image/png');
+        // Read the response body as binary data
+        const reader = response.body.getReader();
+        // Stream the chunks of the picture data to the response as they are received
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) {
+                break;
             }
-        });
-    } else {
-        // If the file does not exist, send a 404 Not Found response
-        console.log("404")
-        res.status(404).send('File not found');
+
+            res.write(value);
+        }
+        res.end()
+
+        // Forward the response data to the client
+    } catch (error) {
+        console.error('Error fetching picture from meminator:', error);
+        res.status(500).send('Internal Server Error');
     }
 });
 

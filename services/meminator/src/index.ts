@@ -14,7 +14,7 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here", status_code: 0 });
 });
 
-app.get('/createPicture', (req, res) => {
+app.get('/applyPhraseToPicture', (req, res) => {
     const relativePath = '../tmp/BusinessWitch.png';
     trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.filePath": relativePath });
     const imagePath = path.join(__dirname, relativePath); // Path to your .png file
