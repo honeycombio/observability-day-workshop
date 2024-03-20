@@ -14,10 +14,13 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here", status_code: 0 });
 });
 
-app.get('/createPicture', async (req, res) => {
+const meminatorUrl = 'http://meminator:3001/applyPhraseToPicture'
+
+app.post('/createPicture', async (req, res) => {
+    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.meminatorUrl": meminatorUrl });
     try {
         // Make a request to the meminator service
-        const response = await fetch('http://meminator:3001/applyPhraseToPicture');
+        const response = await fetch(meminatorUrl);
 
         // Check if the response was successful (status code 200)
         if (!response.ok) {
@@ -42,8 +45,8 @@ app.get('/createPicture', async (req, res) => {
         }
         res.end()
 
-        // Forward the response data to the client
     } catch (error) {
+        trace.getActiveSpan()?.recordException(error as Error);
         console.error('Error fetching picture from meminator:', error);
         res.status(500).send('Internal Server Error');
     }

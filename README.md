@@ -7,6 +7,8 @@ This contains a sample application for use in the Observability Day workshops.
 
 Clone this repository.
 
+TODO: right now you need to build each project, the docker build won't do it for you.
+
 Install Docker.
 
 `docker-compose up`
