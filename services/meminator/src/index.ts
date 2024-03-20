@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { trace } from '@opentelemetry/api';
+import { spawn } from 'child_process';
 
 const app = express();
 const PORT = 3000; // You can change the port number as needed
@@ -14,30 +15,59 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here, ready to meminate", status_code: 0 });
 });
 
+// const magickProcess = spawn('convert', [inputImagePath, '-gravity', 'center', '-pointsize', '36', '-fill', 'white', '-annotate', '0', phrase, outputImagePath]);
+// convert tmp/BusinessWitch.png -gravity center -pointsize 36 -fill white -annotate 0 "Business Witch" output.png
+
+/*
+convert tmp/BusinessWitch.png -fill white -undercolor '#00000080' -gravity North -font "Times-Roman" -weight bold -annotate +0+10 "DO THE THING" \
+    output_image.jpg
+    */
+
 app.get('/applyPhraseToPicture', (req, res) => {
-    const relativePath = '../tmp/BusinessWitch.png';
-    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.filePath": relativePath });
-    const imagePath = path.join(__dirname, relativePath); // Path to your .png file
+    const inputImagePath = '../tmp/BusinessWitch.png';
+    const outputImagePath = `/tmp/${generateRandomFilename('png')}`;
+    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.inputImpagePath": inputImagePath, "app.outputImagePath": outputImagePath });
+    const imagePath = path.join(__dirname, inputImagePath); // Path to your .png file
     // Check if the file exists
-    if (fs.existsSync(imagePath)) {
-        // Read the file and send it as the response
-        fs.readFile(imagePath, (err, data) => {
-            if (err) {
-                console.error('Error reading file:', err);
-                trace.getActiveSpan()?.recordException(err); // TODO: add during the workshop
-                res.status(500).send('Internal Server Error');
-            } else {
-                // Set the appropriate content type for a .png file
-                res.contentType('image/png');
-                res.send(data);
-            }
-        });
-    } else {
-        // If the file does not exist, send a 404 Not Found response
-        console.log("404")
-        res.status(404).send('File not found');
-    }
+    const phrase = 'Hello, World!'.toLocaleUpperCase();
+
+    // Spawn ImageMagick process to add text to the image
+    const magickProcess = spawn('convert', [imagePath,
+        '-gravity', 'North',
+        '-pointsize', '48',
+        '-fill', 'white',
+        '-undercolor', '#00000080',
+        '-weight', 'bold',
+        '-font', '"Times-Roman"',
+        '-annotate', '0', phrase,
+        outputImagePath]);
+
+    // Handle ImageMagick process events
+    magickProcess.on('error', (error) => {
+        console.error('Error running ImageMagick:', error);
+        trace.getActiveSpan()?.recordException(error);
+        res.status(500).send('Internal Server Error');
+    });
+
+    magickProcess.on('exit', (code) => {
+        if (code !== 0) {
+            trace.getActiveSpan()?.setAttributes({ "app.imagemagick.exitCode": code || 0 });
+            console.error('ImageMagick process exited with non-zero code:', code);
+            res.status(500).send('Internal Server Error');
+        } else {
+            // Send the resulting image as the response
+            res.contentType('image/png');
+            res.sendFile(outputImagePath);
+        }
+    });
 });
+
+import crypto from 'crypto';
+
+function generateRandomFilename(extension: string): string {
+    const randomBytes = crypto.randomBytes(16).toString('hex');
+    return `${randomBytes}.${extension}`;
+}
 
 
 // Start the server
