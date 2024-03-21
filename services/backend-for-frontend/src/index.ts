@@ -15,10 +15,7 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here", status_code: 0 });
 });
 
-const meminatorUrl = 'http://meminator:3000/applyPhraseToPicture'
-
 app.post('/createPicture', async (req, res) => {
-    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.meminatorUrl": meminatorUrl });
     try {
         // Make a request to the meminator service
         const response = await fetchFromService('meminator');
