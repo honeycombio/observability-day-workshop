@@ -22,11 +22,12 @@ app.post('/createPicture', async (req, res) => {
 
         const phraseResponse = await fetchFromService('phrase-picker');
         const phraseText = await phraseResponse.text();
-        trace.getActiveSpan()?.setAttributes({ "app.phrase": await phraseResponse.text() });
+        trace.getActiveSpan()?.setAttributes({ "app.phrase": phraseText });
         const phraseResult: PhraseResult = JSON.parse(phraseText);
 
         // Make a request to the meminator service
         const response = await fetchFromService('meminator', {
+            method: "POST",
             body: JSON.stringify(phraseResult)
         })
 
