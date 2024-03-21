@@ -23,44 +23,65 @@ convert tmp/BusinessWitch.png -fill white -undercolor '#00000080' -gravity North
     output_image.jpg
     */
 
+console.log("I am a booger");
+
 app.get('/applyPhraseToPicture', (req, res) => {
     const inputImagePath = '../tmp/BusinessWitch.png';
     const outputImagePath = `/tmp/${generateRandomFilename('png')}`;
-    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.inputImpagePath": inputImagePath, "app.outputImagePath": outputImagePath });
+    trace.getActiveSpan()?.setAttributes({ "app.dirname2": __dirname, "app.inputImagePath": inputImagePath, "app.outputImagePath": outputImagePath });
     const imagePath = path.join(__dirname, inputImagePath); // Path to your .png file
     // Check if the file exists
     const phrase = 'Hello, World!'.toLocaleUpperCase();
 
-    // Spawn ImageMagick process to add text to the image
-    const magickProcess = spawn('convert', [imagePath,
-        '-gravity', 'North',
-        '-pointsize', '48',
-        '-fill', 'white',
-        '-undercolor', '#00000080',
-        '-weight', 'bold',
-        '-font', '"Times-Roman"',
-        '-annotate', '0', phrase,
-        outputImagePath]);
+    trace.getTracer('meminator').startActiveSpan('convert', (span) => {
 
-    // Handle ImageMagick process events
-    magickProcess.on('error', (error) => {
-        console.error('Error running ImageMagick:', error);
-        trace.getActiveSpan()?.recordException(error);
-        res.status(500).send('Internal Server Error');
-    });
+        // Spawn ImageMagick process to add text to the image
+        const magickProcess = spawn('convert', [imagePath,
+            '-gravitypoo', 'North',
+            '-pointsize', '48',
+            '-fill', 'white',
+            '-undercolor', '#00000080',
+            '-weight', 'bold',
+            '-font', '"Times-Roman"',
+            '-annotate', '0', phrase,
+            outputImagePath]);
 
-    magickProcess.on('exit', (code) => {
-        if (code !== 0) {
-            trace.getActiveSpan()?.setAttributes({ "app.imagemagick.exitCode": code || 0 });
-            console.error('ImageMagick process exited with non-zero code:', code);
-            res.status(500).send('Internal Server Error');
-        } else {
-            // Send the resulting image as the response
-            res.contentType('image/png');
-            res.sendFile(outputImagePath);
-        }
+        // Handle ImageMagick process events
+        magickProcess.on('error', (error) => {
+            console.error('Error running ImageMagick:', error);
+            trace.getActiveSpan()?.recordException(error);
+            span.end();
+            res.status(500).send('Failed to even try');
+        });
+
+        let stderrOutput = '';
+        magickProcess.stderr.on('data', (data) => {
+            stderrOutput += data; // Append the data chunk to the stderrOutput string
+        });
+
+        let stdout = '';
+        magickProcess.stdout.on('data', (data) => {
+            stdout += data;
+        });
+
+        magickProcess.on('close', (code) => {
+            trace.getActiveSpan()?.setAttributes({ 'app.doesThisWork': 'sort of' });
+            span.setAttribute('app.howAboutThis', 'yes');
+            span.setAttributes({ 'app.imagemagick.stderr': stderrOutput, 'app.imagemagick.stdout': stdout, 'app.imagemagick.exitCode': code || 0 });
+            if (code !== 0) {
+                console.error('ImageMagick process exited with non-zero code:', code);
+                span.end();
+                res.status(503).send('image creation faillllled');
+            } else {
+                // Send the resulting image as the response
+                res.contentType('image/png');
+                span.end();
+                res.sendFile(outputImagePath);
+            }
+        });
+
     });
-});
+})
 
 import crypto from 'crypto';
 
