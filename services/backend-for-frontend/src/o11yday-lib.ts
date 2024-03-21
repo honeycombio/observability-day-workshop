@@ -8,7 +8,8 @@ import { context, defaultTextMapSetter, trace, Attributes, SpanStatusCode, Span,
 import { SEMATTRS_HTTP_METHOD, SEMATTRS_HTTP_URL } from '@opentelemetry/semantic-conventions';
 
 const SERVICES = {
-    meminator: 'http://meminator:3000/applyPhraseToPicture'
+    meminator: 'http://meminator:3000/applyPhraseToPicture',
+    'phrase-picker': 'http://phrase-picker:3000/phrase'
 }
 
 export function fetchFromService(service: keyof typeof SERVICES) {
@@ -23,8 +24,17 @@ export function fetchFromService(service: keyof typeof SERVICES) {
         const url = SERVICES[service];
         span.setAttributes({ "http.headers": JSON.stringify(headers), [SEMATTRS_HTTP_METHOD]: "GET", [SEMATTRS_HTTP_URL]: url });
 
-        return fetch(url, { headers });
-        // TODO: add response status code etc to span
+        const response = await fetch(url, { headers });
+
+        span.setAttributes({
+            "http.status_code": response.status,
+            "http.status_text": response.statusText,
+            "http.redirected": response.redirected,
+        });
+        if (!response.ok) {
+            span.setStatus({ code: SpanStatusCode.ERROR, message: await response.clone().text() });
+        }
+        return response;
     });
 }
 

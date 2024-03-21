@@ -17,6 +17,9 @@ app.get("/health", (req: Request, res: Response) => {
 
 app.post('/createPicture', async (req, res) => {
     try {
+
+        const phraseResponse = await fetchFromService('phrase-picker');
+        trace.getActiveSpan()?.setAttributes({ "app.phrase": await phraseResponse.text() });
         // Make a request to the meminator service
         const response = await fetchFromService('meminator');
 
