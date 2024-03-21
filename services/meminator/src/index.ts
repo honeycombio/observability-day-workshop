@@ -28,23 +28,25 @@ console.log("I am a booger");
 app.get('/applyPhraseToPicture', (req, res) => {
     const inputImagePath = '../tmp/BusinessWitch.png';
     const outputImagePath = `/tmp/${generateRandomFilename('png')}`;
-    trace.getActiveSpan()?.setAttributes({ "app.dirname2": __dirname, "app.inputImagePath": inputImagePath, "app.outputImagePath": outputImagePath });
+    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.inputImagePath": inputImagePath, "app.outputImagePath": outputImagePath });
     const imagePath = path.join(__dirname, inputImagePath); // Path to your .png file
     // Check if the file exists
     const phrase = 'Hello, World!'.toLocaleUpperCase();
 
     trace.getTracer('meminator').startActiveSpan('convert', (span) => {
 
-        // Spawn ImageMagick process to add text to the image
-        const magickProcess = spawn('convert', [imagePath,
-            '-gravitypoo', 'North',
+        const args = [imagePath,
+            '-gravity', 'North',
             '-pointsize', '48',
             '-fill', 'white',
             '-undercolor', '#00000080',
-            '-weight', 'bold',
-            '-font', '"Times-Roman"',
-            '-annotate', '0', phrase,
-            outputImagePath]);
+            '-font', 'Angkor-Regular',
+            '-annotate', '0', `${phrase}`,
+            outputImagePath];
+        span.setAttributes({ "app.imagemagick.args": args.join(" ") });
+
+        // Spawn ImageMagick process to add text to the image
+        const magickProcess = spawn('convert', args);
 
         // Handle ImageMagick process events
         magickProcess.on('error', (error) => {

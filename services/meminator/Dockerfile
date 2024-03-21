@@ -3,6 +3,13 @@ FROM node:20-alpine
 
 RUN apk --no-cache add imagemagick
 
+# Create a directory for custom fonts
+RUN mkdir -p /usr/share/fonts/truetype
+# Copy font files from host to container
+COPY ./Angkor/*.ttf /usr/share/fonts/truetype/
+# Refresh font cache
+RUN fc-cache -f -v
+
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
