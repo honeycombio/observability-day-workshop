@@ -25,13 +25,18 @@ convert tmp/BusinessWitch.png -fill white -undercolor '#00000080' -gravity North
 
 console.log("I am a booger");
 
-app.get('/applyPhraseToPicture', (req, res) => {
+app.post('/applyPhraseToPicture', (req, res) => {
+    const inputPhrase = req.body.phrase;
+    const phrase = inputPhrase.toLocaleUpperCase();
+
     const inputImagePath = '../tmp/BusinessWitch.png';
     const outputImagePath = `/tmp/${generateRandomFilename('png')}`;
-    trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.inputImagePath": inputImagePath, "app.outputImagePath": outputImagePath });
+    trace.getActiveSpan()?.setAttributes({
+        "app.phrase": phrase, "app.inputPhrase": inputPhrase,
+        "app.dirname": __dirname, "app.inputImagePath": inputImagePath, "app.outputImagePath": outputImagePath
+    });
     const imagePath = path.join(__dirname, inputImagePath); // Path to your .png file
     // Check if the file exists
-    const phrase = 'Hello, World!'.toLocaleUpperCase();
 
     trace.getTracer('meminator').startActiveSpan('convert', (span) => {
 

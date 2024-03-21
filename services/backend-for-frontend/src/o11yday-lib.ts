@@ -12,7 +12,12 @@ const SERVICES = {
     'phrase-picker': 'http://phrase-picker:3000/phrase'
 }
 
-export function fetchFromService(service: keyof typeof SERVICES) {
+type FetchOptions = {
+    method?: "GET" | "POST" | "PUT" | "DELETE",
+    body?: string
+}
+
+export function fetchFromService(service: keyof typeof SERVICES, options?: FetchOptions) {
 
     return inSpanAsync("fetchFromService", { attributes: { "service": service }, kind: SpanKind.CLIENT, }, async (span) => {
 
@@ -22,9 +27,9 @@ export function fetchFromService(service: keyof typeof SERVICES) {
         propagator.inject(context.active(), headers, defaultTextMapSetter);
 
         const url = SERVICES[service];
-        span.setAttributes({ "http.headers": JSON.stringify(headers), [SEMATTRS_HTTP_METHOD]: "GET", [SEMATTRS_HTTP_URL]: url });
+        span.setAttributes({ "http.headers": JSON.stringify(headers), [SEMATTRS_HTTP_METHOD]: options?.method || "GET", [SEMATTRS_HTTP_URL]: url });
 
-        const response = await fetch(url, { headers });
+        const response = await fetch(url, { headers, ...options });
 
         span.setAttributes({
             "http.status_code": response.status,

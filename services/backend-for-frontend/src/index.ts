@@ -15,13 +15,20 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here", status_code: 0 });
 });
 
+type PhraseResult = { phrase: string }
+
 app.post('/createPicture', async (req, res) => {
     try {
 
         const phraseResponse = await fetchFromService('phrase-picker');
+        const phraseText = await phraseResponse.text();
         trace.getActiveSpan()?.setAttributes({ "app.phrase": await phraseResponse.text() });
+        const phraseResult: PhraseResult = JSON.parse(phraseText);
+
         // Make a request to the meminator service
-        const response = await fetchFromService('meminator');
+        const response = await fetchFromService('meminator', {
+            body: JSON.stringify(phraseResult)
+        })
 
         // Check if the response was successful (status code 200)
         if (!response.ok) {
@@ -37,18 +44,16 @@ app.post('/createPicture', async (req, res) => {
         // Stream the chunks of the picture data to the response as they are received
         while (true) {
             const { done, value } = await reader.read();
-
             if (done) {
                 break;
             }
-
             res.write(value);
         }
         res.end()
 
     } catch (error) {
         trace.getActiveSpan()?.recordException(error as Error);
-        console.error('Error fetching picture from meminator:', error);
+        console.error('Error creating picture:', error);
         res.status(500).send('Internal Server Error');
     }
 });
