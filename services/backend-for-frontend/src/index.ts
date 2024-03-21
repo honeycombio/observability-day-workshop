@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { trace } from '@opentelemetry/api';
+import { fetchFromService } from "./o11yday-lib";
 
 const app = express();
 const PORT = 3000; // You can change the port number as needed
@@ -20,7 +21,7 @@ app.post('/createPicture', async (req, res) => {
     trace.getActiveSpan()?.setAttributes({ "app.dirname": __dirname, "app.meminatorUrl": meminatorUrl });
     try {
         // Make a request to the meminator service
-        const response = await fetch(meminatorUrl);
+        const response = await fetchFromService('meminator');
 
         // Check if the response was successful (status code 200)
         if (!response.ok) {
