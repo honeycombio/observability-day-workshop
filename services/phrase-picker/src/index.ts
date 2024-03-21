@@ -1,5 +1,6 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
+import { trace, context } from '@opentelemetry/api';
 
 const app = express();
 const PORT = 3000; // You can change the port number as needed
@@ -11,7 +12,8 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here, ready to pick a phrase", status_code: 0 });
 });
 
-app.post('/phrase', async (req, res) => {
+app.get('/phrase', async (req, res) => {
+    console.log("This is the phrase, where is my span? " + JSON.stringify(trace.getSpanContext(context.active())));
     res.send({ phrase: "your mother was a lizard!" });
 });
 
