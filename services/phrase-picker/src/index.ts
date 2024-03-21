@@ -13,8 +13,9 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 app.get('/phrase', async (req, res) => {
-    console.log("This is the phrase, where is my span? " + JSON.stringify(trace.getSpanContext(context.active())));
-    res.send({ phrase: "your mother was a lizard!" });
+    const phrase = "your mother was a lizard!";
+    trace.getActiveSpan()?.setAttributes({ "app.phrase": phrase });
+    res.send({ phrase });
 });
 
 // Start the server
