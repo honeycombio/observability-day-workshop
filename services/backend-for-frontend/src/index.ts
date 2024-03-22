@@ -1,7 +1,5 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
 import { trace } from '@opentelemetry/api';
 import { fetchFromService } from "./o11yday-lib";
 

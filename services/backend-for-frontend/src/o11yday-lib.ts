@@ -22,12 +22,19 @@ export function fetchFromService(service: keyof typeof SERVICES, options?: Fetch
     return inSpanAsync("fetchFromService", { attributes: { "service": service }, kind: SpanKind.CLIENT, }, async (span) => {
 
         // propagation
-        const headers: Record<string, string> = {};
+        const headers: Record<string, string> = {
+            "Content-Type": "application/json"
+        }
         const propagator = new W3CTraceContextPropagator();
         propagator.inject(context.active(), headers, defaultTextMapSetter);
 
         const url = SERVICES[service];
-        span.setAttributes({ "http.headers": JSON.stringify(headers), [SEMATTRS_HTTP_METHOD]: options?.method || "GET", [SEMATTRS_HTTP_URL]: url });
+        span.setAttributes({
+            "http.headers": JSON.stringify(headers),
+            [SEMATTRS_HTTP_METHOD]: options?.method || "GET",
+            [SEMATTRS_HTTP_URL]: url,
+            "http.body": options?.body
+        });
 
         const response = await fetch(url, { headers, ...options });
 

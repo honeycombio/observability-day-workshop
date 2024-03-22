@@ -26,7 +26,9 @@ const DEFAULT_PHRASE = "lizardlips";
 
 app.post('/applyPhraseToPicture', async (req, res) => {
     try {
-        let inputPhrase = req.body.phrase;
+        const input = req.body;
+        trace.getActiveSpan()?.setAttributes({ "app.input": JSON.stringify(input) });
+        let inputPhrase = input.phrase;
         if (!inputPhrase) {
             trace.getActiveSpan()?.setAttributes({
                 "warn.message": "No phrase provided",
@@ -116,7 +118,6 @@ function spawnProcess(commandName: string, args: string[]): Promise<void> {
         });
     });
 }
-
 
 // Start the server
 app.listen(PORT, () => {
