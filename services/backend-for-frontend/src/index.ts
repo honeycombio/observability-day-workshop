@@ -26,7 +26,7 @@ app.post('/createPicture', async (req, res) => {
         // Make a request to the meminator service
         const response = await fetchFromService('meminator', {
             method: "POST",
-            body: JSON.stringify(phraseResult)
+            body: phraseResult
         })
 
         // Check if the response was successful (status code 200)

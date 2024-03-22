@@ -14,19 +14,36 @@ const SERVICES = {
 
 type FetchOptions = {
     method?: "GET" | "POST" | "PUT" | "DELETE",
-    body?: string
+    body?: any // will be stringified
 }
 
+/**
+ * Make an HTTP request to one of our services.
+ * @param service one of our known services
+ * @param options choose method and/or send a body
+ * @returns 
+ */
 export function fetchFromService(service: keyof typeof SERVICES, options?: FetchOptions) {
 
     return inSpanAsync("fetchFromService", { attributes: { "service": service }, kind: SpanKind.CLIENT, }, async (span) => {
-
-        // propagation
+        const { method, body: bodyObject } = options || { method: "GET" };
+        let body: string | null = null;
+        if (bodyObject) {
+            try {
+                body = JSON.stringify(bodyObject);
+            }
+            catch (e) {
+                span.recordException(e as Error);
+                span.setStatus({ code: SpanStatusCode.ERROR, message: "Failed to serialize body: " + e });
+                throw e;
+            }
+        }
         const headers: Record<string, string> = {
             "Content-Type": "application/json"
         }
+        // propagation
         const propagator = new W3CTraceContextPropagator();
-        propagator.inject(context.active(), headers, defaultTextMapSetter);
+        propagator.inject(context.active(), headers, defaultTextMapSetter); // obviously! :-/
 
         const url = SERVICES[service];
         span.setAttributes({
@@ -36,7 +53,7 @@ export function fetchFromService(service: keyof typeof SERVICES, options?: Fetch
             "http.body": options?.body
         });
 
-        const response = await fetch(url, { headers, ...options });
+        const response = await fetch(url, { headers, method, body });
 
         span.setAttributes({
             "http.status_code": response.status,
