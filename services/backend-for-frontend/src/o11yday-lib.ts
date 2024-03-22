@@ -50,7 +50,6 @@ export function fetchFromService(service: keyof typeof SERVICES, options?: Fetch
             "http.headers": JSON.stringify(headers),
             [SEMATTRS_HTTP_METHOD]: options?.method || "GET",
             [SEMATTRS_HTTP_URL]: url,
-            "http.body": options?.body
         });
 
         const response = await fetch(url, { headers, method, body });
