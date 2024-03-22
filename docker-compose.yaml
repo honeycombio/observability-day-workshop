@@ -18,10 +18,6 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
       - OTEL_SERVICE_NAME=backend-for-frontend-${PROGRAMMING_LANGUAGE}
-    depends_on:
-      - phrase-picker
-      - image-picker
-      - meminator
 
   meminator:
     build:
