@@ -38,7 +38,10 @@ spec:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "https://api.honeycomb.io"
             - name: OTEL_EXPORTER_OTLP_HEADERS
-              value: "x-honeycomb-team=${HONEYCOMB_API_KEY}"
+              valueFrom:
+                secretKeyRef:
+                  name: o11yday-hny-header
+                  key: header
             - name: OTEL_SERVICE_NAME
               value: "backend-for-frontend-nodejs"
 
@@ -84,7 +87,10 @@ spec:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "https://api.honeycomb.io"
             - name: OTEL_EXPORTER_OTLP_HEADERS
-              value: "x-honeycomb-team=${HONEYCOMB_API_KEY}"
+              valueFrom:
+                secretKeyRef:
+                  name: o11yday-hny-header
+                  key: header
             - name: OTEL_SERVICE_NAME
               value: "meminator-nodejs"
 
@@ -130,7 +136,10 @@ spec:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "https://api.honeycomb.io"
             - name: OTEL_EXPORTER_OTLP_HEADERS
-              value: "x-honeycomb-team=${HONEYCOMB_API_KEY}"
+              valueFrom:
+                secretKeyRef:
+                  name: o11yday-hny-header
+                  key: header
             - name: OTEL_SERVICE_NAME
               value: "phrase-picker-nodejs"
 
@@ -176,7 +185,10 @@ spec:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "https://api.honeycomb.io"
             - name: OTEL_EXPORTER_OTLP_HEADERS
-              value: "x-honeycomb-team=${HONEYCOMB_API_KEY}"
+              valueFrom:
+                secretKeyRef:
+                  name: o11yday-hny-header
+                  key: header
             - name: OTEL_SERVICE_NAME
               value: "image-picker-nodejs"
 
