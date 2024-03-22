@@ -21,6 +21,14 @@ after making changes:
 
 `docker-compose up --build`
 
+## Publishing
+
+To get new versions of the containers on Dockerhub for caching, log in appropriately.
+
+`WORKSHOP_VERSION=${IMAGE_VERSION} docker compose build --push`
+
+... for each $PROGRAMMING_LANGUAGE implemented.
+
 ## structure of the application
 
 ### web

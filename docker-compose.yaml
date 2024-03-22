@@ -5,7 +5,7 @@ services:
     build:
       context: services/backend-for-frontend-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
-      platforms:
+      platforms: # TODO: on workshop day, take the platform tags out for development speed
         - linux/amd64
         - linux/arm64
       cache_from:
