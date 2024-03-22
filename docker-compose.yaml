@@ -13,6 +13,7 @@ services:
       - OTEL_SERVICE_NAME=backend-for-frontend
     depends_on:
       - phrase-picker
+      - image-picker
       - meminator
 
   meminator:
@@ -36,6 +37,18 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
       - OTEL_SERVICE_NAME=phrase-picker
+
+
+  image-picker:
+    build:
+      context: services/phrase-picker
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3000" # they can't be the same
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
+      - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
+      - OTEL_SERVICE_NAME=image-picker
 
   nginx:
     build:
