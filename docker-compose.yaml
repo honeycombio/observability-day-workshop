@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  create-picture:
+  backend-for-frontend:
     build:
       context: services/backend-for-frontend-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
@@ -85,5 +85,3 @@ services:
       - ./services/web/static:/usr/share/nginx/html # Mount directory containing static files
     ports:
       - "8080:80" # Expose port 8080 for Nginx
-    depends_on:
-      - create-picture

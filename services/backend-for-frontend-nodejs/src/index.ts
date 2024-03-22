@@ -13,13 +13,14 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here", status_code: 0 });
 });
 
-
-app.post('/createPicture', async (req, res) => {
+app.post('/createPicture', async (req: Request, res: Response) => {
     try {
-
-        const [phraseResponse, imageResponse] = await Promise.all([fetchFromService('phrase-picker'), fetchFromService('image-picker')]);
-        const phraseText = phraseResponse.ok? await phraseResponse.text() : "{}";
-        const imageText = imageResponse.ok? await imageResponse.text() : "{}";
+        const [phraseResponse, imageResponse] = await Promise.all([
+            fetchFromService('phrase-picker'),
+            fetchFromService('image-picker')
+        ]);
+        const phraseText = phraseResponse.ok ? await phraseResponse.text() : "{}";
+        const imageText = imageResponse.ok ? await imageResponse.text() : "{}";
         trace.getActiveSpan()?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText });
         const phraseResult = JSON.parse(phraseText);
         const imageResult = JSON.parse(imageText);
