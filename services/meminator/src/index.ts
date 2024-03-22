@@ -1,8 +1,7 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
-import fs from 'fs';
 import path from 'path';
-import { trace } from '@opentelemetry/api';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { spawn } from 'child_process';
 
 const app = express();
@@ -25,7 +24,7 @@ convert tmp/BusinessWitch.png -fill white -undercolor '#00000080' -gravity North
 
 const DEFAULT_PHRASE = "lizardlips";
 
-app.post('/applyPhraseToPicture', (req, res) => {
+app.post('/applyPhraseToPicture', async (req, res) => {
     try {
         let inputPhrase = req.body.phrase;
         if (!inputPhrase) {
@@ -44,62 +43,23 @@ app.post('/applyPhraseToPicture', (req, res) => {
             "app.phrase": phrase, "app.inputPhrase": inputPhrase,
             "app.dirname": __dirname, "app.inputImagePath": inputImagePath, "app.outputImagePath": outputImagePath
         });
-        const imagePath = path.join(__dirname, inputImagePath); // Path to your .png file
-        // Check if the file exists
+        const imagePath = path.join(__dirname, inputImagePath);
 
-        trace.getTracer('meminator').startActiveSpan('convert', (span) => {
+        const args = [imagePath,
+            '-gravity', 'North',
+            '-pointsize', '48',
+            '-fill', 'white',
+            '-undercolor', '#00000080',
+            '-font', 'Angkor-Regular',
+            '-annotate', '0', `${phrase}`,
+            outputImagePath];
 
-            const args = [imagePath,
-                '-gravity', 'North',
-                '-pointsize', '48',
-                '-fill', 'white',
-                '-undercolor', '#00000080',
-                '-font', 'Angkor-Regular',
-                '-annotate', '0', `${phrase}`,
-                outputImagePath];
-            span.setAttributes({ "app.imagemagick.args": args.join(" ") });
-
-            // Spawn ImageMagick process to add text to the image
-            const magickProcess = spawn('convert', args);
-
-            // Handle ImageMagick process events
-            magickProcess.on('error', (error) => {
-                console.error('Error running ImageMagick:', error);
-                trace.getActiveSpan()?.recordException(error);
-                span.end();
-                res.status(500).send('Failed to even try');
-            });
-
-            let stderrOutput = '';
-            magickProcess.stderr.on('data', (data) => {
-                stderrOutput += data; // Append the data chunk to the stderrOutput string
-            });
-
-            let stdout = '';
-            magickProcess.stdout.on('data', (data) => {
-                stdout += data;
-            });
-
-            magickProcess.on('close', (code) => {
-                trace.getActiveSpan()?.setAttributes({ 'app.doesThisWork': 'sort of' });
-                span.setAttribute('app.howAboutThis', 'yes');
-                span.setAttributes({ 'app.imagemagick.stderr': stderrOutput, 'app.imagemagick.stdout': stdout, 'app.imagemagick.exitCode': code || 0 });
-                if (code !== 0) {
-                    console.error('ImageMagick process exited with non-zero code:', code);
-                    span.end();
-                    res.status(503).send('image creation faillllled');
-                } else {
-                    // Send the resulting image as the response
-                    res.contentType('image/png');
-                    span.end();
-                    res.sendFile(outputImagePath);
-                }
-            });
-
-        });
+        await spawnProcess('convert', args);
+        res.sendFile(outputImagePath);
     }
     catch (error) {
         trace.getActiveSpan()?.recordException(error as Error);
+        trace.getActiveSpan()?.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message });
         console.error('Error creating picture:', error);
         res.status(500).send('Internal Server Error');
     }
@@ -110,6 +70,51 @@ import crypto from 'crypto';
 function generateRandomFilename(extension: string): string {
     const randomBytes = crypto.randomBytes(16).toString('hex');
     return `${randomBytes}.${extension}`;
+}
+
+function spawnProcess(commandName: string, args: string[]): Promise<void> {
+    return trace.getTracer('meminator').startActiveSpan(commandName, {
+        attributes: {
+            "app.command.name": commandName,
+            "app.command.args": args.join(' ')
+        }
+    }, (span) => {
+        return new Promise<void>((resolve, reject) => {
+            const process = spawn(commandName, args);
+            let stderrOutput = '';
+            process.stderr.on('data', (data) => {
+                stderrOutput += data;
+            });
+
+            let stdout = '';
+            process.stdout.on('data', (data) => {
+                stdout += data;
+            });
+
+            process.on('error', (error) => {
+                span.recordException(error);
+                span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+                span.end();
+                reject(error);
+            });
+
+            process.on('close', (code) => {
+                span.setAttributes({
+                    'app.command.exitCode': code || 0,
+                    'app.command.stderr': stderrOutput,
+                    'app.command.stdout': stdout
+                });
+                if (code !== 0) {
+                    span.setStatus({ code: SpanStatusCode.ERROR, message: "Process exited with " + code });
+                    span.end();
+                    reject(new Error(`Process exited with non-zero code: ${code}`));
+                } else {
+                    span.end();
+                    resolve();
+                }
+            });
+        });
+    });
 }
 
 
