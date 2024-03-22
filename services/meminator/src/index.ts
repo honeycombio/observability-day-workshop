@@ -4,8 +4,6 @@ import path from 'path';
 import fs from 'fs';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { spawn } from 'child_process';
-const fetch = import('node-fetch');
-import type { Response as NodeFetchResponse } from 'node-fetch';
 
 const app = express();
 const PORT = 3000; // You can change the port number as needed
@@ -55,9 +53,22 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         } else {
             // download the image
             await fetch(inputImageUrl)
-                .then((res: NodeFetchResponse) => {
+                .then(async (download) => {
                     const dest = fs.createWriteStream(inputImagePath);
-                    res.body?.pipe(dest);
+                    // ugh this is SO MESSY
+                    // node-fetch would make this a v simple pipe, but NOOOO, I cannot manage to import that. ESModules something somehting give up
+                    if (download.body === null) {
+                        throw new Error(`Failed to fetch picture from meminator: ${download.status} ${download.statusText}`);
+                    }
+                    const reader = download.body.getReader();
+                    // Stream the chunks of the picture data to the response as they are received
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) {
+                            break;
+                        }
+                        dest.write(value);
+                    }
                 })
                 .catch((err: Error) => {
                     trace.getActiveSpan()?.setAttributes({

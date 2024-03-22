@@ -18,16 +18,20 @@ type PhraseResult = { phrase: string }
 app.post('/createPicture', async (req, res) => {
     try {
 
-        const phraseResponse = await fetchFromService('phrase-picker');
+        const [phraseResponse, imageResponse] = await Promise.all([fetchFromService('phrase-picker'), fetchFromService('image-picker')]);
         const phraseText = await phraseResponse.text();
-        trace.getActiveSpan()?.setAttributes({ "app.phrase": phraseText });
+        const imageText = await imageResponse.text();
+        trace.getActiveSpan()?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText });
         const phraseResult: PhraseResult = JSON.parse(phraseText);
+        const imageResult = JSON.parse(imageText);
 
         // Make a request to the meminator service
         const response = await fetchFromService('meminator', {
             method: "POST",
-            body: phraseResult
-        })
+            body: {
+                ...phraseResult, ...imageResult
+            }
+        });
 
         // Check if the response was successful (status code 200)
         if (!response.ok) {
