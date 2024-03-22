@@ -1,8 +1,11 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
 import path from 'path';
+import fs from 'fs';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { spawn } from 'child_process';
+const fetch = import('node-fetch');
+import type { Response as NodeFetchResponse } from 'node-fetch';
 
 const app = express();
 const PORT = 3000; // You can change the port number as needed
@@ -23,6 +26,7 @@ convert tmp/BusinessWitch.png -fill white -undercolor '#00000080' -gravity North
     */
 
 const DEFAULT_PHRASE = "lizardlips";
+const DEFAULT_IMAGE_PATH = '../tmp/BusinessWitch.png';
 
 app.post('/applyPhraseToPicture', async (req, res) => {
     try {
@@ -39,15 +43,40 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         }
         const phrase = inputPhrase.toLocaleUpperCase();
 
-        const inputImagePath = '../tmp/BusinessWitch.png';
+        const inputImageUrl = input.imageUrl;
+        let inputImagePath = inputImageUrl ? `/tmp/${generateRandomFilename('png')}` : path.join(__dirname, DEFAULT_IMAGE_PATH);
+        if (!inputImageUrl) {
+            trace.getActiveSpan()?.setAttributes({
+                "warn.message": "No imageUrl provided",
+                "app.default.imagePath": DEFAULT_IMAGE_PATH,
+                "app.body": JSON.stringify(req.body)
+            });
+            inputPhrase = DEFAULT_PHRASE;
+        } else {
+            // download the image
+            await fetch(inputImageUrl)
+                .then((res: NodeFetchResponse) => {
+                    const dest = fs.createWriteStream(inputImagePath);
+                    res.body?.pipe(dest);
+                })
+                .catch((err: Error) => {
+                    trace.getActiveSpan()?.setAttributes({
+                        "warn.message": "Image failed to download: " + err.message,
+                        "app.inputImageUrl": inputImageUrl,
+                        "app.default.imagePath": DEFAULT_IMAGE_PATH,
+                        "app.body": JSON.stringify(req.body)
+                    });
+                    inputImagePath = path.join(__dirname, DEFAULT_IMAGE_PATH);
+                });
+        }
+
         const outputImagePath = `/tmp/${generateRandomFilename('png')}`;
         trace.getActiveSpan()?.setAttributes({
             "app.phrase": phrase, "app.inputPhrase": inputPhrase,
             "app.dirname": __dirname, "app.inputImagePath": inputImagePath, "app.outputImagePath": outputImagePath
         });
-        const imagePath = path.join(__dirname, inputImagePath);
 
-        const args = [imagePath,
+        const args = [inputImagePath,
             '-gravity', 'North',
             '-pointsize', '48',
             '-fill', 'white',
