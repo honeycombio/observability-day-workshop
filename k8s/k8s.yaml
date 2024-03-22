@@ -30,7 +30,8 @@ spec:
     spec:
       containers:
         - name: backend-for-frontend
-          image: o11yday/backend-for-frontend-nodejs:0.1.0
+          image: o11yday/backend-for-frontend-nodejs:0.1.1
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           env:
@@ -75,7 +76,8 @@ spec:
     spec:
       containers:
         - name: meminator
-          image: o11yday/meminator-nodejs:0.1.0
+          image: o11yday/meminator-nodejs:0.1.1
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           env:
@@ -120,7 +122,8 @@ spec:
     spec:
       containers:
         - name: phrase-picker
-          image: o11yday/phrase-picker-nodejs:0.1.0
+          image: o11yday/phrase-picker-nodejs:0.1.1
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           env:
@@ -165,7 +168,8 @@ spec:
     spec:
       containers:
         - name: image-picker
-          image: o11yday/image-picker-nodejs:0.1.0
+          image: o11yday/image-picker-nodejs:0.1.1
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           env:
@@ -210,13 +214,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: o11yday/web:0.1.0
+          image: o11yday/web:0.1.1
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
-          volumeMounts:
-            - name: static-files
-              mountPath: /usr/share/nginx/html
-      volumes:
-        - name: static-files
-          hostPath:
-            path: /path/to/your/static/files
