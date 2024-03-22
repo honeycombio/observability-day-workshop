@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for service in $(ls services/) do
+
+done
