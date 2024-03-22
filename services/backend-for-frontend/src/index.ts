@@ -13,16 +13,15 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here", status_code: 0 });
 });
 
-type PhraseResult = { phrase: string }
 
 app.post('/createPicture', async (req, res) => {
     try {
 
         const [phraseResponse, imageResponse] = await Promise.all([fetchFromService('phrase-picker'), fetchFromService('image-picker')]);
-        const phraseText = await phraseResponse.text();
-        const imageText = await imageResponse.text();
+        const phraseText = phraseResponse.ok? await phraseResponse.text() : "{}";
+        const imageText = imageResponse.ok? await imageResponse.text() : "{}";
         trace.getActiveSpan()?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText });
-        const phraseResult: PhraseResult = JSON.parse(phraseText);
+        const phraseResult = JSON.parse(phraseText);
         const imageResult = JSON.parse(imageText);
 
         // Make a request to the meminator service

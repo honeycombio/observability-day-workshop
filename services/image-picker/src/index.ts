@@ -5,8 +5,13 @@ import { trace, context } from '@opentelemetry/api';
 
 // aws s3 ls s3://random-pictures | awk '{print "\"" $NF "\","}'
 const IMAGES = [
+    "dratini.png",
+    "everything-is-an-experiment.png",
+    "experiment.png",
     "grass-and-desert-guy.png",
-    "symmathesy.png",].map((filename) => `https://random-pictures.s3.amazonaws.com/${filename}`);
+    "jessitron.png",
+    "symmathesy.png",
+].map((filename) => `https://random-pictures.s3.amazonaws.com/${filename}`);
 
 const app = express();
 const PORT = 3000; // You can change the port number as needed
