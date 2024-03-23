@@ -1,7 +1,7 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
-
+import path from 'path';
 import { spawnProcess } from "./shellOut";
 import { download, generateRandomFilename } from "./download";
 
@@ -29,7 +29,11 @@ app.post('/applyPhraseToPicture', async (req, res) => {
     try {
         const input = req.body;
         trace.getActiveSpan()?.setAttributes({ "app.input": JSON.stringify(input) });
-        let inputPhrase = input.phrase;
+        let { phrase: inputPhrase, imageUrl } = input;
+        trace.getActiveSpan()?.setAttributes({
+            "app.meminator.phrase": inputPhrase, "app.meminator.imageUrl": imageUrl,
+            "app.meminator.imageExtension": path.extname(imageUrl)
+        });
         if (!inputPhrase) {
             trace.getActiveSpan()?.setAttributes({
                 "warn.message": "No phrase provided",

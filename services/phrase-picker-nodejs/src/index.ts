@@ -3,13 +3,24 @@ import express, { Request, Response } from 'express';
 import { trace, context } from '@opentelemetry/api';
 
 const PHRASES = [
-    "Can Haz Cheezburger?",
-    "tarantula on a stick",
     "you're muted",
     "not dead yet",
     "What is that, Nokomis?",
-    "I don't know",
-    "Let them.",]
+    "Let them.",
+    "Boiling Loves Company!",
+    "Must we?",
+    "SRE not-sorry",
+    "Honeycomb at home",
+    "There is no cloud",
+    "This is fine",
+    "It's a trap!",
+    "Not Today",
+    "You had one job",
+    "bruh",
+    "have you tried restarting?",
+    "try again after coffee",
+    "deploy != release"
+]
 
 const app = express();
 const PORT = 3000; // You can change the port number as needed

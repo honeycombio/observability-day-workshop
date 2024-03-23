@@ -22,7 +22,7 @@ export async function download(params: { imageUrl?: string }) {
         });
         return path.join(__dirname, DEFAULT_IMAGE_PATH);
     }
-    const downloadDestinationPath = `/tmp/${generateRandomFilename('png')}`;
+    const downloadDestinationPath = `/tmp/${generateRandomFilename(path.extname(inputImageUrl))}`;
 
     await fetch(inputImageUrl)
         .then(async (download) => {
