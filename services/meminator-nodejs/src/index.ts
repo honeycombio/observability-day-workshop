@@ -23,7 +23,7 @@ convert tmp/BusinessWitch.png -fill white -undercolor '#00000080' -gravity North
     output_image.jpg
     */
 
-const DEFAULT_PHRASE = "lizardlips";
+const DEFAULT_PHRASE = "you got this";
 
 app.post('/applyPhraseToPicture', async (req, res) => {
     try {
@@ -32,7 +32,7 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         let { phrase: inputPhrase, imageUrl } = input;
         trace.getActiveSpan()?.setAttributes({
             "app.meminator.phrase": inputPhrase, "app.meminator.imageUrl": imageUrl,
-            "app.meminator.imageExtension": path.extname(imageUrl)
+            "app.meminator.imageExtension": imageUrl ? path.extname(imageUrl) : "none"
         });
         if (!inputPhrase) {
             trace.getActiveSpan()?.setAttributes({
