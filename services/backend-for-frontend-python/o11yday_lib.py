@@ -1,7 +1,7 @@
 import requests
 
 SERVICES = {
-    'meminator': 'http://meminator:3000/applyPhraseToPicture', 
+    'meminator': 'http://meminator:10114/applyPhraseToPicture', 
     'phrase-picker': 'http://phrase-picker:10114/phrase',
     'image-picker': 'http://image-picker:10114/imageUrl',
 }

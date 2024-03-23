@@ -21,16 +21,16 @@ services:
 
   meminator:
     build:
-      context: services/meminator-${PROGRAMMING_LANGUAGE}
+      context: services/meminator-python
       dockerfile: Dockerfile
       # platforms:
       #   - linux/amd64
       #   - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/meminator-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/meminator-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
+        - ${IMAGE_REPO_USER}/meminator-python:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/meminator-python:${WORKSHOP_VERSION}
     ports:
-      - "3001:3000" # they can't be the same
+      - "10116:10114" # they can't be the same
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
