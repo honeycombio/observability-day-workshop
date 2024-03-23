@@ -5,10 +5,10 @@ services:
     build:
       context: services/backend-for-frontend-python
       dockerfile: Dockerfile
-      platforms:
-        # TODO: on workshop day, take the platform tags out for development speed
-        - linux/amd64
-        - linux/arm64
+      # platforms:
+      #   # this is useful for pushing to Dockerhub, not for local builds
+      #   - linux/amd64
+      #   - linux/arm64
       cache_from:
         - ${IMAGE_REPO_USER}/backend-for-frontend-python:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/backend-for-frontend-python:${WORKSHOP_VERSION}
@@ -23,9 +23,9 @@ services:
     build:
       context: services/meminator-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
-        - linux/arm64
+      # platforms:
+      #   - linux/amd64
+      #   - linux/arm64
       cache_from:
         - ${IMAGE_REPO_USER}/meminator-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/meminator-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
@@ -40,9 +40,9 @@ services:
     build:
       context: services/phrase-picker-python
       dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
-        - linux/arm64
+      # platforms:
+      #   - linux/amd64
+      #   - linux/arm64
       cache_from:
         - ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
@@ -57,9 +57,9 @@ services:
     build:
       context: services/image-picker-python
       dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
-        - linux/arm64
+      # platforms:
+      #   - linux/amd64
+      #   - linux/arm64
       cache_from:
         - ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
@@ -74,9 +74,9 @@ services:
     build:
       context: services/web
       dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
-        - linux/arm64
+      # platforms:
+      #   - linux/amd64
+      #   - linux/arm64
       cache_from:
         - ${IMAGE_REPO_USER}/web:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
