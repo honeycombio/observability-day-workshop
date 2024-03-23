@@ -6,7 +6,7 @@ SERVICES = {
     'image-picker': 'http://image-picker:10114/imageUrl',
 }
 
-def fetch_from_service(service, method='GET'):
+def fetch_from_service(service, method='GET', body=None):
     """
     Fetches data from a remote service over HTTP.
 
@@ -25,7 +25,7 @@ def fetch_from_service(service, method='GET'):
         else:
             print(f"Method {method} not supported")
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
-        return response.json()  # Parse JSON response
+        return response # do not parse the response here
     except requests.RequestException as e:
         print(f"Error fetching data from {url}: {e}")
         return None

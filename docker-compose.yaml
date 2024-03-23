@@ -3,22 +3,21 @@ version: '3'
 services:
   backend-for-frontend:
     build:
-      context: services/backend-for-frontend-${PROGRAMMING_LANGUAGE}
+      context: services/backend-for-frontend-python
       dockerfile: Dockerfile
       platforms:
         # TODO: on workshop day, take the platform tags out for development speed
         - linux/amd64
         - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/backend-for-frontend-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/backend-for-frontend-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
-
+        - ${IMAGE_REPO_USER}/backend-for-frontend-python:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/backend-for-frontend-python:${WORKSHOP_VERSION}
     ports:
-      - "3000:3000" # Expose the port your Express app is listening on
+      - "10115:10114" # Expose the port your Express app is listening on
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
-      - OTEL_SERVICE_NAME=backend-for-frontend-${PROGRAMMING_LANGUAGE}
+      - OTEL_SERVICE_NAME=backend-for-frontend-python
 
   meminator:
     build:
@@ -48,7 +47,7 @@ services:
         - ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
     ports:
-      - "10116:10114" # the outer ports can't be the same
+      - "10117:10114" # the outer ports can't be the same
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
@@ -65,7 +64,7 @@ services:
         - ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
     ports:
-      - "10117:10114" # the outer ports can't be the same
+      - "10118:10114" # the outer ports can't be the same
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
