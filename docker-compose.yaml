@@ -44,8 +44,8 @@ services:
       #   - linux/amd64
       #   - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
+        - ${IMAGE_REPO_USER}/phrase-picker-python:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/phrase-picker-python:${WORKSHOP_VERSION}
     ports:
       - "10117:10114" # the outer ports can't be the same
     environment:
@@ -61,8 +61,8 @@ services:
       #   - linux/amd64
       #   - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
+        - ${IMAGE_REPO_USER}/image-picker-python:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/image-picker-python:${WORKSHOP_VERSION}
     ports:
       - "10118:10114" # the outer ports can't be the same
     environment:
