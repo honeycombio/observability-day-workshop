@@ -56,7 +56,7 @@ services:
 
   image-picker:
     build:
-      context: services/image-picker-${PROGRAMMING_LANGUAGE}
+      context: services/image-picker-python
       dockerfile: Dockerfile
       platforms:
         - linux/amd64
@@ -65,11 +65,11 @@ services:
         - ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
     ports:
-      - "3003:3000" # they can't be the same
+      - "10117:10114" # the outer ports can't be the same
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
-      - OTEL_SERVICE_NAME=image-picker-${PROGRAMMING_LANGUAGE}
+      - OTEL_SERVICE_NAME=image-picker-python
 
   nginx:
     build:

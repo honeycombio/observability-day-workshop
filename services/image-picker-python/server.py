@@ -1,10 +1,9 @@
-import "./tracing"
-import express, { Request, Response } from 'express';
-import { trace, context } from '@opentelemetry/api';
+from flask import Flask, jsonify
+import random
 
+app = Flask(__name__)
 
-// aws s3 ls s3://random-pictures | awk '{print "\"" $NF "\","}'
-const IMAGES = [
+filenames = [
     "Angrybird.JPG",
     "Arco&Tub.png",
     "IMG_9343.jpg",
@@ -51,30 +50,26 @@ const IMAGES = [
     "three-pillars-2.png",
     "walrus-painting.jpg",
     "yellow-lines.JPG",
-].map((filename) => `https://random-pictures.s3.amazonaws.com/${filename}`);
+    ]
 
-const app = express();
-const PORT = 3000; // You can change the port number as needed
+# Generate URLs using list comprehension
+IMAGE_URLS = [f"https://random-pictures.s3.amazonaws.com/{filename}" for filename in filenames]
 
-// Middleware to parse JSON bodies
-app.use(express.json());
+# Route for health check
+@app.route('/health')
+def health():
+    return jsonify({"message": "I am here, ready to pick an image", "status_code": 0})
 
-app.get("/health", (req: Request, res: Response) => {
-    res.send({ message: "I am here, ready to pick an image", status_code: 0 });
-});
+# Route for getting a random phrase
+@app.route('/imageUrl')
+def get_image_url():
+    phrase = choose(IMAGE_URLS)
+    # You can implement tracing logic here if needed
+    return jsonify({"imageUrl": phrase})
 
-app.get('/imageUrl', async (req, res) => {
-    const imageUrl = choose(IMAGES);
-    trace.getActiveSpan()?.setAttributes({ "app.imageUrl": imageUrl });
-    res.send({ imageUrl });
-});
+# Helper function to choose a random item from a list
+def choose(array):
+    return random.choice(array)
 
-function choose<T>(array: T[]): T {
-    const i = Math.floor(Math.random() * array.length);
-    return array[i];
-}
-
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+if __name__ == '__main__':
+    app.run(debug=True, port=10114)
