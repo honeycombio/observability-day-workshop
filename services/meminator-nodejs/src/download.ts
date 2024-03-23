@@ -59,6 +59,7 @@ export async function download(params: { imageUrl?: string }) {
 }
 
 export function generateRandomFilename(extension: string): string {
+    const dotExtension = extension.startsWith('.') ? extension : `.${extension}`;
     const randomBytes = crypto.randomBytes(16).toString('hex');
-    return `${randomBytes}.${extension}`;
+    return `${randomBytes}${dotExtension}`;
 }

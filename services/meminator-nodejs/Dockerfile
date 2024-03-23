@@ -2,6 +2,7 @@
 FROM node:20-alpine
 
 RUN apk --no-cache add imagemagick
+RUN apk --no-cache add libjpeg
 
 # Create a directory for custom fonts
 RUN mkdir -p /usr/share/fonts/truetype
@@ -9,6 +10,7 @@ RUN mkdir -p /usr/share/fonts/truetype
 COPY ./Angkor/*.ttf /usr/share/fonts/truetype/
 # Refresh font cache
 RUN fc-cache -f -v
+
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
