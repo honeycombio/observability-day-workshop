@@ -12,6 +12,8 @@ This Python service supplies random phrases.
 
 ## Run
 
+This won't have tracing.
+
 `python3 server.py`
 
 ## Test

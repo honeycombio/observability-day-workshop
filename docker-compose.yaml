@@ -52,7 +52,7 @@ services:
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
-      - OTEL_SERVICE_NAME=phrase-picker-${PROGRAMMING_LANGUAGE}
+      - OTEL_SERVICE_NAME=phrase-picker-python
 
   image-picker:
     build:
