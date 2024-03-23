@@ -5,7 +5,6 @@ import { trace, context } from '@opentelemetry/api';
 const PHRASES = [
     "you're muted",
     "not dead yet",
-    "What is that, Nokomis?",
     "Let them.",
     "Boiling Loves Company!",
     "Must we?",
