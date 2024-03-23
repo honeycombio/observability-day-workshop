@@ -16,5 +16,7 @@ COPY . .
 # Expose port to the outside world
 EXPOSE 10114
 
+ENV FLASK_APP=server.py
+
 # Command to run the Flask application
-CMD ["python3", "server.py"]
+CMD ["flask", "run", "-p 10114", "--host=0.0.0.0"]

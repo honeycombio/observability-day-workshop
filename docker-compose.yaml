@@ -5,7 +5,8 @@ services:
     build:
       context: services/backend-for-frontend-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
-      platforms: # TODO: on workshop day, take the platform tags out for development speed
+      platforms:
+        # TODO: on workshop day, take the platform tags out for development speed
         - linux/amd64
         - linux/arm64
       cache_from:
@@ -38,7 +39,7 @@ services:
 
   phrase-picker:
     build:
-      context: services/phrase-picker-${PROGRAMMING_LANGUAGE}
+      context: services/phrase-picker-python
       dockerfile: Dockerfile
       platforms:
         - linux/amd64
@@ -46,9 +47,8 @@ services:
       cache_from:
         - ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
-
     ports:
-      - "3002:3000" # they can't be the same
+      - "10116:10114" # the outer ports can't be the same
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
