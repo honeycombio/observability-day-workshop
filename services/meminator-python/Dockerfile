@@ -1,6 +1,9 @@
 # Use the official Python image as a base
 FROM python:3.9-slim
 
+RUN apt-get update
+RUN apt-get install -y imagemagick
+
 # Set the working directory in the container
 WORKDIR /app
 
