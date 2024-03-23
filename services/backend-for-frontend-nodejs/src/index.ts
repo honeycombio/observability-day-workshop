@@ -14,6 +14,7 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 app.post('/createPicture', async (req: Request, res: Response) => {
+    const span = trace.getActiveSpan();
     try {
         const [phraseResponse, imageResponse] = await Promise.all([
             fetchFromService('phrase-picker'),
@@ -21,7 +22,7 @@ app.post('/createPicture', async (req: Request, res: Response) => {
         ]);
         const phraseText = phraseResponse.ok ? await phraseResponse.text() : "{}";
         const imageText = imageResponse.ok ? await imageResponse.text() : "{}";
-        trace.getActiveSpan()?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText });
+        span?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText });
         const phraseResult = JSON.parse(phraseText);
         const imageResult = JSON.parse(imageText);
 
@@ -55,7 +56,7 @@ app.post('/createPicture', async (req: Request, res: Response) => {
         res.end()
 
     } catch (error) {
-        trace.getActiveSpan()?.recordException(error as Error);
+        span?.recordException(error as Error);
         console.error('Error creating picture:', error);
         res.status(500).send('Internal Server Error');
     }

@@ -1,15 +1,15 @@
 
-# {project-name}
+# O11yDay Meminator
 
 This contains a sample application for use in the Observability Day workshops.
+
+It generates images by combining a randomly chosen picture with a randomly chosen phrase.
 
 ## Running the application
 
 Clone this repository.
 
-TODO: right now you need to build each project, the docker build won't do it for you.
-
-Install Docker.
+Have Docker installed.
 
 `docker-compose up`
 
