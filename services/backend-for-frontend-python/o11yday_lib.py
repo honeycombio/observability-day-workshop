@@ -21,7 +21,7 @@ def fetch_from_service(service, method='GET', body=None):
         if method == 'GET':
             response = requests.get(url)
         elif method == 'POST':
-            response = requests.post(url)
+            response = requests.post(url, json=body)
         else:
             print(f"Method {method} not supported")
         response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes

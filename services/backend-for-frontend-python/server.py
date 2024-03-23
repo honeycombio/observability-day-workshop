@@ -17,7 +17,8 @@ def create_picture():
         image_result = image_response.json() if phrase_response and image_response.ok else {"imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1360px-Banana-Single.jpg"}
 
         # Make a request to the meminator service
-        meminator_response = fetch_from_service('meminator', method="POST", body={**phrase_result, **image_result})
+        body = {**phrase_result, **image_result}
+        meminator_response = fetch_from_service('meminator', method="POST", body=body)
 
         # Check if the response was successful
         if not meminator_response.ok or meminator_response.content is None:
