@@ -3,6 +3,11 @@ import subprocess
 import uuid
 from flask import Flask, jsonify, send_file
 
+from opentelemetry import trace
+
+# Acquire a tracer
+tracer = trace.get_tracer("memitracinator")
+
 IMAGE_MAX_WIDTH_PX=1000
 IMAGE_MAX_HEIGHT_PX=1000
 
@@ -36,16 +41,17 @@ def meminate():
         '-undercolor', '#00000080',
         '-font', 'Angkor-Regular',
         '-annotate', '0', text, output_image_path]
+    
     # Execute ImageMagick command to apply text to the image
-    result = subprocess.run(command)
-
-    if result.returncode == 0:
-        print("Subprocess completed successfully.")
-    else:
-        print("Subprocess failed with return code:", result.returncode)
-        # Access stderr output
-        print("Error output:", result.stderr)
-
+    with tracer.start_as_current_span("convert") as subprocess_span:
+        subprocess_span.set_attribute("app.subprocess.command", " ".join(command))
+        result = subprocess.run(command)
+        subprocess_span.set_attribute("app.subprocess.returncode", result.returncode)
+        subprocess_span.set_attribute("app.subprocess.stdout", result.stdout)
+        subprocess_span.set_attribute("app.subprocess.stderr", result.stderr)
+        if result.returncode != 0:
+            raise Exception("Subprocess failed with return code:", result.returncode)
+        
     # Serve the modified image
     return send_file(
         output_image_path,
