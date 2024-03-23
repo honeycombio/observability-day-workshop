@@ -1,3 +1,4 @@
+asgiref==3.8.1
 blinker==1.7.0
 click==8.1.7
 Deprecated==1.2.14
@@ -9,8 +10,22 @@ MarkupSafe==2.1.5
 opentelemetry-api==1.23.0
 opentelemetry-distro==0.44b0
 opentelemetry-instrumentation==0.44b0
+opentelemetry-instrumentation-asgi==0.44b0
+opentelemetry-instrumentation-asyncio==0.44b0
+opentelemetry-instrumentation-aws-lambda==0.44b0
+opentelemetry-instrumentation-dbapi==0.44b0
+opentelemetry-instrumentation-flask==0.44b0
+opentelemetry-instrumentation-jinja2==0.44b0
+opentelemetry-instrumentation-logging==0.44b0
+opentelemetry-instrumentation-sqlite3==0.44b0
+opentelemetry-instrumentation-urllib==0.44b0
+opentelemetry-instrumentation-wsgi==0.44b0
+opentelemetry-propagator-aws-xray==1.0.1
 opentelemetry-sdk==1.23.0
 opentelemetry-semantic-conventions==0.44b0
+opentelemetry-test-utils==0.44b0
+opentelemetry-util-http==0.44b0
+packaging==24.0
 setuptools==69.2.0
 typing_extensions==4.10.0
 Werkzeug==3.0.1
