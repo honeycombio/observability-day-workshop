@@ -1,9 +1,9 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
-import path from 'path';
-import fs from 'fs';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
-import { spawn } from 'child_process';
+
+import { spawnProcess } from "./shellOut";
+import { download, generateRandomFilename } from "./download";
 
 const app = express();
 const PORT = 3000; // You can change the port number as needed
@@ -24,7 +24,6 @@ convert tmp/BusinessWitch.png -fill white -undercolor '#00000080' -gravity North
     */
 
 const DEFAULT_PHRASE = "lizardlips";
-const DEFAULT_IMAGE_PATH = '../tmp/BusinessWitch.png';
 
 app.post('/applyPhraseToPicture', async (req, res) => {
     try {
@@ -41,45 +40,8 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         }
         const phrase = inputPhrase.toLocaleUpperCase();
 
-        const inputImageUrl = input.imageUrl;
-        let inputImagePath = inputImageUrl ? `/tmp/${generateRandomFilename('png')}` : path.join(__dirname, DEFAULT_IMAGE_PATH);
-        if (!inputImageUrl) {
-            trace.getActiveSpan()?.setAttributes({
-                "warn.message": "No imageUrl provided",
-                "app.default.imagePath": DEFAULT_IMAGE_PATH,
-                "app.body": JSON.stringify(req.body)
-            });
-            inputPhrase = DEFAULT_PHRASE;
-        } else {
-            // download the image
-            await fetch(inputImageUrl)
-                .then(async (download) => {
-                    const dest = fs.createWriteStream(inputImagePath);
-                    // ugh this is SO MESSY
-                    // node-fetch would make this a v simple pipe, but NOOOO, I cannot manage to import that. ESModules something somehting give up
-                    if (download.body === null) {
-                        throw new Error(`Failed to fetch picture from meminator: ${download.status} ${download.statusText}`);
-                    }
-                    const reader = download.body.getReader();
-                    // Stream the chunks of the picture data to the response as they are received
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) {
-                            break;
-                        }
-                        dest.write(value);
-                    }
-                })
-                .catch((err: Error) => {
-                    trace.getActiveSpan()?.setAttributes({
-                        "warn.message": "Image failed to download: " + err.message,
-                        "app.inputImageUrl": inputImageUrl,
-                        "app.default.imagePath": DEFAULT_IMAGE_PATH,
-                        "app.body": JSON.stringify(req.body)
-                    });
-                    inputImagePath = path.join(__dirname, DEFAULT_IMAGE_PATH);
-                });
-        }
+        // download the image
+        const inputImagePath = await download(input);
 
         const outputImagePath = `/tmp/${generateRandomFilename('png')}`;
         trace.getActiveSpan()?.setAttributes({
@@ -107,57 +69,9 @@ app.post('/applyPhraseToPicture', async (req, res) => {
     }
 })
 
-import crypto from 'crypto';
 
-function generateRandomFilename(extension: string): string {
-    const randomBytes = crypto.randomBytes(16).toString('hex');
-    return `${randomBytes}.${extension}`;
-}
 
-function spawnProcess(commandName: string, args: string[]): Promise<void> {
-    return trace.getTracer('meminator').startActiveSpan(commandName, {
-        attributes: {
-            "app.command.name": commandName,
-            "app.command.args": args.join(' ')
-        }
-    }, (span) => {
-        return new Promise<void>((resolve, reject) => {
-            const process = spawn(commandName, args);
-            let stderrOutput = '';
-            process.stderr.on('data', (data) => {
-                stderrOutput += data;
-            });
 
-            let stdout = '';
-            process.stdout.on('data', (data) => {
-                stdout += data;
-            });
-
-            process.on('error', (error) => {
-                span.recordException(error);
-                span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
-                span.end();
-                reject(error);
-            });
-
-            process.on('close', (code) => {
-                span.setAttributes({
-                    'app.command.exitCode': code || 0,
-                    'app.command.stderr': stderrOutput,
-                    'app.command.stdout': stdout
-                });
-                if (code !== 0) {
-                    span.setStatus({ code: SpanStatusCode.ERROR, message: "Process exited with " + code });
-                    span.end();
-                    reject(new Error(`Process exited with non-zero code: ${code}`));
-                } else {
-                    span.end();
-                    resolve();
-                }
-            });
-        });
-    });
-}
 
 // Start the server
 app.listen(PORT, () => {
