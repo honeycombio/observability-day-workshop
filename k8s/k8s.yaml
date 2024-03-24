@@ -9,7 +9,7 @@ spec:
   ports:
     - protocol: TCP
       port: 3000
-      targetPort: 3000
+      targetPort: 10114
 
 ---
 
@@ -33,7 +33,7 @@ spec:
           image: o11yday/backend-for-frontend-nodejs:0.1.2
           imagePullPolicy: Always
           ports:
-            - containerPort: 3000
+            - containerPort: 10114
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "https://api.honeycomb.io"
@@ -58,7 +58,7 @@ spec:
   ports:
     - protocol: TCP
       port: 3000
-      targetPort: 3000
+      targetPort: 10114
 
 ---
 
@@ -82,7 +82,7 @@ spec:
           image: o11yday/meminator-nodejs:0.1.2
           imagePullPolicy: Always
           ports:
-            - containerPort: 3000
+            - containerPort: 10114
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "https://api.honeycomb.io"
@@ -107,7 +107,7 @@ spec:
   ports:
     - protocol: TCP
       port: 3000
-      targetPort: 3000
+      targetPort: 10114
 
 ---
 
@@ -131,7 +131,7 @@ spec:
           image: o11yday/phrase-picker-nodejs:0.1.2
           imagePullPolicy: Always
           ports:
-            - containerPort: 3000
+            - containerPort: 10114
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "https://api.honeycomb.io"
@@ -156,7 +156,7 @@ spec:
   ports:
     - protocol: TCP
       port: 3000
-      targetPort: 3000
+      targetPort: 10114
 
 ---
 
@@ -180,7 +180,7 @@ spec:
           image: o11yday/image-picker-nodejs:0.1.2
           imagePullPolicy: Always
           ports:
-            - containerPort: 3000
+            - containerPort: 10114
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "https://api.honeycomb.io"

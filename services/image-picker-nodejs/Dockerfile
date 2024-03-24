@@ -17,7 +17,7 @@ COPY ./src ./src
 RUN npx tsc 
 
 # Expose the port that your app runs on
-EXPOSE 3000
+EXPOSE 10114
 
 # Command to run your application
 CMD ["npm", "start"]
