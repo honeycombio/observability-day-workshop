@@ -1,7 +1,7 @@
 import os
 import subprocess
 import uuid
-from flask import Flask, jsonify, send_file
+from flask import Flask, jsonify, send_file, request
 
 import logging
 
@@ -28,7 +28,10 @@ def health():
 
 @app.route('/applyPhraseToPicture', methods=['POST', 'GET'])
 def meminate():
-
+    input = request.json or { "phrase": "I got you"}
+    request_span = trace.get_current_span()
+    phrase = input.get("phrase", "words go here")
+    request_span.set_attribute("app.meminate.phrase", phrase)
     # Get the absolute path to the PNG file
     input_image_path = os.path.abspath('tmp/BusinessWitch.png')
 
@@ -37,7 +40,6 @@ def meminate():
         return 'Backup image file not found', 500
     
     # Define the text to apply
-    text = "I got you"
 
     # Define the output image path
     output_image_path = generate_random_filename(input_image_path)
@@ -50,7 +52,7 @@ def meminate():
             '-fill', 'white',
             '-undercolor', '#00000080',
             '-font', 'Angkor-Regular',
-            '-annotate', '0', text, 
+            '-annotate', '0', phrase, 
             output_image_path]
     
     # Execute ImageMagick command to apply text to the image
