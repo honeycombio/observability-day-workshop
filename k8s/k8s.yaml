@@ -8,7 +8,7 @@ spec:
     app: backend-for-frontend
   ports:
     - protocol: TCP
-      port: 3000
+      port: 10114
       targetPort: 10114
 
 ---
@@ -57,7 +57,7 @@ spec:
     app: meminator
   ports:
     - protocol: TCP
-      port: 3000
+      port: 10114
       targetPort: 10114
 
 ---
@@ -106,7 +106,7 @@ spec:
     app: phrase-picker
   ports:
     - protocol: TCP
-      port: 3000
+      port: 10114
       targetPort: 10114
 
 ---
@@ -155,7 +155,7 @@ spec:
     app: image-picker
   ports:
     - protocol: TCP
-      port: 3000
+      port: 10114
       targetPort: 10114
 
 ---
