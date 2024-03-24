@@ -11,7 +11,6 @@ COPY ./Angkor/*.ttf /usr/share/fonts/truetype/
 # Refresh font cache
 RUN fc-cache -f -v
 
-
 # Set the working directory in the container
 WORKDIR /usr/src/app
 

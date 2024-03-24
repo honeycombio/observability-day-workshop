@@ -30,7 +30,7 @@ def health():
 def meminate():
     input = request.json or { "phrase": "I got you"}
     request_span = trace.get_current_span()
-    phrase = input.get("phrase", "words go here")
+    phrase = input.get("phrase", "words go here").upper()
     request_span.set_attribute("app.meminate.phrase", phrase)
     # Get the absolute path to the PNG file
     input_image_path = os.path.abspath('tmp/BusinessWitch.png')
