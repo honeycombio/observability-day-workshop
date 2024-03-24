@@ -3,6 +3,15 @@ import subprocess
 import uuid
 from flask import Flask, jsonify, send_file
 
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+# Log some messages
+logging.debug("This is a debug message")
+logging.info("This is an info message")
+
 from opentelemetry import trace
 
 # Acquire a tracer
@@ -33,19 +42,21 @@ def meminate():
     # Define the output image path
     output_image_path = generate_random_filename(input_image_path)
 
-    command = ['convert',
-        '-resize', f'{IMAGE_MAX_WIDTH_PX}x{IMAGE_MAX_HEIGHT_PX}>',
-        '-gravity', 'North',
-        '-pointsize', '48',
-        '-fill', 'white',
-        '-undercolor', '#00000080',
-        '-font', 'Angkor-Regular',
-        '-annotate', '0', text, output_image_path]
+    command = ['convert', 
+            input_image_path,
+            '-resize', f'{IMAGE_MAX_WIDTH_PX}x{IMAGE_MAX_HEIGHT_PX}>',
+            '-gravity', 'North',
+            '-pointsize', '48',
+            '-fill', 'white',
+            '-undercolor', '#00000080',
+            '-font', 'Angkor-Regular',
+            '-annotate', '0', text, 
+            output_image_path]
     
     # Execute ImageMagick command to apply text to the image
     with tracer.start_as_current_span("convert") as subprocess_span:
         subprocess_span.set_attribute("app.subprocess.command", " ".join(command))
-        result = subprocess.run(command)
+        result = subprocess.run(command, capture_output=True, text=True)
         subprocess_span.set_attribute("app.subprocess.returncode", result.returncode)
         subprocess_span.set_attribute("app.subprocess.stdout", result.stdout)
         subprocess_span.set_attribute("app.subprocess.stderr", result.stderr)

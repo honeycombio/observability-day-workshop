@@ -1,0 +1,13 @@
+# this doesn't work for me locally, (tracing doesn't work, nothing prints) and i do not know why
+
+source ../../.env # put your Honeycomb API key in this file
+
+export OTEL_EXPORTER_OTLP_ENDPOINT="https://api.honeycomb.io" # US instance
+#export OTEL_EXPORTER_OTLP_ENDPOINT="https://api.eu1.honeycomb.io" # EU instance
+export OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=${HONEYCOMB_API_KEY}"
+export OTEL_SERVICE_NAME="meminator-python"
+export OTEL_LOG_LEVEL=DEBUG
+
+echo headers: $OTEL_EXPORTER_OTLP_HEADERS
+
+opentelemetry-instrument --traces_exporter otlp python3 server.py
