@@ -2,6 +2,7 @@ import os
 import subprocess
 import uuid
 from flask import Flask, jsonify, send_file, request
+from download import generate_random_filename, download_image
 
 import logging
 
@@ -30,14 +31,19 @@ def health():
 def meminate():
     input = request.json or { "phrase": "I got you"}
     request_span = trace.get_current_span()
+
     phrase = input.get("phrase", "words go here").upper()
     request_span.set_attribute("app.meminate.phrase", phrase)
+
+    imageUrl = input.get("imageUrl", "http://missing.booo/no-url-here.png")
+    request_span.set_attribute("app.meminate.imageUrl", imageUrl)
+
     # Get the absolute path to the PNG file
-    input_image_path = os.path.abspath('tmp/BusinessWitch.png')
+    input_image_path = download_image(imageUrl)
 
     # Check if the file exists
     if not os.path.exists(input_image_path):
-        return 'Backup image file not found', 500
+        return 'downloaded image file not found', 500
     
     # Define the text to apply
 
@@ -71,21 +77,7 @@ def meminate():
         mimetype='image/png'
     )
 
-def generate_random_filename(input_filename):
-    # Extract the extension from the input filename
-    _, extension = os.path.splitext(input_filename)
-    
-    # Generate a UUID and convert it to a string
-    random_uuid = uuid.uuid4()
-    # Convert UUID to string and remove dashes
-    random_filename = str(random_uuid).replace("-", "")
-    
-    # Append the extension to the random filename
-    random_filename_with_extension = random_filename + extension
-    
-    random_filepath = os.path.join("/tmp", random_filename_with_extension)
-    
-    return random_filepath
+
 
 
 if __name__ == '__main__':
