@@ -22,7 +22,7 @@ export HONEYCOMB_API_KEY=your-api-key
 ```
 
 If you don't have an API key handy, here are the [docs](https://docs.honeycomb.io/get-started/configure/environments/manage-api-keys/#create-api-key).
-If you want more stepping-through, there are instructions for this in Observaquiz, at https://quiz.onlyspans.com; type in a name to get to the second page.
+If you want more stepping-through of how to get an API key, there are instructions for this in Observaquiz, at https://quiz.onlyspans.com; type in a name to get to the second page.
 
 ### run the app
 
@@ -35,6 +35,10 @@ Access the app:
 after making changes:
 
 `docker-compose up --build`
+
+### Try it out
+
+Visit [http://localhost:8080]() and click the "GO" button. Then wait.
 
 ## Improving the tracing
 
