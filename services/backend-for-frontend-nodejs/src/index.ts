@@ -1,12 +1,9 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
-import { trace } from '@opentelemetry/api';
 import { fetchFromService } from "./o11yday-lib";
 
 const app = express();
-const PORT = 10114; // You can change the port number as needed
-
-// Middleware to parse JSON bodies
+const PORT = 10114;
 app.use(express.json());
 
 app.get("/health", (req: Request, res: Response) => {
@@ -14,7 +11,7 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 app.post('/createPicture', async (req: Request, res: Response) => {
-    const span = trace.getActiveSpan();
+  //  const span = trace.getActiveSpan();
     try {
         const [phraseResponse, imageResponse] = await Promise.all([
             fetchFromService('phrase-picker'),
@@ -22,11 +19,10 @@ app.post('/createPicture', async (req: Request, res: Response) => {
         ]);
         const phraseText = phraseResponse.ok ? await phraseResponse.text() : "{}";
         const imageText = imageResponse.ok ? await imageResponse.text() : "{}";
-        span?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText });
+    //    span?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText }); // INSTR: add relevant info to span
         const phraseResult = JSON.parse(phraseText);
         const imageResult = JSON.parse(imageText);
 
-        // Make a request to the meminator service
         const response = await fetchFromService('meminator', {
             method: "POST",
             body: {
@@ -34,7 +30,6 @@ app.post('/createPicture', async (req: Request, res: Response) => {
             }
         });
 
-        // Check if the response was successful (status code 200)
         if (!response.ok) {
             throw new Error(`Failed to fetch picture from meminator: ${response.status} ${response.statusText}`);
         }
@@ -56,7 +51,7 @@ app.post('/createPicture', async (req: Request, res: Response) => {
         res.end()
 
     } catch (error) {
-        span?.recordException(error as Error);
+  //      span?.recordException(error as Error);
         console.error('Error creating picture:', error);
         res.status(500).send('Internal Server Error');
     }

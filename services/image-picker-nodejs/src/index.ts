@@ -63,14 +63,15 @@ app.get("/health", (req: Request, res: Response) => {
     res.send({ message: "I am here, ready to pick an image", status_code: 0 });
 });
 
-app.get('/imageUrl', async (req, res) => {
+app.get('/imageUrl', async (req: Request, res: Response) => {
     const imageUrl = choose(IMAGES);
-    trace.getActiveSpan()?.setAttributes({ "app.imageUrl": imageUrl });
+    // trace.getActiveSpan()?.setAttributes({ "app.imageUrl": imageUrl }); // INSTR: add relevant info
     res.send({ imageUrl });
 });
 
 function choose<T>(array: T[]): T {
     const i = Math.floor(Math.random() * array.length);
+    // trace.getActiveSpan()?.setAttributes({ "app.choiceIndex": i, "app.numberOfChoices": array.length }); // INSTR: add relevant info
     return array[i];
 }
 

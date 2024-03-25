@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { trace } from '@opentelemetry/api';
+// import { trace } from '@opentelemetry/api';
 import crypto from 'crypto';
 import path from 'path';
 
@@ -13,13 +13,14 @@ const DEFAULT_IMAGE_PATH = '../tmp/BusinessWitch.png';
  * @returns 
  */
 export async function download(params: { imageUrl?: string }) {
+    // const span = trace.getActiveSpan();
     const inputImageUrl = params.imageUrl;
     if (!inputImageUrl) {
-        trace.getActiveSpan()?.setAttributes({
-            "warn.message": "No imageUrl provided",
-            "app.download.input": JSON.stringify(params),
-            "app.default.imagePath": DEFAULT_IMAGE_PATH,
-        });
+        // span?.setAttributes({ // INSTR: record error conditions
+        //     "warn.message": "No imageUrl provided",
+        //     "app.download.input": JSON.stringify(params),
+        //     "app.default.imagePath": DEFAULT_IMAGE_PATH,
+        // });
         return path.join(__dirname, DEFAULT_IMAGE_PATH);
     }
     const downloadDestinationPath = `/tmp/${generateRandomFilename(path.extname(inputImageUrl))}`;
@@ -43,18 +44,19 @@ export async function download(params: { imageUrl?: string }) {
             }
         })
         .catch((err: Error) => {
-            trace.getActiveSpan()?.setAttributes({
-                "warn.message": "Image failed to download: " + err.message,
-                "app.inputImageUrl": inputImageUrl,
-                "app.default.imagePath": DEFAULT_IMAGE_PATH,
-            });
+            // span?.recordException(err); // INSTR: record error conditions
+            // span?.setAttributes({
+            //     "warn.message": "Image failed to download: " + err.message,
+            //     "app.inputImageUrl": inputImageUrl,
+            //     "app.default.imagePath": DEFAULT_IMAGE_PATH,
+            // });
             return path.join(__dirname, DEFAULT_IMAGE_PATH);
         });
 
-    trace.getActiveSpan()?.setAttributes({
-        "app.download.inputImageUrl": inputImageUrl,
-        "app.download.downloadDestinationPath": downloadDestinationPath,
-    });
+    // span?.setAttributes({
+    //     "app.download.inputImageUrl": inputImageUrl,
+    //     "app.download.downloadDestinationPath": downloadDestinationPath,
+    // });
     return downloadDestinationPath;
 }
 

@@ -14,7 +14,7 @@ const traceExporter = new OTLPTraceExporter();
 const sdk = new NodeSDK({
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations(
-        { '@opentelemetry/instrumentation-fs': { enabled: false } } // TODO: add during the workshop
+        { '@opentelemetry/instrumentation-fs': { enabled: false } } 
     )]
 });
 
