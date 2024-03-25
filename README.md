@@ -7,9 +7,19 @@ It generates images by combining a randomly chosen picture with a randomly chose
 
 ## Running the application
 
+### one-time setup
+
 Clone this repository.
 
 Have Docker installed.
+
+IMPORTANT: copy the `.env.example` file to `.env` and fill in the values.
+
+`cp .env.example .env`
+
+Now edit `.env` and fill in your Honeycomb API key. (The easiest instructions for this are the ones I made at https://quiz.onlyspans.com, type in a name to get to the second page)
+
+### run the app
 
 `docker-compose up`
 
@@ -21,15 +31,9 @@ after making changes:
 
 `docker-compose up --build`
 
-## Publishing
+## Structure of the Application
 
-To get new versions of the containers on Dockerhub for caching, log in appropriately.
-
-`WORKSHOP_VERSION=${IMAGE_VERSION} docker compose build --push`
-
-... for each $PROGRAMMING_LANGUAGE implemented.
-
-## structure of the application
+Check `docker-compose.yaml` to see the different services.
 
 ### web
 
@@ -39,7 +43,8 @@ The `services/web` directory also contains a Dockerfile and config for nginx to 
 
 ### backend-for-frontend
 
-in `services/backend-for-frontend` is an express app that receives /createPicture.
+... for the rest, see the traces :D
 
-It returns a .png, not a reference but the contents of the .png
+## Workshop Facilitator Notes
 
+See [MAINTENANCE.md](MAINTENANCE.md) for instructions on updating the containers on Dockerhub.
