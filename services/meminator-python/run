@@ -8,6 +8,8 @@ export OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=${HONEYCOMB_API_KEY}"
 export OTEL_SERVICE_NAME="meminator-python"
 export OTEL_LOG_LEVEL=DEBUG
 
-echo headers: $OTEL_EXPORTER_OTLP_HEADERS
+echo headers: $OTEL_EXPORTER_OTLP_HEADERS # for troubleshooting
 
-opentelemetry-instrument --traces_exporter otlp python3 src/server.py
+# jess question: why does this work with 'flask run' but not with 'python src/server.py'?
+export FLASK_APP=src/server.py
+opentelemetry-instrument --traces_exporter otlp flask run -p 10114
