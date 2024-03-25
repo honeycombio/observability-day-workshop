@@ -226,7 +226,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: o11yday/web:latest
+          image: o11yday/web:0.1.2.1
           imagePullPolicy: Always
           ports:
             - containerPort: 80
