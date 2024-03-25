@@ -31,19 +31,6 @@ after making changes:
 
 `docker-compose up --build`
 
-## Structure of the Application
-
-Check `docker-compose.yaml` to see the different services.
-
-### web
-
-The frontend is static files in `services/web/static`
-
-The `services/web` directory also contains a Dockerfile and config for nginx to serve these. The nginx config also directs anything to /backend toward the backend-for-frontend service.
-
-### backend-for-frontend
-
-... for the rest, see the traces :D
 
 ## Workshop Facilitator Notes
 
