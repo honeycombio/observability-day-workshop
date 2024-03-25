@@ -4,6 +4,8 @@
 
 To get new versions of the containers on Dockerhub for caching, log in appropriately.
 
+Make sure the `--platform` option is present in the docker-compose (we remove it for faster development)
+
 set PROGRAMMING_LANGUAGE to what you need.
 
 push `latest` tag:
@@ -12,9 +14,12 @@ push `latest` tag:
 
 push tag that is used for cache-from:
 
-`WORKSHOP_VERSION=${IMAGE_VERSION} docker compose build --push`
+```
+source .env
+WORKSHOP_VERSION=${IMAGE_VERSION} docker compose build --push`
+```
 
-... for each $PROGRAMMING_LANGUAGE implemented.
+... for each $PROGRAMMING_LANGUAGE implemented. (currently nodejs and python)
 
 ## Deploying
 
