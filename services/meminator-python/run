@@ -10,4 +10,4 @@ export OTEL_LOG_LEVEL=DEBUG
 
 echo headers: $OTEL_EXPORTER_OTLP_HEADERS
 
-opentelemetry-instrument --traces_exporter otlp python3 server.py
+opentelemetry-instrument --traces_exporter otlp python3 src/server.py
