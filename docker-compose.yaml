@@ -80,7 +80,7 @@ services:
       cache_from:
         - ${IMAGE_REPO_USER}/web:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
-    volumes:
-      - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
+    # volumes: # uncomment this for faster development on the frontend
+    #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
       - "8080:80" # Expose port 8080 for Nginx
