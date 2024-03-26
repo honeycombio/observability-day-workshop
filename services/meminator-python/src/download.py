@@ -2,7 +2,7 @@
 import os
 import uuid
 import requests
-from opentelemetry import trace
+# from opentelemetry import trace
 
 def download_image(url):
     # Send a GET request to the URL
@@ -17,7 +17,7 @@ def download_image(url):
         print(f"Image downloaded successfully and saved as {filename}")
         return filename
     else:
-        trace.get_current_span().set_attribute("app.meminate.download.error", response.status_code)
+        # trace.get_current_span().set_attribute("app.meminate.download.error", response.status_code) #INSTR: add important errors
         return os.path.abspath('tmp/BusinessWitch.png')
 
 def generate_random_filename(input_filename):
