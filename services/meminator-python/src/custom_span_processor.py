@@ -18,7 +18,7 @@ class CustomSpanProcessor(SpanProcessor):
         span,
         parent_context = None,
   ):
-        span.set_attribute("app.custom_span_processor.tmp_free_space", tmp_free_space)
+        span.set_attribute("app.custom_span_processor.tmp_free_space", get_free_space('/tmp'))
 
     def on_end(self, span):
         """

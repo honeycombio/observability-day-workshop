@@ -29,41 +29,40 @@ type FetchOptions = {
  */
 export async function fetchFromService(service: keyof typeof SERVICES, options?: FetchOptions) {
     // INSTR: MAKE A 'client' SPAN: we want an outgoing
-    // return inSpanAsync("fetchFromService", { attributes: { "service": service }, kind: SpanKind.CLIENT, }, async (span) => {
-    // (watch out, there's a closing curly brace needed at the end of the function)
-    const { method, body: bodyObject } = options || { method: "GET" };
-    let body: string | null = null;
-    if (bodyObject) {
-        body = JSON.stringify(bodyObject);
-    }
-    const headers: Record<string, string> = {
-        "Content-Type": "application/json"
-    }
-    // INSTR: PROPAGATION: inject the current trace and span ID into the http headers
-    // const propagator = new W3CTraceContextPropagator();
-    // propagator.inject(context.active(), headers, defaultTextMapSetter); // obviously! :-/
+    return inSpanAsync("fetchFromService", { attributes: { "service": service }, kind: SpanKind.CLIENT, }, async (span) => {
+        const { method, body: bodyObject } = options || { method: "GET" };
+        let body: string | null = null;
+        if (bodyObject) {
+            body = JSON.stringify(bodyObject);
+        }
+        const headers: Record<string, string> = {
+            "Content-Type": "application/json"
+        }
+        // INSTR: PROPAGATION: inject the current trace and span ID into the http headers
+        const propagator = new W3CTraceContextPropagator();
+        propagator.inject(context.active(), headers, defaultTextMapSetter); // obviously! :-/
 
-    const url = SERVICES[service];
-    // INSTR: populate some standard attributes
-    // span.setAttributes({
-    //     "http.headers": JSON.stringify(headers),
-    //     [SEMATTRS_HTTP_METHOD]: options?.method || "GET",
-    //     [SEMATTRS_HTTP_URL]: url,
-    // });
+        const url = SERVICES[service];
+        // INSTR: populate some standard attributes
+        // span.setAttributes({
+        //     "http.headers": JSON.stringify(headers),
+        //     [SEMATTRS_HTTP_METHOD]: options?.method || "GET",
+        //     [SEMATTRS_HTTP_URL]: url,
+        // });
 
-    const response = await fetch(url, { headers, method, body });
+        const response = await fetch(url, { headers, method, body });
 
-    // INSTR: populate some standard attributes
-    // span.setAttributes({
-    //     "http.status_code": response.status,
-    //     "http.status_text": response.statusText,
-    //     "http.redirected": response.redirected,
-    // });
-    // if (!response.ok) {
-    //     span.setStatus({ code: SpanStatusCode.ERROR, message: await response.clone().text() });
-    // }
-    return response;
-    //}); // end inSpanAsync
+        // INSTR: populate some standard attributes
+        // span.setAttributes({
+        //     "http.status_code": response.status,
+        //     "http.status_text": response.statusText,
+        //     "http.redirected": response.redirected,
+        // });
+        // if (!response.ok) {
+        //     span.setStatus({ code: SpanStatusCode.ERROR, message: await response.clone().text() });
+        // }
+        return response;
+    }); // end inSpanAsync
 }
 
 const tracer = trace.getTracer("o11yday-lib");
