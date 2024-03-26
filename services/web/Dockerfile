@@ -3,6 +3,8 @@ FROM nginx:alpine
 
 RUN echo "Fart"
 
+# TODO: make this dockerfile do the build!!
+
 # Copy index.html from the current directory to nginx root directory
 # it's this or mount the volume, which supports updates... use that under development
 COPY dist/* /usr/share/nginx/html 

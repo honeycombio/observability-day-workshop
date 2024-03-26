@@ -1,4 +1,14 @@
 // Function to fetch the image binary data from the server
+import { HoneycombWebSDK, WebVitalsInstrumentation } from '@honeycombio/opentelemetry-web';
+import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
+
+const sdk = new HoneycombWebSDK({
+    apiKey: process.env.HONEYCOMB_API_KEY,
+    serviceName: 'web',
+    instrumentations: [getWebAutoInstrumentations(), new WebVitalsInstrumentation()], // add automatic instrumentation
+});
+sdk.start();
+
 async function fetchPicture() {
     try {
         const response = await fetch('/backend/createPicture', {
@@ -26,5 +36,7 @@ async function fetchPicture() {
         console.error('Error fetching picture:', error);
     }
 }
+
+console.log("Do I get env vars?", process.env.SOMETHING);
 
 document.getElementById('go').addEventListener('click', fetchPicture);
