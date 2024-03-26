@@ -70,7 +70,7 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
       - OTEL_SERVICE_NAME=image-picker-${PROGRAMMING_LANGUAGE}
 
-  nginx:
+  web:
     build:
       context: services/web
       dockerfile: Dockerfile
@@ -81,6 +81,6 @@ services:
         - ${IMAGE_REPO_USER}/web:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
     volumes:
-      - ./services/web/static:/usr/share/nginx/html # Mount directory containing static files
+      - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
       - "8080:80" # Expose port 8080 for Nginx
