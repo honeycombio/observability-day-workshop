@@ -5,6 +5,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Display Picture</title>
+    <favicon href="./favicon.ico" />
+    <style>
+        body {
+            text-align: center;
+            background-color: black;
+            color: white;
+        }
+
+        h1 {
+            font-family: "courier new", monospace;
+        }
+
+        button {
+            border: pink ridge 5px;
+            padding: 5px;
+            background-color: white;
+            font-weight: bold;
+            font-size: 3rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+        }
+
+        button:active {
+            background-color: pink;
+            color: white;
+            border: white groove 5px;
+        }
+
+        img {
+            max-width: 100%;
+        }
+    </style>
 </head>
 
 <body>
@@ -12,38 +43,9 @@
     <p>
         <button id="go"">GO</button>
     </p>
-    <img id=" picture" src="#" alt="Picture">
-            <style>
-                body {
-                    text-align: center;
-                    background-color: black;
-                    color: white;
-                }
-
-                h1 {
-                    font-family: "courier new", monospace;
-                }
-
-                button {
-                    border: pink ridge 5px;
-                    padding: 5px;
-                    background-color: white;
-                    font-weight: bold;
-                    font-size: 3rem;
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
-                }
-
-                button:active {
-                    background-color: pink;
-                    color: white;
-                    border: white groove 5px;
-                }
-
-                img {
-                    max-width: 100%;
-                }
-            </style>
-            <script type="text/javascript" src="../src/index.js"></script>
+    <img class=" picture_goes_here" src="#" alt="Picture"></img>
+            <script type="text/javascript" src="../src/index.js">
+            </script>
 </body>
 
 </html>

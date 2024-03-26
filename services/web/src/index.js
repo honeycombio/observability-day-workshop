@@ -39,4 +39,4 @@ async function fetchPicture() {
 
 console.log("Do I get env vars?", process.env.SOMETHING);
 
-document.getElementById('go').addEventListener('click', fetchPicture);
+document.getElementsByClassName('picture_goes_here')[0].addEventListener('click', fetchPicture);
