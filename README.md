@@ -5,6 +5,13 @@ This contains a sample application for use in the Observability Day workshops.
 
 It generates images by combining a randomly chosen picture with a randomly chosen phrase.
 
+## Workshop Agenda
+
+1. Hello! Welcome to Advanced Instrumentation with OpenTelemetry
+2. Look at this app. It has default instrumentation.
+3. Run this app. See what the traces look like.
+4. Improve the traces.
+
 ## Running the application
 
 ### one-time setup
