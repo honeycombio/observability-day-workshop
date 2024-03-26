@@ -1,0 +1,43 @@
+# OpenTelemetry Collector configuration file
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+        cors:
+          allowed_origins:
+            - "http://*"
+            - "https://*"
+
+processors:
+  batch:
+
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 50
+    spike_limit_percentage: 30
+
+
+exporters:
+  debug:
+  otlp:
+    endpoint: "api.honeycomb.io:443"
+    headers:
+      x-honeycomb-team: ${HONEYCOMB_API_KEY}
+      x-honeycomb-dataset: "metrics"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp]

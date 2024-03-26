@@ -15,8 +15,8 @@ services:
     ports:
       - "10115:10114" # Expose the port your Express app is listening on
     environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
-      - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=backend-for-frontend-${PROGRAMMING_LANGUAGE}
 
   meminator:
@@ -32,8 +32,8 @@ services:
     ports:
       - "10116:10114" # they can't be the same
     environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
-      - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=meminator-${PROGRAMMING_LANGUAGE}
 
   phrase-picker:
@@ -49,8 +49,8 @@ services:
     ports:
       - "10117:10114" # the outer ports can't be the same
     environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
-      - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=phrase-picker-${PROGRAMMING_LANGUAGE}
 
   image-picker:
@@ -66,8 +66,8 @@ services:
     ports:
       - "10118:10114" # the outer ports can't be the same
     environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io # US instance
-      - OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY}
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=image-picker-${PROGRAMMING_LANGUAGE}
 
   web:
@@ -86,3 +86,14 @@ services:
     #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
       - "8080:80" # Expose port 8080 for Nginx
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.96.0
+    ports:
+      - "4317:4317" # OpenTelemetry gRPC
+      - "4318:4318" # OpenTelemetry HTTP
+    volumes:
+      - ./services/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    environment:
+      - HONEYCOMB_API_KEY
