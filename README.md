@@ -18,6 +18,10 @@ It generates images by combining a randomly chosen picture with a randomly chose
 
 Clone this repository.
 
+```bash
+git clone https://github.com/honeycombio/observability-day-workshop
+```
+
 Have Docker installed.
 
 Edit `.env` if you would like to use the python implementation rather than nodejs.
