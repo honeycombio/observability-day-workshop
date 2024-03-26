@@ -1,19 +1,13 @@
 import os
 import subprocess
-import uuid
 from flask import Flask, jsonify, send_file, request
-from download import generate_random_filename, download_image
-
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
-# Log some messages
-logging.debug("This is a debug message")
-logging.info("This is an info message")
-
 from opentelemetry import trace
+
+from download import generate_random_filename, download_image
+from custom_span_processor import CustomSpanProcessor, get_free_space
+
+tracer_provider = trace.get_tracer_provider() # an entry_point: https://github.com/open-telemetry/opentelemetry-python/blob/main/opentelemetry-sdk/pyproject.toml
+tracer_provider.add_span_processor(CustomSpanProcessor())
 
 # Acquire a tracer
 tracer = trace.get_tracer("memitracinator")
@@ -21,11 +15,15 @@ tracer = trace.get_tracer("memitracinator")
 IMAGE_MAX_WIDTH_PX=1000
 IMAGE_MAX_HEIGHT_PX=1000
 
+
 app = Flask(__name__)
 # Route for health check
 @app.route('/health')
 def health():
-    return jsonify({"message": "I am here", "status_code": 0})
+    result = {"message": "I am here", "status_code": 0}
+    with tracer.start_as_current_span("get free space") as spannyboi:
+       result["free_space"] = get_free_space('/tmp')
+    return jsonify(result)
 
 @app.route('/applyPhraseToPicture', methods=['POST', 'GET'])
 def meminate():
