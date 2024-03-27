@@ -1,12 +1,12 @@
-import { HoneycombWebSDK, WebVitalsInstrumentation } from '@honeycombio/opentelemetry-web';
-import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
+// import { HoneycombWebSDK, WebVitalsInstrumentation } from '@honeycombio/opentelemetry-web';
+// import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
 
-const sdk = new HoneycombWebSDK({
-    apiKey: process.env.HONEYCOMB_API_KEY,
-    serviceName: 'web',
-    instrumentations: [getWebAutoInstrumentations(), new WebVitalsInstrumentation()], // add automatic instrumentation
-});
-sdk.start();
+// const sdk = new HoneycombWebSDK({
+//     apiKey: process.env.HONEYCOMB_API_KEY,
+//     serviceName: 'web',
+//     instrumentations: [getWebAutoInstrumentations(), new WebVitalsInstrumentation()], // add automatic instrumentation
+// });
+// sdk.start();
 
 // Function to fetch the image binary data from the server
 async function fetchPicture() {
