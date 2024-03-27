@@ -4,6 +4,7 @@ from opentelemetry.sdk.trace.export import SpanExportResult
 import os
 
 def get_free_space(directory):
+    # TODO: cache for some number of seconds
     stat = os.statvfs(directory)
     # Calculate free space (in bytes)
     free_space = stat.f_bavail * stat.f_frsize
