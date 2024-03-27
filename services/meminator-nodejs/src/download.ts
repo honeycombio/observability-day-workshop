@@ -16,7 +16,7 @@ export async function download(params: { imageUrl?: string }) {
     // const span = trace.getActiveSpan();
     const inputImageUrl = params.imageUrl;
     if (!inputImageUrl) {
-        // span?.setAttributes({ // INSTR: record error conditions
+        // span?.setAttributes({ // INSTRUMENTATION: record error conditions
         //     "warn.message": "No imageUrl provided",
         //     "app.download.input": JSON.stringify(params),
         //     "app.default.imagePath": DEFAULT_IMAGE_PATH,
@@ -44,7 +44,7 @@ export async function download(params: { imageUrl?: string }) {
             }
         })
         .catch((err: Error) => {
-            // span?.recordException(err); // INSTR: record error conditions
+            // span?.recordException(err); // INSTRUMENTATION: record error conditions
             // span?.setAttributes({
             //     "warn.message": "Image failed to download: " + err.message,
             //     "app.inputImageUrl": inputImageUrl,

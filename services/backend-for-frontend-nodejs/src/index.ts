@@ -19,7 +19,7 @@ app.post('/createPicture', async (req: Request, res: Response) => {
         ]);
         const phraseText = phraseResponse.ok ? await phraseResponse.text() : "{}";
         const imageText = imageResponse.ok ? await imageResponse.text() : "{}";
-    //    span?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText }); // INSTR: add relevant info to span
+    //    span?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText }); // INSTRUMENTATION: add relevant info to span
         const phraseResult = JSON.parse(phraseText);
         const imageResult = JSON.parse(imageText);
 

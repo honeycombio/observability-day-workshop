@@ -3,10 +3,10 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
 import * as opentelemetry from '@opentelemetry/api';
 
-opentelemetry.diag.setLogger( // INSTR: make it tell you when it fails to send traces
-    new opentelemetry.DiagConsoleLogger(),
-    opentelemetry.DiagLogLevel.INFO
-);
+// opentelemetry.diag.setLogger( // INSTRUMENTATION: make it tell you when it fails to send traces
+//     new opentelemetry.DiagConsoleLogger(),
+//     opentelemetry.DiagLogLevel.INFO
+// );
 
 // The Trace Exporter uses environment variables for endpoint, service name, and API Key.
 const traceExporter = new OTLPTraceExporter();
@@ -14,7 +14,7 @@ const traceExporter = new OTLPTraceExporter();
 const sdk = new NodeSDK({
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations(
-        { '@opentelemetry/instrumentation-fs': { enabled: false } } // INSTR: remove the noisy spans that we don't use
+        //  { '@opentelemetry/instrumentation-fs': { enabled: false } } // INSTRUMENTATION: remove the noisy spans that we don't use
     )]
 });
 

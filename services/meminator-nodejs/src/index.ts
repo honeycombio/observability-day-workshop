@@ -26,20 +26,20 @@ convert tmp/BusinessWitch.png -fill white -undercolor '#00000080' -gravity North
 const DEFAULT_PHRASE = "you got this";
 
 app.post('/applyPhraseToPicture', async (req, res) => {
-    const span = trace.getActiveSpan();
+    // const span = trace.getActiveSpan();
     try {
         const input = req.body;
         let { phrase: inputPhrase, imageUrl } = input;
-        span?.setAttributes({ // INSTR: record important things
-            "app.meminator.phrase": inputPhrase, "app.meminator.imageUrl": imageUrl,
-            "app.meminator.imageExtension": imageUrl ? path.extname(imageUrl) : "none"
-        });
+        // span?.setAttributes({ // INSTRUMENTATION: record important things
+        //     "app.meminator.phrase": inputPhrase, "app.meminator.imageUrl": imageUrl,
+        //     "app.meminator.imageExtension": imageUrl ? path.extname(imageUrl) : "none"
+        // });
         if (!inputPhrase) {
-            span?.setAttributes({
-                "warn.message": "No phrase provided",
-                "app.default.phrase": DEFAULT_PHRASE,
-                "app.body": JSON.stringify(req.body)
-            });
+            // span?.setAttributes({
+            //     "warn.message": "No phrase provided",
+            //     "app.default.phrase": DEFAULT_PHRASE,
+            //     "app.body": JSON.stringify(req.body)
+            // });
             inputPhrase = DEFAULT_PHRASE;
         }
         const phrase = inputPhrase.toLocaleUpperCase();
@@ -51,8 +51,8 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         res.sendFile(outputImagePath);
     }
     catch (error) {
-        span?.recordException(error as Error);
-        span?.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message });
+        // span?.recordException(error as Error); // INSTRUMENTATION: record exceptions. This will someday happen automatically in express instrumentation
+        // span?.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message });
         console.error('Error creating picture:', error);
         res.status(500).send('Internal Server Error');
     }
