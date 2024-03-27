@@ -39,8 +39,8 @@ export async function fetchFromService(service: keyof typeof SERVICES, options?:
         "Content-Type": "application/json"
     }
     // INSTRUMENTATION: PROPAGATION: inject the current trace and span ID into the http headers
-    const propagator = new W3CTraceContextPropagator();
-    propagator.inject(context.active(), headers, defaultTextMapSetter); // obviously! :-/
+    // const propagator = new W3CTraceContextPropagator();
+    // propagator.inject(context.active(), headers, defaultTextMapSetter); // obviously! :-/
 
     const url = SERVICES[service];
     ////INSTRUMENTATION: populate some standard attributes
