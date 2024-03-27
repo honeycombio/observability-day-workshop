@@ -12,7 +12,11 @@ receivers:
 
 processors:
   batch:
-
+  attributes/attribution:
+    actions:
+      - key: "collector.name"
+        action: insert
+        value: "friendly-collector"
   memory_limiter:
     check_interval: 1s
     limit_percentage: 50
@@ -31,13 +35,13 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, attributes/attribution, batch]
       exporters: [otlp]
     metrics:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, attributes/attribution, batch]
       exporters: [otlp]
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
+      processors: [memory_limiter, attributes/attribution, batch]
       exporters: [otlp]
