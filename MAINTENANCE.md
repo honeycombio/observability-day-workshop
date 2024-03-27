@@ -14,9 +14,9 @@ push `latest` tag:
 
 push tag that is used for cache-from:
 
-```
+```bash
 source .env
-WORKSHOP_VERSION=${IMAGE_VERSION} docker compose build --push`
+WORKSHOP_VERSION=${IMAGE_VERSION} docker compose build --push
 ```
 
 ... for each $PROGRAMMING_LANGUAGE implemented. (currently nodejs and python)
