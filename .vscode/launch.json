@@ -5,17 +5,64 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "boogers",
+            "name": "backend-for-frontend-local",
             "type": "node",
             "request": "launch",
-            "cwd": "${workspaceRoot}/services/meminator",
+            "cwd": "${workspaceRoot}/services/backend-for-frontend-nodejs",
             "runtimeArgs": [
                 "-r",
                 "ts-node/register"
             ],
+            "args": ["${workspaceRoot}/services/backend-for-frontend-nodejs/src/index.ts"]
+        },
+        {
+            "name": "image-picker-local",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}/services/image-picker-v2-nodejs",
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "env": {
+                "PORT": "10115"
+            },
+            "args": ["${workspaceRoot}/services/image-picker-v2-nodejs/src/index.ts"]
+        },
+        {
+            "name": "phrase-picker-local",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}/services/phrase-picker-nodejs",
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "args": ["${workspaceRoot}/services/phrase-picker-nodejs/src/index.ts"]
+        },
+        {
+            "name": "meminator-local",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}/services/meminator-v2-nodejs",
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "env": {
+                "PORT": "10117"
+            },
             "args": [
-                "${workspaceRoot}/services/meminator/src/index.ts"
+                "${workspaceRoot}/services/meminator-v2-nodejs/src/index.ts"
             ]
-        }
+        },
     ],
+    "compounds": [
+        {
+          "name": "Local Backend",
+          "configurations": ["backend-for-frontend-local", "image-picker-local", "phrase-picker-local", "meminator-local"],
+          "preLaunchTask": "${defaultBuildTask}",
+          "stopAll": true
+        }
+    ]
 }
