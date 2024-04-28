@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 
-import {HandleImageProcessing} from './processors';
+import {HandleImageProcessing} from './imageProcessing';
 import { DownloadFromS3 } from './downloader';
 
 const app = express();

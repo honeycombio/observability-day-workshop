@@ -5,6 +5,8 @@ import { trace } from '@opentelemetry/api';
 const app = express();
 const PORT = process.env.PORT || 10114;
 
+const BUCKET_NAME = process.env.BUCKET_NAME || 'random-pictures';
+
 app.use(express.json());
 
 app.get("/health", (req: Request, res: Response) => {
@@ -14,7 +16,7 @@ app.get("/health", (req: Request, res: Response) => {
 app.get('/imageUrl', async (req: Request, res: Response) => {
     const s3Client = new S3Client({ region: 'us-east-1' });
     const input = {
-        Bucket: 'random-pictures',
+        Bucket: BUCKET_NAME,
     }
     const command = new ListObjectsV2Command(input);
     const response = await s3Client.send(command);

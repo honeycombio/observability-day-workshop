@@ -14,6 +14,7 @@ const traceExporter = new OTLPTraceExporter();
 
 const sdk = new NodeSDK({
     traceExporter,
+    // spanProcessors: [new ConfigurationSpanProcessor(), new BatchSpanProcessor(traceExporter)], // INSTRUMENTATION: report global configuration on every span
     instrumentations: [getNodeAutoInstrumentations(
         // { '@opentelemetry/instrumentation-fs': { enabled: false } } // the fs tracing might be interesting here!
     ), new UndiciInstrumentation()]
