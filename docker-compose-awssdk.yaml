@@ -21,7 +21,7 @@ services:
 
   meminator:
     build:
-      context: services/meminator-v2-${PROGRAMMING_LANGUAGE}
+      context: services/meminator-awssdk-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
       # platforms:
       #   - linux/amd64
@@ -57,7 +57,7 @@ services:
 
   image-picker:
     build:
-      context: services/image-picker-v2-${PROGRAMMING_LANGUAGE}
+      context: services/image-picker-awssdk-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
       # platforms:
       #   - linux/amd64
@@ -73,7 +73,7 @@ services:
       - OTEL_SERVICE_NAME=image-picker-${PROGRAMMING_LANGUAGE}
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
-  
+
   web:
     build:
       context: services/web
