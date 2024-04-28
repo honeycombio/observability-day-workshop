@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Run to start the whole system up, 5 services (one is nginx)
+# `./run``
+# Or, run with a parameter service name (from docker-compose) to restart just that service
+# `./run meminator`
+
 set -x # print what you run
 
 docker compose up --build -d $*
