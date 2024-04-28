@@ -13,8 +13,8 @@ opentelemetry.diag.setLogger(
 const traceExporter = new OTLPTraceExporter();
 
 const sdk = new NodeSDK({
-    traceExporter,
-    spanProcessors: [new ConfigurationSpanProcessor()],
+   // traceExporter,
+    spanProcessors: [new ConfigurationSpanProcessor(traceExporter)],
     instrumentations: [getNodeAutoInstrumentations(
         { '@opentelemetry/instrumentation-fs': { enabled: false } }
     )]
