@@ -12,16 +12,10 @@ const DEFAULT_IMAGE_PATH = '../tmp/BusinessWitch.png';
  * @param req 
  * @returns 
  */
-export async function download(params: { imageUrl?: string }) {
+export async function download(inputImageUrl: string): Promise<string> {
     // const span = trace.getActiveSpan();
-    const inputImageUrl = params.imageUrl;
     if (!inputImageUrl) {
-        // span?.setAttributes({ // INSTRUMENTATION: record error conditions
-        //     "warn.message": "No imageUrl provided",
-        //     "app.download.input": JSON.stringify(params),
-        //     "app.default.imagePath": DEFAULT_IMAGE_PATH,
-        // });
-        return path.join(__dirname, DEFAULT_IMAGE_PATH);
+       throw new Error('No input image URL provided');
     }
     const downloadDestinationPath = `/tmp/${generateRandomFilename(path.extname(inputImageUrl))}`;
 

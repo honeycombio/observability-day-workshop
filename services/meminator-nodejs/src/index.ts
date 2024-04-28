@@ -26,7 +26,7 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         const phrase = inputPhrase.toLocaleUpperCase();
 
         // download the image, defaulting to a local image
-        const inputImagePath = await download(input);
+        const inputImagePath = await download(imageUrl);
 
         const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
         res.sendFile(outputImagePath);
@@ -38,10 +38,6 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 })
-
-
-
-
 
 // Start the server
 app.listen(PORT, () => {
