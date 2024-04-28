@@ -1,24 +1,9 @@
 import { Response } from 'express';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { NodeJsClient } from "@smithy/types";
 import { Readable } from 'stream';
-import bunyan from 'bunyan';
 import sharp from 'sharp';
 
-const logger = bunyan.createLogger({ name: 'meminator-v2-nodejs' });
 const tracer = trace.getTracer('');
-
-export async function DownloadFromS3(imageKey: string): Promise<Readable | undefined> {
-    const s3 = new S3Client({ region: 'us-east-1' }) as NodeJsClient<S3Client>;
-    const params = {
-        Bucket: 'random-pictures',
-        Key: imageKey
-    };
-    const command = new GetObjectCommand(params);
-    const body = (await s3.send(command)).Body;
-    return body;
-}
 
 export async function HandleImageProcessing(inputImageStream: Readable, res: Response, phrase: string): Promise<void> {
     tracer.startActiveSpan('HandleImageProcessing', async (span) => {

@@ -1,12 +1,12 @@
 import fs from 'fs';
-// import { trace } from '@opentelemetry/api';
+import { trace } from '@opentelemetry/api';
 import crypto from 'crypto';
 import path from 'path';
 
 const DEFAULT_IMAGE_PATH = '../tmp/BusinessWitch.png';
 
 /**
- * Download an image. If it fails, return a default on that lives on the filesystem
+ * Download an image. If it fails, return a default one that lives on the filesystem
  * @param inputImageUrl 
  * @param inputImagePath 
  * @param req 

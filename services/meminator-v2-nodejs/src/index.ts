@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 
-import {DownloadFromS3, HandleImageProcessing} from './processors';
+import {HandleImageProcessing} from './processors';
+import { DownloadFromS3 } from './downloader';
 
 const app = express();
 const PORT = process.env.PORT || 10114;
