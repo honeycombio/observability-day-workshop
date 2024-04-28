@@ -12,7 +12,6 @@
   "dependencies": {
     "@opentelemetry/auto-instrumentations-node": "^0.43.0",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.49.1",
-    "@opentelemetry/instrumentation-undici": "^0.2.0",
     "@opentelemetry/sdk-node": "^0.49.1",
     "express": "^4.18.3"
   },
