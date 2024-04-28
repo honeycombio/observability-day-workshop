@@ -3,6 +3,8 @@ import express, { Request, Response } from 'express';
 import { trace } from '@opentelemetry/api';
 import { download } from "./download";
 import { applyTextWithImagemagick } from "./applyTextWithImagemagick";
+import { applyTextWithLibrary } from "./applyTextWithLibrary";
+import { FeatureFlags } from "./featureFlags";
 
 const app = express();
 const PORT = 10114;
@@ -28,8 +30,14 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         // download the image, defaulting to a local image
         const inputImagePath = await download(imageUrl);
 
-        const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
-        res.sendFile(outputImagePath);
+        if (new FeatureFlags().useLibrary()) {
+            const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
+            res.sendFile(outputImagePath);
+        } else {
+            const outputBuffer = await applyTextWithLibrary(inputImagePath, phrase);
+            res.writeHead(200, { 'Content-Type': 'image/png' });
+            res.end(outputBuffer);
+        }
     }
     catch (error) {
         // span?.recordException(error as Error); // INSTRUMENTATION: record exceptions. This will someday happen automatically in express instrumentation
