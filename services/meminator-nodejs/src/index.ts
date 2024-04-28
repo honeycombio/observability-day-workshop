@@ -1,10 +1,11 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
-import { trace } from '@opentelemetry/api';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { download } from "./download";
 import { applyTextWithImagemagick } from "./applyTextWithImagemagick";
 import { applyTextWithLibrary } from "./applyTextWithLibrary";
 import { FeatureFlags } from "./featureFlags";
+import path from 'path';
 
 const app = express();
 const PORT = 10114;
@@ -17,14 +18,14 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 app.post('/applyPhraseToPicture', async (req, res) => {
-    // const span = trace.getActiveSpan();
+    const span = trace.getActiveSpan();
     try {
         const input = req.body;
         let { phrase: inputPhrase, imageUrl } = input;
-        // span?.setAttributes({ // INSTRUMENTATION: record important things
-        //     "app.meminator.phrase": inputPhrase, "app.meminator.imageUrl": imageUrl,
-        //     "app.meminator.imageExtension": imageUrl ? path.extname(imageUrl) : "none"
-        // });
+        span?.setAttributes({ // INSTRUMENTATION: record important things
+            "app.meminator.phrase": inputPhrase, "app.meminator.imageUrl": imageUrl,
+            "app.meminator.imageExtension": imageUrl ? path.extname(imageUrl) : "none"
+        });
         const phrase = inputPhrase.toLocaleUpperCase();
 
         // download the image, defaulting to a local image
@@ -40,8 +41,8 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         }
     }
     catch (error) {
-        // span?.recordException(error as Error); // INSTRUMENTATION: record exceptions. This will someday happen automatically in express instrumentation
-        // span?.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message });
+        span?.recordException(error as Error); // INSTRUMENTATION: record exceptions. This will someday happen automatically in express instrumentation
+        span?.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message });
         console.error('Error creating picture:', error);
         res.status(500).send('Internal Server Error');
     }

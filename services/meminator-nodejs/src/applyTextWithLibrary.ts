@@ -10,6 +10,7 @@ export async function applyTextWithLibrary(imageFilepath: string, phrase: string
     return tracer.startActiveSpan('HandleImageProcessing', async (span) => {
         try {
             span.setAttributes({ 'app.phrase': phrase });
+            span.setAttribute('app.imageFilepath', imageFilepath);
             const inputBuffer: Buffer = await fs.promises.readFile(imageFilepath);
 
             const { data, info } = await sharp(inputBuffer)
