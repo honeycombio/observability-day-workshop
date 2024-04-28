@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -x # print what you run
+
+docker compose up --build -d $*
+
+echo "http://localhost:8080"
