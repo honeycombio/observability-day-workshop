@@ -1,7 +1,7 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
 import { trace, context } from '@opentelemetry/api';
-
+import { BUCKET_NAME } from './config';
 
 // aws s3 ls s3://random-pictures | awk '{print "\"" $NF "\","}'
 const IMAGES = [
@@ -51,7 +51,7 @@ const IMAGES = [
     "three-pillars-2.png",
     "walrus-painting.jpg",
     "yellow-lines.JPG",
-].map((filename) => `https://random-pictures.s3.amazonaws.com/${filename}`);
+].map((filename) => `https://${BUCKET_NAME}.s3.amazonaws.com/${filename}`);
 
 const app = express();
 const PORT = process.env.PORT || 10114;
@@ -65,7 +65,7 @@ app.get("/health", (req: Request, res: Response) => {
 
 app.get('/imageUrl', async (req: Request, res: Response) => {
     const imageUrl = choose(IMAGES);
-    // trace.getActiveSpan()?.setAttributes({ "app.imageUrl": imageUrl }); // INSTRUMENTATION: add relevant info
+    // trace.getActiveSpan()?.setAttributes({ "app.imageUrl": imageUrl, "app.bucketName": BUCKET_NAME }); // INSTRUMENTATION: add relevant info
     res.send({ imageUrl });
 });
 
