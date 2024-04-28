@@ -54,13 +54,13 @@ const IMAGES = [
 ].map((filename) => `https://random-pictures.s3.amazonaws.com/${filename}`);
 
 const app = express();
-const PORT = 10114; // You can change the port number as needed
+const PORT = process.env.PORT || 10114;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
 
 app.get("/health", (req: Request, res: Response) => {
-    res.send({ message: "I am here, ready to pick an image", status_code: 0 });
+    res.send("OK");
 });
 
 app.get('/imageUrl', async (req: Request, res: Response) => {

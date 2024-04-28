@@ -3,7 +3,7 @@ import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { trace } from '@opentelemetry/api';
 
 const app = express();
-const PORT = process.env.PORT || 10114; // You can change the port number as needed
+const PORT = process.env.PORT || 10114;
 
 app.use(express.json());
 
@@ -26,13 +26,17 @@ app.get('/imageUrl', async (req: Request, res: Response) => {
         }
     }
 
-    const randomIndex = Math.floor(Math.random() * images.length);
-    trace.getActiveSpan()?.setAttributes({ "app.choiceIndex": randomIndex, "app.numberOfChoices": images.length });
-    const randomImage = images[randomIndex];
+    const randomImage = choose(images)
     trace.getActiveSpan()?.setAttributes({ "app.imageKey": randomImage });
 
     res.send({ imageKey: randomImage });
 });
+
+function choose<T>(array: T[]): T {
+    const i = Math.floor(Math.random() * array.length);
+    trace.getActiveSpan()?.setAttributes({ "app.choiceIndex": i, "app.numberOfChoices": array.length }); // INSTRUMENTATION: add relevant info
+    return array[i];
+}
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
