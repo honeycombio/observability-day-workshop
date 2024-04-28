@@ -2,6 +2,7 @@ import fs from 'fs';
 import { trace } from '@opentelemetry/api';
 import crypto from 'crypto';
 import path from 'path';
+import fetch from 'node-fetch'
 
 const DEFAULT_IMAGE_PATH = '../tmp/BusinessWitch.png';
 
@@ -15,27 +16,18 @@ const DEFAULT_IMAGE_PATH = '../tmp/BusinessWitch.png';
 export async function download(inputImageUrl: string): Promise<string> {
     // const span = trace.getActiveSpan();
     if (!inputImageUrl) {
-       throw new Error('No input image URL provided');
+        throw new Error('No input image URL provided');
     }
     const downloadDestinationPath = `/tmp/${generateRandomFilename(path.extname(inputImageUrl))}`;
 
     await fetch(inputImageUrl)
-        .then(async (download) => {
+        .then(async (res) => {
             const dest = fs.createWriteStream(downloadDestinationPath);
-            // ugh this is SO MESSY
-            // node-fetch would make this a v simple pipe, but NOOOO, I cannot manage to import that. ESModules something somehting give up
-            if (download.body === null) {
-                throw new Error(`Failed to fetch picture from meminator: ${download.status} ${download.statusText}`);
-            }
-            const reader = download.body.getReader();
-            // Stream the chunks of the picture data to the response as they are received
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    break;
-                }
-                dest.write(value);
-            }
+            res.body.pipe(dest);
+            return new Promise((resolve, reject) => {
+                dest.on('finish', () => resolve(downloadDestinationPath));
+                dest.on('error', reject);
+            });
         })
         .catch((err: Error) => {
             // span?.recordException(err); // INSTRUMENTATION: record error conditions
