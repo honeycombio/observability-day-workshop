@@ -23,7 +23,8 @@ export async function download(inputImageUrl: string): Promise<string> {
         .then(async (download) => {
             const dest = fs.createWriteStream(downloadDestinationPath);
             // ugh this is SO MESSY
-            // node-fetch would make this a v simple pipe, but NOOOO, I cannot manage to import that. ESModules something somehting give up
+            // node-fetch@2 makes this into a simpler pipe (see commit 8cd897a56c745)
+            // but then there's no instrumentation argh
             if (download.body === null) {
                 throw new Error(`Failed to fetch picture from meminator: ${download.status} ${download.statusText}`);
             }
