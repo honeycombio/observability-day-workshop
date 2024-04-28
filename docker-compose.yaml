@@ -66,6 +66,7 @@ services:
     ports:
       - "10118:10114" # the outer ports can't be the same
     environment:
+      - BUCKET_NAME
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=image-picker-${PROGRAMMING_LANGUAGE}
