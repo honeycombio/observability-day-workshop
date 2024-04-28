@@ -3,15 +3,26 @@ import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { spawn } from 'child_process';
 
 
-export
-    function spawnProcess(commandName: string, args: string[]): Promise<void> {
+type ProcessOutput = {
+    stderr: string;
+    stdout: string;
+}
+
+/**
+ * Run a command in the shell, and listen to its stdout and stderr.
+ * 
+ * @param commandName name of the command to run in the shell
+ * @param args args to pass to it
+ * @returns a promise that resolves when the process exits with code 0
+ */
+export function spawnProcess(commandName: string, args: string[]): Promise<ProcessOutput> {
     // return trace.getTracer('meminator').startActiveSpan(commandName, {
     //     attributes: {
     //         "app.command.name": commandName,
     //         "app.command.args": args.join(' ')
     //     }
     // }, (span) => { #INSTRUMENTATION: wrap important unit of work in a span
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<ProcessOutput>((resolve, reject) => {
         const process = spawn(commandName, args);
         let stderrOutput = '';
         process.stderr.on('data', (data) => {
@@ -42,7 +53,7 @@ export
                 reject(new Error(`Process exited with non-zero code: ${code}`));
             } else {
                 // span.end();
-                resolve();
+                resolve({ stdout, stderr: stderrOutput });
             }
         });
     });

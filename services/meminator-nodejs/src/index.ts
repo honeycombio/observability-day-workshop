@@ -1,8 +1,8 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
 import { trace } from '@opentelemetry/api';
-import { spawnProcess } from "./shellOut";
-import { download, generateRandomFilename } from "./download";
+import { download } from "./download";
+import { applyTextWithImagemagick } from "./applyTextWithImagemagick";
 
 const app = express();
 const PORT = 10114;
@@ -14,16 +14,6 @@ app.get("/health", (req: Request, res: Response) => {
     res.send("OK");
 });
 
-// const magickProcess = spawn('convert', [inputImagePath, '-gravity', 'center', '-pointsize', '36', '-fill', 'white', '-annotate', '0', phrase, outputImagePath]);
-// convert tmp/BusinessWitch.png -gravity center -pointsize 36 -fill white -annotate 0 "Business Witch" output.png
-
-/*
-convert tmp/BusinessWitch.png -fill white -undercolor '#00000080' -gravity North -font "Times-Roman" -weight bold -annotate +0+10 "DO THE THING" \
-    output_image.jpg
-    */
-
-const DEFAULT_PHRASE = "you got this";
-
 app.post('/applyPhraseToPicture', async (req, res) => {
     // const span = trace.getActiveSpan();
     try {
@@ -33,20 +23,12 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         //     "app.meminator.phrase": inputPhrase, "app.meminator.imageUrl": imageUrl,
         //     "app.meminator.imageExtension": imageUrl ? path.extname(imageUrl) : "none"
         // });
-        if (!inputPhrase) {
-            // span?.setAttributes({
-            //     "warn.message": "No phrase provided",
-            //     "app.default.phrase": DEFAULT_PHRASE,
-            //     "app.body": JSON.stringify(req.body)
-            // });
-            inputPhrase = DEFAULT_PHRASE;
-        }
         const phrase = inputPhrase.toLocaleUpperCase();
 
         // download the image, defaulting to a local image
         const inputImagePath = await download(input);
 
-        const outputImagePath = await modifyImage(phrase, inputImagePath);
+        const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
         res.sendFile(outputImagePath);
     }
     catch (error) {
@@ -57,33 +39,6 @@ app.post('/applyPhraseToPicture', async (req, res) => {
     }
 })
 
-
-const IMAGE_MAX_HEIGHT_PX = 1000;
-const IMAGE_MAX_WIDTH_PX = 1000;
-
-async function modifyImage(phrase: string, inputImagePath: string) {
-    const outputImagePath = `/tmp/${generateRandomFilename('png')}`;
-    trace.getActiveSpan()?.setAttributes({
-        "app.phrase": phrase,
-        "app.meminate.inputImagePath": inputImagePath,
-        "app.meminate.outputImagePath": outputImagePath,
-        "app.meminate.maxHeightPx": IMAGE_MAX_HEIGHT_PX,
-        "app.meminate.maxWidthPx": IMAGE_MAX_WIDTH_PX,
-    });
-
-    const args = [inputImagePath,
-        '-resize', `${IMAGE_MAX_WIDTH_PX}x${IMAGE_MAX_HEIGHT_PX}\>`,
-        '-gravity', 'North',
-        '-pointsize', '48',
-        '-fill', 'white',
-        '-undercolor', '#00000080',
-        '-font', 'Angkor-Regular',
-        '-annotate', '0', `${phrase}`,
-        outputImagePath];
-
-    await spawnProcess('convert', args);
-    return outputImagePath
-}
 
 
 
