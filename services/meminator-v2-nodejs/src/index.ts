@@ -4,7 +4,7 @@ import { trace, SpanStatusCode } from '@opentelemetry/api';
 import {DownloadFromS3, HandleImageProcessing} from './processors';
 
 const app = express();
-const PORT = process.env.PORT || 10114; // You can change the port number as needed
+const PORT = process.env.PORT || 10114;
 
 app.use(express.json());
 

@@ -1,18 +1,17 @@
 import "./tracing"
 import express, { Request, Response } from 'express';
-import { trace, SpanStatusCode } from '@opentelemetry/api';
-import path from 'path';
+import { trace } from '@opentelemetry/api';
 import { spawnProcess } from "./shellOut";
 import { download, generateRandomFilename } from "./download";
 
 const app = express();
-const PORT = 10114; // You can change the port number as needed
+const PORT = 10114;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
 
 app.get("/health", (req: Request, res: Response) => {
-    res.send({ message: "I am here, ready to meminate", status_code: 0 });
+    res.send("OK");
 });
 
 // const magickProcess = spawn('convert', [inputImagePath, '-gravity', 'center', '-pointsize', '36', '-fill', 'white', '-annotate', '0', phrase, outputImagePath]);
