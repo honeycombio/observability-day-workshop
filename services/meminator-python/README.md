@@ -18,7 +18,7 @@ Mostly you run this as part of docker-compose at project root.
 
 If you want to run just this one:
 
-`python3 server.py`
+`opentelemetry-instrument python3 src/server.py`
 
 ## Test
 

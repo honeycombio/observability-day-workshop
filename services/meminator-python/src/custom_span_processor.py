@@ -1,25 +1,45 @@
+import json
+import os
+import time
 from opentelemetry.sdk.trace import SpanProcessor
 from opentelemetry.sdk.trace.export import SpanExportResult
 
-import os
 
-def get_free_space(directory):
-    # TODO: cache for some number of seconds
-    stat = os.statvfs(directory)
-    # Calculate free space (in bytes)
-    free_space = stat.f_bavail * stat.f_frsize
-    return free_space
+class DiskUsageMonitor:
+    def __init__(self, directory='/tmp'):
+        self._how_many_times_have_we_checked = 0
+        self._last_check_time = time.time()
+        self._value = self._really_get_free_space(directory)
+        self._directory = directory
 
-tmp_free_space = get_free_space('/tmp')
-print(f"Free space in /tmp: {tmp_free_space} bytes")
-
+    def get_free_space(self):
+        if time.time() - self._last_check_time > 1: # Don't check more often than once per second
+            self._value = self._really_get_free_space(self._directory)
+            self._last_check_time = time.time()
+        return self._value
+    
+    def _really_get_free_space(self, directory):
+        self._how_many_times_have_we_checked += 1
+        statvfs = os.statvfs(directory)
+        # Get the block size and number of free blocks
+        block_size = statvfs.f_frsize
+        free_blocks = statvfs.f_bavail
+        # Calculate the free space
+        free_space = block_size * free_blocks
+        return free_space
+    
+    def get_free_space_and_stats(self):
+        return { "value": self._value, "as_of": self._last_check_time, "check_count": self._how_many_times_have_we_checked }
 
 class CustomSpanProcessor(SpanProcessor):
-    def on_start(   self,
+    def __init__(self):
+        self._disk_usage_monitor = DiskUsageMonitor("/tmp")
+
+    def on_start(self,
         span,
-        parent_context = None,
-  ):
-        span.set_attribute("app.custom_span_processor.tmp_free_space", get_free_space('/tmp'))
+        parent_context = None ):
+        span.set_attribute("app.custom_span_processor.tmp_free_space", self._disk_usage_monitor.get_free_space())
+        span.set_attribute("app.custom_span_processor.tmp_free_space_stats", json.dumps(self._disk_usage_monitor.get_free_space_and_stats()))
 
     def on_end(self, span):
         """

@@ -4,10 +4,10 @@ from flask import Flask, jsonify, send_file, request
 from opentelemetry import trace
 
 from download import generate_random_filename, download_image
-from custom_span_processor import CustomSpanProcessor, get_free_space
+from custom_span_processor import CustomSpanProcessor
 
-# tracer_provider = trace.get_tracer_provider() # an entry_point: https://github.com/open-telemetry/opentelemetry-python/blob/main/opentelemetry-sdk/pyproject.toml
-# tracer_provider.add_span_processor(CustomSpanProcessor()) # INSTRUMENTATION: add custom span processor, which puts the free_space on every span.
+tracer_provider = trace.get_tracer_provider() # an entry_point: https://github.com/open-telemetry/opentelemetry-python/blob/main/opentelemetry-sdk/pyproject.toml
+tracer_provider.add_span_processor(CustomSpanProcessor()) # INSTRUMENTATION: add custom span processor, which puts the free_space on every span.
 
 # # Acquire a tracer
 tracer = trace.get_tracer("meminator-tracer")
