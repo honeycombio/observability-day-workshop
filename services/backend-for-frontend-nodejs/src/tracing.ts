@@ -17,7 +17,8 @@ const sdk = new NodeSDK({
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations(
         //  { '@opentelemetry/instrumentation-fs': { enabled: false } } // INSTRUMENTATION: remove the noisy spans that we don't use
-    ), new UndiciInstrumentation()]
+    ), // new UndiciInstrumentation() // INSTRUMENTATION: 'fetch' needs this, and it isn't in getNodeAutoInstrumentations yet.
+    ]
 });
 
 sdk.start();

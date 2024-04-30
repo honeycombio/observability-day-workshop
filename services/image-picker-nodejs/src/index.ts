@@ -57,7 +57,7 @@ const app = express();
 const PORT = process.env.PORT || 10114;
 
 // Middleware to parse JSON bodies
-app.use(express.json());
+app.use(express.json());    
 
 app.get("/health", (req: Request, res: Response) => {
     res.send("OK");
