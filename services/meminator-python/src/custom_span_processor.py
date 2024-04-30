@@ -22,7 +22,7 @@ class DiskUsageMonitor:
         self._how_many_times_have_we_checked += 1
         statvfs = os.statvfs(directory)
         # Get the block size and number of free blocks
-        block_size = statvfs.f_frsize
+        block_size = statvfs.f_frsize # this is supposedly the 'fragment size' but it seems
         free_blocks = statvfs.f_bavail
         # Calculate the free space
         free_space = block_size * free_blocks

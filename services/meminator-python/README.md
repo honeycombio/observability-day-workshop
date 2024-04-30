@@ -18,7 +18,7 @@ Mostly you run this as part of docker-compose at project root.
 
 If you want to run just this one:
 
-`opentelemetry-instrument python3 src/server.py`
+` opentelemetry-instrument flask --app src/server.py run`
 
 ## Test
 
