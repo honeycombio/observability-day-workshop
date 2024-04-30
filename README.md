@@ -9,7 +9,7 @@ It generates images by combining a randomly chosen picture with a randomly chose
 
 ## Workshop Agenda
 
-1. Hello! Welcome to Advanced Instrumentation with OpenTelemetry. A few slides (LINK)
+1. Hello! Welcome to Advanced Instrumentation with OpenTelemetry. A few [slides](https://docs.google.com/presentation/d/1jNJCuns5wrL9sOJfT8yAaQ5HR5bc_e1d6i88oGspe2k/edit?usp=sharing)
 2. Look at this app. It has default instrumentation.
 3. Run this app. See what the traces look like.
 4. Improve the traces.
