@@ -14,6 +14,8 @@ It generates images by combining a randomly chosen picture with a randomly chose
 3. Run this app. See what the traces look like.
 4. Improve the traces.
 
+Also, while you're here, maybe subscribe to our OpenTelemetry practitioner newsletter? [https://opentelemetryinpractice.net/]()
+
 ## Running the application
 
 Run this locally in docker-compose, sending traces to Honeycomb. Then you can practice improving the instrumentation for better observability.
