@@ -21,7 +21,7 @@ export function spawnProcess(commandName: string, args: string[]): Promise<Proce
     //         "app.command.name": commandName,
     //         "app.command.args": args.join(' ')
     //     }
-    // }, (span) => { #INSTRUMENTATION: wrap important unit of work in a span
+    // }, (span) => { // INSTRUMENTATION: wrap important unit of work in a span
     return new Promise<ProcessOutput>((resolve, reject) => {
         const process = spawn(commandName, args);
         let stderrOutput = '';
