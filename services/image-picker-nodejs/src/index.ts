@@ -11,6 +11,7 @@ const IMAGES = [
     "heatmap.png",
     "angry-lemon-ufo.JPG",
     "austintiara4.png",
+    "baby-geese.jpg",
     "bbq.jpg",
     "beach.JPG",
     "bunny-mask.jpg",
@@ -19,12 +20,15 @@ const IMAGES = [
     "cat-on-leash.JPG",
     "cat-with-bowtie.heic",
     "cat.jpg",
+    "clementine.png",
     "cow-peeking.jpg",
     "different-animals-01.png",
+    "dratini.png",
     "everything-is-an-experiment.png",
     "experiment.png",
     "fine-food.jpg",
     "flower.jpg",
+    "frenwho.png",
     "genshin-spa.jpg",
     "grass-and-desert-guy.png",
     "honeycomb-dogfood-logo.png",
@@ -41,6 +45,7 @@ const IMAGES = [
     "please.png",
     "roswell-nose.jpg",
     "roswell.JPG",
+    "salt-packets-in-jar.jpg",
     "scarred-character.png",
     "square-leaf-with-nuts.jpg",
     "stu.jpeg",
@@ -49,7 +54,9 @@ const IMAGES = [
     "tennessee-sunset.JPG",
     "this-is-fine-trash.jpg",
     "three-pillars-2.png",
+    "trash-flat.jpg",
     "walrus-painting.jpg",
+    "windigo.png",
     "yellow-lines.JPG",
 ].map((filename) => `https://${BUCKET_NAME}.s3.amazonaws.com/${filename}`);
 
@@ -57,7 +64,7 @@ const app = express();
 const PORT = process.env.PORT || 10114;
 
 // Middleware to parse JSON bodies
-app.use(express.json());    
+app.use(express.json());
 
 app.get("/health", (req: Request, res: Response) => {
     res.send("OK");

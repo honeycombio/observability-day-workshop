@@ -18,7 +18,10 @@ const PHRASES = [
     "bruh",
     "have you tried restarting?",
     "try again after coffee",
-    "deploy != release"
+    "deploy != release",
+    "oh, just the crimes",
+    "not a bug, it's a feature",
+    "test in prod"
 ]
 
 const app = express();
