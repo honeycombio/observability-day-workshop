@@ -31,16 +31,20 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         // download the image, defaulting to a local image
         const inputImagePath = await download(imageUrl);
 
-        const newSpan = trace.getTracer('meminator').startSpan('apply text');
-        if (new FeatureFlags().useLibrary()) {
-            const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
-            res.sendFile(outputImagePath);
-        } else {
-            const outputBuffer = await applyTextWithLibrary(inputImagePath, phrase);
-            res.writeHead(200, { 'Content-Type': 'image/png' });
-            res.end(outputBuffer);
-        }
-        newSpan.end();
+        //const newSpan = trace.getTracer('meminator').startSpan('apply text'); // INSTRUMENTATION 1: put a span around it.... but it doesn't have children
+        trace.getTracer('meminator').startActiveSpan('apply text', async (span) => {
+            if (new FeatureFlags().useLibrary()) {
+                const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
+                span.end();
+                res.sendFile(outputImagePath);
+            } else {
+                const outputBuffer = await applyTextWithLibrary(inputImagePath, phrase);
+                res.writeHead(200, { 'Content-Type': 'image/png' });
+                span.end();
+                res.end(outputBuffer);
+            }
+        });
+       // newSpan.end();
     }
     catch (error) {
         span?.recordException(error as Error); // INSTRUMENTATION: record exceptions. This will someday happen automatically in express instrumentation

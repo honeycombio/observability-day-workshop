@@ -16,12 +16,11 @@ type ProcessOutput = {
  * @returns a promise that resolves when the process exits with code 0
  */
 export function spawnProcess(commandName: string, args: string[]): Promise<ProcessOutput> {
-    return trace.getTracer('meminator').startActiveSpan(commandName, {
-        attributes: {
-            "app.command.name": commandName,
-            "app.command.args": args.join(' ')
-        }
-    }, (span) => { // INSTRUMENTATION: wrap important unit of work in a span
+    const span = trace.getTracer('meminator').startSpan("> " + commandName);
+    span.setAttributes({
+        "app.command.name": commandName,
+        "app.command.args": args.join(' ')
+    });
     return new Promise<ProcessOutput>((resolve, reject) => {
         const process = spawn(commandName, args);
         let stderrOutput = '';
@@ -48,12 +47,10 @@ export function spawnProcess(commandName: string, args: string[]): Promise<Proce
             });
             if (code !== 0) {
                 span.setStatus({ code: SpanStatusCode.ERROR, message: "Process exited with " + code });
-                span.end();
                 reject(new Error(`Process exited with non-zero code: ${code}`));
             } else {
                 resolve({ stdout, stderr: stderrOutput });
             }
         });
-    }).finally(() => { span.end(); })
-    });
+    }).finally(() => { span.end(); });
 }
