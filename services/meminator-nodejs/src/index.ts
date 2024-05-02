@@ -31,6 +31,7 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         // download the image, defaulting to a local image
         const inputImagePath = await download(imageUrl);
 
+        const newSpan = trace.getTracer('meminator').startSpan('apply text');
         if (new FeatureFlags().useLibrary()) {
             const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
             res.sendFile(outputImagePath);
@@ -39,6 +40,7 @@ app.post('/applyPhraseToPicture', async (req, res) => {
             res.writeHead(200, { 'Content-Type': 'image/png' });
             res.end(outputBuffer);
         }
+        newSpan.end();
     }
     catch (error) {
         span?.recordException(error as Error); // INSTRUMENTATION: record exceptions. This will someday happen automatically in express instrumentation
