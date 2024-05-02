@@ -2,8 +2,6 @@ import json
 import os
 import time
 from opentelemetry.sdk.trace import SpanProcessor
-from opentelemetry.sdk.trace.export import SpanExportResult
-
 
 class DiskUsageMonitor:
     def __init__(self, directory='/tmp'):
