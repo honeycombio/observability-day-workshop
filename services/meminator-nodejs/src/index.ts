@@ -31,22 +31,20 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         // download the image, defaulting to a local image
         const inputImagePath = await download(imageUrl);
 
+        // await trace.getTracer('meminator').startActiveSpan('apply text', async (newSpan) => { // INSTRUMENTATION 2: a span that will have children
         //const newSpan = trace.getTracer('meminator').startSpan('apply text'); // INSTRUMENTATION 1: put a span around it.... but it doesn't have children
-        await trace.getTracer('meminator').startActiveSpan('apply text', async (span) => {
-            if (new FeatureFlags().useLibrary()) {
-                // try out this new way. Is it faster?
-                const outputBuffer = await applyTextWithLibrary(inputImagePath, phrase);
-                res.writeHead(200, { 'Content-Type': 'image/png' });
-                span.end();
-                res.end(outputBuffer);
-            } else {
-                // the same old way
-                const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
-                span.end();
-                res.sendFile(outputImagePath);
-            }
-        });
-        // newSpan.end();
+        if (new FeatureFlags().useLibrary()) {
+            // try out this new way. Is it faster?
+            const outputBuffer = await applyTextWithLibrary(inputImagePath, phrase);
+            res.writeHead(200, { 'Content-Type': 'image/png' });
+            res.end(outputBuffer);
+        } else {
+            // the same old way
+            const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
+            res.sendFile(outputImagePath);
+        }
+        //  newSpan.end(); // INSTRUMENTATION: you don't get telemetry for creating spans. You get it for ending spans
+        //  }); // INSTRUMENTATION 2: end the callback
     }
     catch (error) {
         span?.recordException(error as Error); // INSTRUMENTATION: record exceptions. This will someday happen automatically in express instrumentation
