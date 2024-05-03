@@ -32,19 +32,21 @@ app.post('/applyPhraseToPicture', async (req, res) => {
         const inputImagePath = await download(imageUrl);
 
         //const newSpan = trace.getTracer('meminator').startSpan('apply text'); // INSTRUMENTATION 1: put a span around it.... but it doesn't have children
-        trace.getTracer('meminator').startActiveSpan('apply text', async (span) => {
+        await trace.getTracer('meminator').startActiveSpan('apply text', async (span) => {
             if (new FeatureFlags().useLibrary()) {
-                const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
-                span.end();
-                res.sendFile(outputImagePath);
-            } else {
+                // try out this new way. Is it faster?
                 const outputBuffer = await applyTextWithLibrary(inputImagePath, phrase);
                 res.writeHead(200, { 'Content-Type': 'image/png' });
                 span.end();
                 res.end(outputBuffer);
+            } else {
+                // the same old way
+                const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
+                span.end();
+                res.sendFile(outputImagePath);
             }
         });
-       // newSpan.end();
+        // newSpan.end();
     }
     catch (error) {
         span?.recordException(error as Error); // INSTRUMENTATION: record exceptions. This will someday happen automatically in express instrumentation

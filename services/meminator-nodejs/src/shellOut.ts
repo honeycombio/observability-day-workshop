@@ -4,6 +4,7 @@ import { spawn } from 'child_process';
 
 
 type ProcessOutput = {
+    code: number;
     stderr: string;
     stdout: string;
 }
@@ -47,9 +48,8 @@ export function spawnProcess(commandName: string, args: string[]): Promise<Proce
             });
             if (code !== 0) {
                 span.setStatus({ code: SpanStatusCode.ERROR, message: "Process exited with " + code });
-                reject(new Error(`Process exited with non-zero code: ${code}`));
             } else {
-                resolve({ stdout, stderr: stderrOutput });
+                resolve({ code, stdout, stderr: stderrOutput });
             }
         });
     }).finally(() => { span.end(); });

@@ -26,6 +26,7 @@ export async function applyTextWithImagemagick(phrase: string, inputImagePath: s
         '-annotate', '0', `${phrase}`,
         outputImagePath];
 
-    await spawnProcess('convert', args);
+    const processResult = await spawnProcess('convert', args);
+
     return outputImagePath
 }
