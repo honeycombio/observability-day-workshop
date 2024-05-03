@@ -22,6 +22,8 @@ Also, while you're here, maybe subscribe to our OpenTelemetry practitioner newsl
 
 Run this locally in docker-compose, sending traces to Honeycomb. Then you can practice improving the instrumentation for better observability.
 
+If you don't have Docker locally, you can [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/observability-day-workshop) or use Codespaces.
+
 ### one-time setup
 
 Clone this repository.
