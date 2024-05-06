@@ -3,7 +3,7 @@
 
 This contains a sample application for use in the Observability Day workshops.
 
-See it in action: [o11yday.jessitron.honeydemo.io]()
+See it in action: [o11yday.jessitron.honeydemo.io](http://o11yday.jessitron.honeydemo.io)
 
 It generates images by combining a randomly chosen picture with a randomly chosen phrase.
 
