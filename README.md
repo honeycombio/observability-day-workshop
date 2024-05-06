@@ -3,7 +3,7 @@
 
 This contains a sample application for use in the Observability Day workshops.
 
-See it in action: [o11yday.jessitron.honeydemo.io]()
+See it in action: [o11yday.jessitron.honeydemo.io](http://o11yday.jessitron.honeydemo.io)
 
 It generates images by combining a randomly chosen picture with a randomly chosen phrase.
 
@@ -16,7 +16,7 @@ It generates images by combining a randomly chosen picture with a randomly chose
 5. See what the traces look like.
 6. Improve the traces.
 
-Also, while you're here, maybe subscribe to our OpenTelemetry practitioner newsletter? [https://opentelemetryinpractice.net/]()
+Also, while you're here, maybe subscribe to our OpenTelemetry practitioner newsletter? [https://opentelemetryinpractice.net/](https://opentelemetryinpractice.net/)
 
 ## Running the application
 
