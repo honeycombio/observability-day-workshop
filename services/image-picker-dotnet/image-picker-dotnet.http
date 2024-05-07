@@ -1,0 +1,6 @@
+@image_picker_dotnet_HostAddress = http://localhost:5268
+
+GET {{image_picker_dotnet_HostAddress}}/imageurl/
+Accept: application/json
+
+###

@@ -1,1 +1,4 @@
 *.js.map
+bin/
+obj/
+.mono/

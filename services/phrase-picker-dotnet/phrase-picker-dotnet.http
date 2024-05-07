@@ -1,0 +1,6 @@
+@phrase_picker_dotnet_HostAddress = http://localhost:5031
+
+GET {{phrase_picker_dotnet_HostAddress}}/phrase/
+Accept: application/json
+
+###
