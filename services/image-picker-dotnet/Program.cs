@@ -1,3 +1,6 @@
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
 var images = new [] {
     "Angrybird.JPG",
     "Arco&Tub.png",
@@ -58,6 +61,14 @@ var bucketname = Environment.GetEnvironmentVariable("BUCKET_NAME");
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHealthChecks();
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracerProviderBuilder => tracerProviderBuilder
+        .ConfigureResource(resource => resource.AddService(builder.Environment.ApplicationName))
+        .AddHttpClientInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddOtlpExporter()
+    );
+
 
 var app = builder.Build();
 

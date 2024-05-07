@@ -1,10 +1,19 @@
-using System.Drawing;
 using Microsoft.AspNetCore.Mvc;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using SkiaSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient();
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracerProviderBuilder => tracerProviderBuilder
+        .ConfigureResource(resource => resource.AddService(builder.Environment.ApplicationName))
+        .AddHttpClientInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddOtlpExporter()
+    );
+
 
 var app = builder.Build();
 

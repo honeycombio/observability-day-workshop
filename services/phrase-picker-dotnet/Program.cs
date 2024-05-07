@@ -1,3 +1,6 @@
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
 var phrases = new [] {
     "you're muted",
     "not dead yet",
@@ -23,6 +26,13 @@ var phrases = new [] {
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHealthChecks();
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracerProviderBuilder => tracerProviderBuilder
+        .ConfigureResource(resource => resource.AddService(builder.Environment.ApplicationName))
+        .AddHttpClientInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddOtlpExporter()
+    );
 
 var app = builder.Build();
 
