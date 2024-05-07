@@ -165,6 +165,7 @@ Look at the traces, and see that the SDK calls are already instrumented! It look
 - run your app locally
 - make sure you're seeing traces in Honeycomb
 - run the load generator in scripts/loadgen.sh
+- Dockerfile should not contain `platform:...` bits. Comment out all 5 of them.
 
 ### updating code
 
