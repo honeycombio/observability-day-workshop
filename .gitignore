@@ -1,4 +1,4 @@
 *.js.map
 bin/
 obj/
-.mono/
+.mono/.vscode
