@@ -1,0 +1,11 @@
+@meminator_dotnet_HostAddress = http://localhost:10116
+
+POST {{meminator_dotnet_HostAddress}}/applyPhraseToImage
+Content-Type: application/json
+
+{
+    "inputPhrase": "help me",
+    "imageUrl": "https://random-pictures.s3.amazonaws.com/this-is-fine-trash.jpg"
+}
+
+###
