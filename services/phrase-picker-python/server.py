@@ -24,6 +24,7 @@ PHRASES = [
     "not a bug, it's a feature",
     "test in prod", 
     "who broke the build?",
+    "it could be worse",
 ]
 
 # Route for health check
