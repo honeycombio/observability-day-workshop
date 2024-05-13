@@ -1,21 +1,21 @@
 services:
   backend-for-frontend:
     build:
-      context: services/backend-for-frontend-${PROGRAMMING_LANGUAGE}
+      context: services/backend-for-frontend-java
       dockerfile: Dockerfile
       # platforms:
       #   # this is useful for pushing to Dockerhub, not for local builds
       #   - linux/amd64
       #   - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/backend-for-frontend-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/backend-for-frontend-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
+        - ${IMAGE_REPO_USER}/backend-for-frontend-java:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/backend-for-frontend-java:${WORKSHOP_VERSION}
     ports:
       - "10115:10114" # Expose the port your Express app is listening on
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=backend-for-frontend-${PROGRAMMING_LANGUAGE}
+      - OTEL_SERVICE_NAME=backend-for-frontend-java
 
   meminator:
     build:
