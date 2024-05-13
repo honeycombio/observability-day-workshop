@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -x
+
+swift run App serve --port 11111

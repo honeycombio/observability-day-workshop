@@ -1,5 +1,6 @@
 import Vapor
 
+
 func routes(_ app: Application) throws {
     app.get { req async in
         "Try /phrase"
@@ -9,7 +10,7 @@ func routes(_ app: Application) throws {
         "OK"
     }
 
-    app.get("phrase") { req async -> String in
-        "Sharks are pirates too"
+    app.get("phrase") { req async throws -> PhraseResult in
+       return try await PhraseController().getPhrase(req)
     }
 }
