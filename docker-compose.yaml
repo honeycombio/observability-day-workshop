@@ -42,14 +42,14 @@ services:
       #   - linux/amd64
       #   - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
+        - ${IMAGE_REPO_USER}/phrase-picker-java:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/phrase-picker-java:${WORKSHOP_VERSION}
     ports:
       - "10117:10114" # the outer ports can't be the same
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=phrase-picker-${PROGRAMMING_LANGUAGE}
+      - OTEL_SERVICE_NAME=phrase-picker-java
 
   image-picker:
     build:

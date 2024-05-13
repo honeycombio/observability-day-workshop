@@ -33,6 +33,11 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+                    <jvmArguments>
+                        -javaagent:./opentelemetry-javaagent.jar
+                    </jvmArguments>
+                </configuration>
 			</plugin>
 		</plugins>
 	</build>

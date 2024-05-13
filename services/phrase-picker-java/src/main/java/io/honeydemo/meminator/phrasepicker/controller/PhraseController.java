@@ -8,7 +8,7 @@ public class PhraseController {
 
     @GetMapping("/phrase")
     public PhraseResult hello() {
-        return new PhraseResult("It could have been worse");
+        return new PhraseResult("It could be worse");
     }
 
     public static class PhraseResult {
