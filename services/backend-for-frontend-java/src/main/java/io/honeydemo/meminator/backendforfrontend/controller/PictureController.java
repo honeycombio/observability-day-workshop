@@ -1,9 +1,12 @@
 package io.honeydemo.meminator.backendforfrontend.controller;
 
 import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.ObjectMessage;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -22,7 +25,7 @@ public class PictureController {
 
     private final WebClient webClient;
 
-    private static final Logger logger = LoggerFactory.getLogger(PictureController.class);
+    private static final Logger logger = LogManager.getLogger(PictureController.class);
 
     @Autowired
     public PictureController(WebClient.Builder webClientBuilder) {
@@ -33,10 +36,18 @@ public class PictureController {
     public Mono<ResponseEntity<Resource>> createPicture() throws MalformedURLException {
         // choose a random phrase from the list
         String imagePath = "static/rug.png";
-        Span span = Span.current(); 
+        Span span = Span.current();
+
         span.setAttribute("app.imagePath", imagePath);
+
         span.addEvent("top level");
+
         logger.info("test log", "what", "does this do");
+
+        Map<String, String> mapMessage = new HashMap<>();
+        mapMessage.put("app.message", "Something interesting happened");
+        logger.info(new ObjectMessage(mapMessage));
+
         Resource resource = new ClassPathResource(imagePath);
 
         var phraseResult = webClient.get().retrieve().bodyToMono(String.class);
