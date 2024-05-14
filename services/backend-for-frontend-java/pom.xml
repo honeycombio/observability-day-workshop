@@ -28,6 +28,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+		<dependency>
 			<!--INSTRUMENTATION:
 			this is the only dependency you need for your code -->
 			<groupId>io.opentelemetry</groupId>
