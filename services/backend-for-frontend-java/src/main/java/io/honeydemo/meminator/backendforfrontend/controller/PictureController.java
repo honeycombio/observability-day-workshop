@@ -64,10 +64,10 @@ public class PictureController {
 
         // Return the image file as a ResponseEntity
         return phraseResult.map(v -> {
-            Span.current().setAttribute("app.where_am_i", "in the map");
+            Span.current().setAttribute("app.where_am_i", "in the map"); // Span.current is an ended span!!!! Fuck me
             Span.current().setAttribute("app.phrase", v);
             Span.current().addEvent("in the map, current span");
-            logger.info("do things", "what", "does this do");
+            logger.info("do things in the map", "what", "does this do");
             span.addEvent("in the map");
             return ResponseEntity.ok()
                     .contentType(mediaType)
