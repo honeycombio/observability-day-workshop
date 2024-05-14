@@ -26,7 +26,6 @@ import reactor.core.publisher.Mono;
 @RestController
 public class PictureController {
 
-
     private final WebClient webClient;
 
     @Autowired
@@ -40,6 +39,7 @@ public class PictureController {
         String imagePath = "static/rug.png";
         Span span = Span.current(); // INSTRUMENTATION
         span.setAttribute("app.imagePath", imagePath); // INSTRUMENTATION
+        span.addEvent("top level");
         Resource resource = new ClassPathResource(imagePath);
 
         var phraseResult = webClient.get().retrieve().bodyToMono(String.class);
@@ -57,12 +57,13 @@ public class PictureController {
         // Return the image file as a ResponseEntity
         return phraseResult.map(v -> {
             Span.current().setAttribute("app.where_am_i", "in the map");
-            span.setAttribute("app.where_am_i", "in the map, but using the first span");
+            Span.current().addEvent("in the map, current span");
+            span.addEvent("in the map");
             return ResponseEntity.ok()
-                .contentType(mediaType)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + resource.getFilename())
-                .body(resource);
-            });
+                    .contentType(mediaType)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + resource.getFilename())
+                    .body(resource);
+        });
     }
 
     public static class PhraseResult {
