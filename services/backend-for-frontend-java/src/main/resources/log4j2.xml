@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO">
+<Configuration status="DEBUG">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout
-                pattern="%d{HH:mm:ss.SSS} JESS [%t] %-5level %logger{36} trace_id: %X{trace_id} span_id: %X{span_id} trace_flags: %X{trace_flags} - %msg%n" />
+                pattern="%d{HH:mm:ss.SSS} JESS %msg%n " />
         </Console>
         <OpenTelemetry name="OpenTelemetryAppender" />
     </Appenders>
     <Loggers>
-        <Root level="info">
-            <AppenderRef ref="OpenTelemetryAppender"/>
+        <Root level="error">
+            <AppenderRef ref="OpenTelemetryAppender" />
             <AppenderRef ref="Console" />
         </Root>
     </Loggers>
