@@ -4,9 +4,11 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%-5p %d [%t] %c: %m%n" />
         </Console>
+        <OpenTelemetry name="OpenTelemetryAppender" />
     </Appenders>
     <Loggers>
         <Root level="info">
+            <AppenderRef ref="OpenTelemetryAppender" level="All" />
             <AppenderRef ref="Console" />
         </Root>
     </Loggers>
