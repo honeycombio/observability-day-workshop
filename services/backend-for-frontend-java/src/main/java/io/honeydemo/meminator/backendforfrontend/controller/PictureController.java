@@ -1,21 +1,15 @@
-package io.honeydemo.meminator.backendForFrontend.controller;
+package io.honeydemo.meminator.backendforfrontend.controller;
 
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
-import java.nio.charset.MalformedInputException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -28,6 +22,8 @@ public class PictureController {
 
     private final WebClient webClient;
 
+    private static final Logger logger = LoggerFactory.getLogger(PictureController.class);
+
     @Autowired
     public PictureController(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl("http://phrase-picker:10114/phrase").build();
@@ -37,9 +33,10 @@ public class PictureController {
     public Mono<ResponseEntity<Resource>> createPicture() throws MalformedURLException {
         // choose a random phrase from the list
         String imagePath = "static/rug.png";
-        Span span = Span.current(); // INSTRUMENTATION
-        span.setAttribute("app.imagePath", imagePath); // INSTRUMENTATION
+        Span span = Span.current(); 
+        span.setAttribute("app.imagePath", imagePath);
         span.addEvent("top level");
+        logger.info("test log", "what", "does this do");
         Resource resource = new ClassPathResource(imagePath);
 
         var phraseResult = webClient.get().retrieve().bodyToMono(String.class);
@@ -57,7 +54,9 @@ public class PictureController {
         // Return the image file as a ResponseEntity
         return phraseResult.map(v -> {
             Span.current().setAttribute("app.where_am_i", "in the map");
+            Span.current().setAttribute("app.phrase", v);
             Span.current().addEvent("in the map, current span");
+            logger.info("do things", "what", "does this do");
             span.addEvent("in the map");
             return ResponseEntity.ok()
                     .contentType(mediaType)

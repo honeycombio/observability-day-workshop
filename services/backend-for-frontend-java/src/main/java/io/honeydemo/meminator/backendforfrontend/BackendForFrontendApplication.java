@@ -1,4 +1,4 @@
-package io.honeydemo.meminator.backendForFrontend;
+package io.honeydemo.meminator.backendforfrontend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
