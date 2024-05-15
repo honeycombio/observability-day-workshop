@@ -17,6 +17,7 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=backend-for-frontend-java
       - OTEL_JAVAAGENT_DEBUG=true
+      - OTEL_LOGS_EXPORTER=otlp
 
   meminator:
     build:
