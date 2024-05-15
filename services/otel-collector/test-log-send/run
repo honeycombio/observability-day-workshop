@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -x
+
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/
+export OTEL_SERVICE_NAME=test-log-send
+export OTEL_LOG_LEVEL=DEBUG
+
+node ./test-log-send.js

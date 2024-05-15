@@ -44,4 +44,4 @@ service:
     logs:
       receivers: [otlp]
       processors: [memory_limiter, attributes/attribution, batch]
-      exporters: [otlp]
+      exporters: [otlp, debug]
