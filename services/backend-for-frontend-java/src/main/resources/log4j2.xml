@@ -9,7 +9,7 @@
     </Appenders>
     <Loggers>
         <Root level="info">
-            <AppenderRef ref="OpenTelemetryAppender" />
+            <AppenderRef ref="OpenTelemetryAppender" level="all"/>
             <AppenderRef ref="Console" />
         </Root>
     </Loggers>

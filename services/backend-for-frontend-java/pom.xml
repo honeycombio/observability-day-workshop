@@ -53,12 +53,12 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 		</dependency>
-		<!-- <dependency> Hny's documentation says the agent will do this
+		<dependency>
 			<groupId>io.opentelemetry.instrumentation</groupId>
 			<artifactId>opentelemetry-log4j-appender-2.17</artifactId>
 			<version>2.3.0-alpha</version>
 			<scope>runtime</scope>
-		</dependency> -->
+		</dependency>
 	</dependencies>
 
 	<build>
