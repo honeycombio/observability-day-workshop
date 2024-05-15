@@ -52,7 +52,11 @@
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
-			<version>1.38.0</version>
+			<!-- specifying the version number gets me a ClassNotFoundException on something in SPI  -->
+		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-exporter-otlp</artifactId>
 		</dependency>
 		<!-- Log4j2 Implementation -->
 		<dependency>
@@ -75,11 +79,11 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
+				<!-- <configuration>
 					<jvmArguments>
 						-javaagent:./opentelemetry-javaagent.jar
 					</jvmArguments>
-				</configuration>
+				</configuration> -->
 			</plugin>
 		</plugins>
 	</build>
