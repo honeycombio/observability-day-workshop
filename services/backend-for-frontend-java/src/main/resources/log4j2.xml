@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="DEBUG">
+<Configuration status="DEBUG" packages="io.opentelemetry.instrumentation.log4j.appender.v2_17">
     <Appenders>
         <OpenTelemetry name="OpenTelemetryAppender" />
-        <appender name="stupid" class="io.honeydemo.meminator.backendforfrontend.StupidAppender" />
+        <StupidAppender name="stupid" />
         <appender name="OpenTelemetryDammit"
             class="io.opentelemetry.instrumentation.log4j.appender.v2_17.OpenTelemetryAppender">
         </appender>
