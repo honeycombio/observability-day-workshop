@@ -2,7 +2,7 @@
 <Configuration status="DEBUG">
     <Appenders>
         <OpenTelemetry name="OpenTelemetryAppender" />
-        <StupidAppender name="stupid" />
+        <appender name="stupid" class="io.honeydemo.meminator.backendforfrontend.StupidAppender" />
         <appender name="OpenTelemetryDammit"
             class="io.opentelemetry.instrumentation.log4j.appender.v2_17.OpenTelemetryAppender">
         </appender>
