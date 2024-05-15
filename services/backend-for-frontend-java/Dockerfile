@@ -16,5 +16,4 @@ WORKDIR /app
 COPY --from=build /app/target/backend-for-frontend-0.0.1-SNAPSHOT.jar ./backend-for-frontend.jar
 COPY --from=dependencies /app/opentelemetry-javaagent.jar .
 EXPOSE 8080
-# INSTRUMENTATION: add this after java : "-javaagent:./opentelemetry-javaagent.jar",
-CMD ["java",  "-jar", "backend-for-frontend.jar"]
+CMD ["java", "-javaagent:./opentelemetry-javaagent.jar", "-jar", "backend-for-frontend.jar"]
