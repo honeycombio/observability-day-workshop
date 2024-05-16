@@ -1,9 +1,9 @@
 package io.honeydemo.meminator.backendforfrontend.controller;
 
 import java.net.MalformedURLException;
-import java.util.HashMap;
 
-import org.apache.logging.log4j.message.ObjectMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +23,7 @@ public class PictureController {
     private final WebClient phraseClient;
     private final WebClient imageClient;
     private WebClient memeClient;
+    private static final Logger logger = LogManager.getLogger("backendForFrontend");
 
     Logger logger = LogManager.getLogger("PictureController");
 
@@ -31,6 +32,7 @@ public class PictureController {
         this.phraseClient = webClientBuilder.baseUrl("http://phrase-picker:10114").build();
         this.imageClient = webClientBuilder.baseUrl("http://image-picker:10114").build();
         this.memeClient = webClientBuilder.baseUrl("http://meminator:10114").build();
+
     }
 
     @PostMapping("/createPicture")
@@ -64,6 +66,7 @@ public class PictureController {
                 span.setAttribute("header" + k, String.join(",", l));
             });
 
+            logger.info("which span is current? It will get this log");
             span.end();
             return ResponseEntity.ok()
                     .contentType(mediaType)

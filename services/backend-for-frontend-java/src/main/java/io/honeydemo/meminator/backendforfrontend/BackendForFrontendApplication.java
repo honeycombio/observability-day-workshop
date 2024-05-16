@@ -12,8 +12,8 @@ public class BackendForFrontendApplication {
 
 		SpringApplication.run(BackendForFrontendApplication.class, args);
 
-		Logger logger = LogManager.getLogger("poo");
-		logger.info("everything is stupid");
+		Logger logger = LogManager.getLogger("backendForFrontend");
+		logger.info("Startup");
 	}
 
 }
