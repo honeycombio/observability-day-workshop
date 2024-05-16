@@ -25,13 +25,13 @@ def health():
 @app.route('/applyPhraseToPicture', methods=['POST', 'GET'])
 def meminate():
     input = request.json or { "phrase": "I got you"}
-    # request_span = trace.get_current_span()
+    request_span = trace.get_current_span()
 
     phrase = input.get("phrase", "words go here").upper()
-    # request_span.set_attribute("app.meminate.phrase", phrase) # INSINSTRUMENTATIONTR: add important bits
+    request_span.set_attribute("app.meminate.phrase", phrase) # INSINSTRUMENTATIONTR: add important bits
 
     imageUrl = input.get("imageUrl", "http://missing.booo/no-url-here.png")
-    # request_span.set_attribute("app.meminate.imageUrl", imageUrl)
+    request_span.set_attribute("app.meminate.imageUrl", imageUrl)
 
     # Get the absolute path to the PNG file
     input_image_path = download_image(imageUrl)
@@ -58,12 +58,12 @@ def meminate():
     
     # #  Execute ImageMagick command to apply text to the image 
     # # INSTRUMENTATION: put this unit of work in its own span
-    # with tracer.start_as_current_span("span-name") as subprocess_span:
-    # subprocess_span.set_attribute("app.subprocess.command", " ".join(command))
-    result = subprocess.run(command, capture_output=True, text=True)
-    # subprocess_span.set_attribute("app.subprocess.returncode", result.returncode)
-    # subprocess_span.set_attribute("app.subprocess.stdout", result.stdout)
-    # subprocess_span.set_attribute("app.subprocess.stderr", result.stderr)
+    with tracer.start_as_current_span("span-name") as subprocess_span:
+        subprocess_span.set_attribute("app.subprocess.command", " ".join(command))
+        result = subprocess.run(command, capture_output=True, text=True)
+        subprocess_span.set_attribute("app.subprocess.returncode", result.returncode)
+        subprocess_span.set_attribute("app.subprocess.stdout", result.stdout)
+        subprocess_span.set_attribute("app.subprocess.stderr", result.stderr)
     if result.returncode != 0:
         raise Exception("Subprocess failed with return code:", result.returncode)
         
