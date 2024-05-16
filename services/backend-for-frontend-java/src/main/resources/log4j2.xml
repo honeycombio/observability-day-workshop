@@ -9,7 +9,9 @@
     </Appenders>
     <Loggers>
         <Root level="info">
-            <AppenderRef ref="OpenTelemetryAppender" level="all" />
+            <logger name="io.honeydemo" level="info">
+                <AppenderRef ref="OpenTelemetryAppender" />
+            </logger>
             <AppenderRef ref="Console" />
         </Root>
     </Loggers>
