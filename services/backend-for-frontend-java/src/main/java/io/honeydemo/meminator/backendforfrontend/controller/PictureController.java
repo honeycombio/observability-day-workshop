@@ -17,19 +17,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.api.trace.Span; // INSTRUMENTATION
-import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.context.Scope;
 import reactor.core.publisher.Mono;
 
 @RestController
 public class PictureController {
 
     private final WebClient webClient;
-
-    private static final Tracer tracer = GlobalOpenTelemetry.getTracer("my-service");
-    private static final Logger logger = LogManager.getLogger(PictureController.class);
 
     @Autowired
     public PictureController(WebClient.Builder webClientBuilder) {
@@ -40,56 +33,33 @@ public class PictureController {
     public Mono<ResponseEntity<Resource>> createPicture() throws MalformedURLException {
         // choose a random phrase from the list
         String imagePath = "static/rug.png";
-        Span span = Span.current();
-
-        Span deliberateSpan = tracer.spanBuilder("create picture async").startSpan();
         Mono<String> phraseResult;
-        try (Scope scope = deliberateSpan.makeCurrent()) {
-            deliberateSpan.setAttribute("app.imagePath", imagePath);
 
-            span.setAttribute("app.imagePath", imagePath);
+        Map<String, String> mapMessage = new HashMap<>();
+        mapMessage.put("app.message", "Something interesting happened");
 
-            span.addEvent("top level");
+        Resource resource = new ClassPathResource(imagePath);
 
-            logger.info("test log", "what", "does this do");
+        phraseResult = webClient.get().uri("/phrase").retrieve().bodyToMono(String.class);
 
-            Map<String, String> mapMessage = new HashMap<>();
-            mapMessage.put("app.message", "Something interesting happened");
-            logger.info(new ObjectMessage(mapMessage));
-
-            Resource resource = new ClassPathResource(imagePath);
-
-            phraseResult = webClient.get().uri("/phrase").retrieve().bodyToMono(String.class);
-            phraseResult.doOnNext(value -> deliberateSpan.setAttribute("app.phrase", value));
-
-            // Check if the file exists
-            if (!resource.exists()) {
-                span.setAttribute("error.message", "the image does not exist");
-                return phraseResult.map(v -> ResponseEntity.notFound().build());
-            }
-
-            // Set content type header
-            MediaType mediaType = MediaType.IMAGE_PNG;
-
-            // Return the image file as a ResponseEntity
-            return phraseResult.map(v -> {
-                Span.current().setAttribute("app.where_am_i", "in the map"); // Span.current is an ended span!!!! Fuck
-                                                                             // me
-                Span.current().setAttribute("app.phrase", v);
-                Span.current().addEvent("in the map, current span");
-                logger.info("do things in the map", "what", "does this do");
-                span.addEvent("in the map");
-                deliberateSpan.setAttribute("app.where_am_i", "in the map");
-                deliberateSpan.end();
-                return ResponseEntity.ok()
-                        .contentType(mediaType)
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + resource.getFilename())
-                        .body(resource);
-            });
+        // Check if the file exists
+        if (!resource.exists()) {
+            return phraseResult.map(v -> ResponseEntity.notFound().build());
         }
+
+        // Set content type header
+        MediaType mediaType = MediaType.IMAGE_PNG;
+
+        // Return the image file as a ResponseEntity
+        return phraseResult.map(v -> {
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + resource.getFilename())
+                    .body(resource);
+        });
     }
 
-    public static class PhraseResult {
+    static class PhraseResult {
         private String phrase;
 
         public PhraseResult(String phrase) {
