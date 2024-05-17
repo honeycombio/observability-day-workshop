@@ -3,6 +3,8 @@ package io.honeydemo.meminator.phrasepicker.controller;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +35,13 @@ public class PhraseController {
             "test in prod",
             "who broke the build?",
             "it could be worse");
+
+    @GetMapping("/health")
+    public Map<String, String> healthCheck() {
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "UP");
+        return response;
+    }
 
     @GetMapping("/phrase")
     public PhraseResult hello() {

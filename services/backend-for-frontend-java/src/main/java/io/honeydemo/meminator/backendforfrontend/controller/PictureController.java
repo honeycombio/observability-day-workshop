@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Span;
@@ -21,6 +23,8 @@ public class PictureController {
     private final WebClient phraseClient;
     private final WebClient imageClient;
     private WebClient memeClient;
+
+    Logger logger = LogManager.getLogger("PictureController");
 
     @Autowired
     public PictureController(WebClient.Builder webClientBuilder) {
@@ -41,12 +45,14 @@ public class PictureController {
 
         // Set content type header
         MediaType mediaType = MediaType.IMAGE_PNG;
+        logger.info("media type is " + mediaType);
 
         var meme = bothResults.flatMap(v -> {
             String phrase = v.getT1().getBody().getPhrase();
             String imageUrl = v.getT2().getBody().getImageUrl();
             span.setAttribute("app.phrase", phrase);
             span.setAttribute("app.imageUrl", imageUrl);
+            logger.info("app.phrase=" + phrase + ", app.imageUrl=" + imageUrl);
 
             return memeClient.post().uri("/applyPhraseToPicture").bodyValue(new MemeRequest(phrase, imageUrl))
                     .retrieve().toEntity(byte[].class);

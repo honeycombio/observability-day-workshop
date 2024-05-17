@@ -3,3 +3,5 @@ bin/
 obj/
 .mono/
 .vscode
+.DS_Store
+TiltFile
