@@ -51,9 +51,19 @@ If you want more stepping-through of how to get an API key, there are instructio
 
 (this will run `docker compose` in daemon mode, and build containers)
 
-Access the app:
+### run with Tilt (optional)
+
+You can run the app using [Tilt](https://tilt.dev/) by running the following command:
+```
+tilt up
+```
+
+### Accessing the app
+Using a browser, open upthe meminator web UI using the following URL:
 
 [http://localhost:8080]()
+
+### Rebuilding the app
 
 after making changes to a service, you can tell it to rebuild just that one:
 
@@ -63,7 +73,7 @@ after making changes to a service, you can tell it to rebuild just that one:
 
 Visit [http://localhost:8080]()
 
-Click the "GO" button. Then wait.
+Click the "GO" button. Then wait. You will see the meminator generating picture with phrases on it.
 
 ## Improving the tracing
 
