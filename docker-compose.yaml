@@ -1,21 +1,21 @@
 services:
   backend-for-frontend:
     build:
-      context: services/backend-for-frontend-java
+      context: services/backend-for-frontend-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
       # platforms:
       #   # this is useful for pushing to Dockerhub, not for local builds
       #   - linux/amd64
       #   - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/backend-for-frontend-java:${IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/backend-for-frontend-java:${WORKSHOP_VERSION}
+        - ${IMAGE_REPO_USER}/backend-for-frontend-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/backend-for-frontend-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
     ports:
       - "10115:10114" # Expose the port your Express app is listening on
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=backend-for-frontend-java
+      - OTEL_SERVICE_NAME=backend-for-frontend-${PROGRAMMING_LANGUAGE}
       - OTEL_JAVAAGENT_DEBUG=true
       - OTEL_LOGS_EXPORTER=otlp
 
@@ -38,38 +38,38 @@ services:
 
   phrase-picker:
     build:
-      context: services/phrase-picker-java
+      context: services/phrase-picker-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
       # platforms:
       #   - linux/amd64
       #   - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/phrase-picker-java:${IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/phrase-picker-java:${WORKSHOP_VERSION}
+        - ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
     ports:
       - "10117:10114" # the outer ports can't be the same
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=phrase-picker-java
+      - OTEL_SERVICE_NAME=phrase-picker-${PROGRAMMING_LANGUAGE}
 
   image-picker:
     build:
-      context: services/image-picker-java
+      context: services/image-picker-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
       # platforms:
       #   - linux/amd64
       #   - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/image-picker-java:${IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/image-picker-java:${WORKSHOP_VERSION}
+        - ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
     ports:
       - "10118:10114" # the outer ports can't be the same
     environment:
       - BUCKET_NAME
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=image-picker-java
+      - OTEL_SERVICE_NAME=image-picker-${PROGRAMMING_LANGUAGE}
 
   web:
     build:
