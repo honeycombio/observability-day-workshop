@@ -9,12 +9,18 @@ let package = Package(
     dependencies: [
         // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.92.4"),
+        .package(url: "https://github.com/open-telemetry/opentelemetry-swift", from: "1.0.0"),
     ],
     targets: [
         .executableTarget(
             name: "App",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
+                .product(name: "OpenTelemetryApi", package: "opentelemetry-swift"),
+                 .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift"),
+                 .product(name: "OpenTelemetryProtocolExporter", package: "opentelemetry-swift"),
+                 .product(name: "ResourceExtension", package: "opentelemetry-swift"),
+                        
             ],
             swiftSettings: swiftSettings
         ),

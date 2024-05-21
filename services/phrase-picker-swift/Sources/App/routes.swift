@@ -1,7 +1,11 @@
 import Vapor
-
+import OpenTelemetryApi
 
 func routes(_ app: Application) throws {
+    
+    let tracer = OpenTelemetry.instance.tracerProvider.get(instrumentationName: "routes", instrumentationVersion: "1.2.3")
+
+    
     app.get { req async in
         "Try /phrase"
     }
@@ -11,6 +15,9 @@ func routes(_ app: Application) throws {
     }
 
     app.get("phrase") { req async throws -> PhraseResult in
-       return try await PhraseController().getPhrase(req)
+       let span = tracer.spanBuilder(spanName: "GET /phrase").startSpan();
+       let result = try await PhraseController().getPhrase(req)
+        span.end()
+        return result
     }
 }
