@@ -25,8 +25,6 @@ public class PictureController {
     private WebClient memeClient;
     private static final Logger logger = LogManager.getLogger("backendForFrontend");
 
-    Logger logger = LogManager.getLogger("PictureController");
-
     @Autowired
     public PictureController(WebClient.Builder webClientBuilder) {
         this.phraseClient = webClientBuilder.baseUrl("http://phrase-picker:10114").build();
