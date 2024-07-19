@@ -9,8 +9,15 @@
 // sdk.start();
 
 // Function to fetch the image binary data from the server
+
 async function fetchPicture() {
     try {
+        // Start with the loading image
+        document.getElementById('picture').style = "display:none";
+        document.getElementById('loading-meme').style = "display:block";
+        document.getElementById('message').innerText = "Generating meme...";
+        document.getElementById('message').style = "display:block";
+
         const response = await fetch('/backend/createPicture', {
             method: 'POST',
             headers: {
@@ -31,9 +38,16 @@ async function fetchPicture() {
         const imgUrl = URL.createObjectURL(blob);
 
         // Set the image source to the URL
+        document.getElementById('loading-meme').style = "display:none";
+        document.getElementById('message').style = "display:none";
         document.getElementById('picture').src = imgUrl;
+        document.getElementById('picture').style = "display:block;";
     } catch (error) {
         console.error('Error fetching picture:', error);
+        document.getElementById('loading-meme').style = "display:none";
+        document.getElementById('picture').style = "display:none;";
+        document.getElementById('message').innerText = "There was an error fetching a picture. Please retry.";
+        document.getElementById('message').style = "display:block;";
     }
 }
 

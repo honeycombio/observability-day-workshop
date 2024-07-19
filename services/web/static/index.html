@@ -6,34 +6,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meminator</title>
     <link rel="shortcut icon" href="favicon.ico" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
         body {
             text-align: center;
             background-color: black;
             color: white;
+            font-family: Roboto
         }
 
         h1 {
-            font-family: "courier new", monospace;
+            font-family: 'Roboto Mono', Roboto;
         }
 
         button {
-            border: pink ridge 5px;
-            padding: 5px;
-            background-color: white;
-            font-weight: bold;
+            border: 5px solid orange;
+            background-color: #fff;
+            color: black;
+            border-radius: 15px;
+            padding: 10px 20px 10px 20px;
+            font-weight: 700;
             font-size: 3rem;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+            font-family: 'Roboto Mono', Roboto;
         }
 
-        button:active {
-            background-color: pink;
+        button:hover {
+            border: 5px solid white;
+            background-color: orange;
             color: white;
-            border: white groove 5px;
         }
 
         img {
             max-width: 100%;
+        }
+
+        div {
+            font-weight:bolder;
+            font-size: 1.2em;
+        }
+
+        div.content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        img#loading-meme {
+            width: 250px;
         }
     </style>
 </head>
@@ -43,7 +66,11 @@
     <p>
         <button id="go">GO</button>
     </p>
-    <img id="picture" src="#" alt="Picture"></img>
+    <div id="message" style="display:none"></div>
+    <div class="content">
+        <img id="picture" src="#" alt="Picture" style="display:none"></img>
+        <img id="loading-meme" src="./loading-meme.gif" alt="Loading Meme" style="display:none"></img>
+    </div>
     <script type="text/javascript" src="../src/index.js">
     </script>
 </body>
