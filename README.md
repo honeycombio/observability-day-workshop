@@ -53,7 +53,7 @@ If you want more stepping-through of how to get an API key, there are instructio
 
 Access the app:
 
-[http://localhost:8080]()
+[http://localhost:10114]()
 
 after making changes to a service, you can tell it to rebuild just that one:
 
@@ -61,7 +61,7 @@ after making changes to a service, you can tell it to rebuild just that one:
 
 ### Try it out
 
-Visit [http://localhost:8080]()
+Visit [http://localhost:10114]()
 
 Click the "GO" button. Then wait.
 

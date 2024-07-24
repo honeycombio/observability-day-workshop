@@ -89,7 +89,7 @@ services:
     # volumes: # uncomment this for faster development on the frontend
     #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
-      - "8080:80" # Expose port 8080 for Nginx
+      - "10114:10114" # Expose port 8080 for Nginx
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.96.0

@@ -9,4 +9,4 @@ set -x # print what you run
 
 docker compose up --build -d $*
 
-echo "http://localhost:8080"
+echo "http://localhost:10114"

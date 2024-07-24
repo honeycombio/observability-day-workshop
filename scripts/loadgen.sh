@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set your endpoint URL
-URL="http://localhost:8080/backend/createPicture"
+URL="http://localhost:10114/backend/createPicture"
 
 while true; do
     # Call the endpoint and print the HTTP status code
