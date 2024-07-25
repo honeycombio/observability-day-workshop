@@ -11,7 +11,7 @@ services:
         - ${IMAGE_REPO_USER}/backend-for-frontend-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/backend-for-frontend-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
     ports:
-      - "10115:10114" # Expose the port your Express app is listening on
+      - "10115:10115" # Expose the port your Express app is listening on
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
@@ -28,7 +28,7 @@ services:
         - ${IMAGE_REPO_USER}/meminator-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/meminator-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
     ports:
-      - "10116:10114" # they can't be the same
+      - "10116:10116" # they can't be the same
     environment:
       - BUCKET_NAME
       - OTEL_EXPORTER_OTLP_ENDPOINT
@@ -48,7 +48,7 @@ services:
         - ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/phrase-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
     ports:
-      - "10117:10114" # the outer ports can't be the same
+      - "10117:10117" # the outer ports can't be the same
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
@@ -65,7 +65,7 @@ services:
         - ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/image-picker-${PROGRAMMING_LANGUAGE}:${WORKSHOP_VERSION}
     ports:
-      - "10118:10114" # the outer ports can't be the same
+      - "10118:10118" # the outer ports can't be the same
     environment:
       - BUCKET_NAME
       - OTEL_EXPORTER_OTLP_ENDPOINT
@@ -89,7 +89,7 @@ services:
     # volumes: # uncomment this for faster development on the frontend
     #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
-      - "10114:10114" # Expose port 8080 for Nginx
+      - "10114:10114" # Expose port for Nginx
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.96.0
