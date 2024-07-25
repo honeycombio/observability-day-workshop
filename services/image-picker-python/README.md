@@ -18,4 +18,4 @@ This won't have tracing.
 
 ## Test
 
-`curl localhost:10114/imageUrl`
+`curl localhost:10118/imageUrl`

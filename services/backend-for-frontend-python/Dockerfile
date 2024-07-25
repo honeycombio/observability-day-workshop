@@ -14,10 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose port to the outside world
-EXPOSE 10114
+EXPOSE 10115
 
 ENV FLASK_APP=server.py
 
 # Command to run the Flask application
 # INSTRUMENTATION: the metrics are noisy duplication of a tiny portion of trace data, so add: "--metrics_exporter", "none", 
-CMD ["opentelemetry-instrument", "flask", "run", "-p 10114", "--host=0.0.0.0"]
+CMD ["opentelemetry-instrument", "flask", "run", "-p 10115", "--host=0.0.0.0"]

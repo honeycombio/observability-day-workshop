@@ -25,5 +25,5 @@ If you want to run just this one:
 Something like...
 
 ```bash
-curl localhost:10114/applyPhraseToPicture -d '{"phrase":"Yo Yo Yo!", "imageUrl":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1360px-Banana-Single.jpg"}' -H "Content-Type: application/json" -X POST > out.jpg
+curl localhost:10116/applyPhraseToPicture -d '{"phrase":"Yo Yo Yo!", "imageUrl":"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1360px-Banana-Single.jpg"}' -H "Content-Type: application/json" -X POST > out.jpg
 ```

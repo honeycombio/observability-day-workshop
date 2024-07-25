@@ -5,7 +5,7 @@ import {HandleImageProcessing} from './imageProcessing';
 import { DownloadFromS3 } from './downloader';
 
 const app = express();
-const PORT = process.env.PORT || 10114;
+const PORT = process.env.PORT || 10116;
 
 app.use(express.json());
 

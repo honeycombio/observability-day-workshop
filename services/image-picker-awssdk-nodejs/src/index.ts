@@ -3,7 +3,7 @@ import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { trace } from '@opentelemetry/api';
 
 const app = express();
-const PORT = process.env.PORT || 10114;
+const PORT = process.env.PORT || 10118;
 
 const BUCKET_NAME = process.env.BUCKET_NAME || 'random-pictures';
 

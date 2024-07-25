@@ -8,9 +8,9 @@ import { context, defaultTextMapSetter, trace, Attributes, SpanStatusCode, Span,
 import { SEMATTRS_HTTP_METHOD, SEMATTRS_HTTP_URL } from '@opentelemetry/semantic-conventions';
 
 const SERVICES = {
-    meminator: 'http://meminator:10114/applyPhraseToPicture', // this one is a POST
-    'phrase-picker': 'http://phrase-picker:10114/phrase',
-    'image-picker': 'http://image-picker:10114/imageUrl',
+    meminator: 'http://meminator:10116/applyPhraseToPicture', // this one is a POST
+    'phrase-picker': 'http://phrase-picker:10117/phrase',
+    'image-picker': 'http://image-picker:10118/imageUrl',
 }
 
 type FetchOptions = {

@@ -8,7 +8,7 @@ import { FeatureFlags } from "./featureFlags";
 import path from 'path';
 
 const app = express();
-const PORT = 10114;
+const PORT = 10116;
 
 // Middleware to parse JSON bodies
 app.use(express.json());

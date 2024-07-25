@@ -12,4 +12,4 @@ echo headers: $OTEL_EXPORTER_OTLP_HEADERS # for troubleshooting
 
 # jess question: why does this work with 'flask run' but not with 'python src/server.py'?
 export FLASK_APP=src/server.py
-opentelemetry-instrument --traces_exporter otlp flask run -p 10114
+opentelemetry-instrument --traces_exporter otlp flask run -p 10116

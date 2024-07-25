@@ -16,10 +16,10 @@ builder.Services.AddOpenTelemetry()
 var app = builder.Build();
 
 app.MapPost("/createPicture", async (HttpClient client) => {
-    var imagePickerResponse = await client.GetFromJsonAsync<ImagePickerResponse>("http://image-picker:10114/imageUrl");
-    var phrasePickerResponse = await client.GetFromJsonAsync<PhrasePickerResponse>("http://phrase-picker:10114/phrase");
+    var imagePickerResponse = await client.GetFromJsonAsync<ImagePickerResponse>("http://image-picker:10118/imageUrl");
+    var phrasePickerResponse = await client.GetFromJsonAsync<PhrasePickerResponse>("http://phrase-picker:10117/phrase");
 
-    var image = await client.PostAsJsonAsync($"http://meminator:10114/applyPhraseToImage",
+    var image = await client.PostAsJsonAsync($"http://meminator:10116/applyPhraseToImage",
         new {
             imageUrl = imagePickerResponse!.ImageUrl,
             inputPhrase = phrasePickerResponse!.Phrase
