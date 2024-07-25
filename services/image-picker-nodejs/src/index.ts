@@ -61,7 +61,7 @@ const IMAGES = [
 ].map((filename) => `https://${BUCKET_NAME}.s3.amazonaws.com/${filename}`);
 
 const app = express();
-const PORT = process.env.PORT || 8;
+const PORT = process.env.PORT || 10118;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
