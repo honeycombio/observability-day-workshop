@@ -7,6 +7,10 @@
 
 set -x # print what you run
 
-docker compose up --build -d $*
+# docker compose up --build -d $*
+
+source .env
+export PROGRAMMING_LANGUAGE
+./scripts/honeycomb-whoami.sh
 
 echo "http://localhost:10114"
