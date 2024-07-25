@@ -3,9 +3,7 @@
  * That is a common pattern, and a great place to customize some telemetry.
  */
 
-import { W3CTraceContextPropagator } from '@opentelemetry/core';
-import { context, defaultTextMapSetter, trace, Attributes, SpanStatusCode, Span, SpanKind, SpanOptions } from '@opentelemetry/api';
-import { SEMATTRS_HTTP_METHOD, SEMATTRS_HTTP_URL } from '@opentelemetry/semantic-conventions';
+import { context, trace, Attributes, SpanStatusCode, Span, SpanOptions } from '@opentelemetry/api';
 
 const SERVICES = {
     meminator: 'http://meminator:10116/applyPhraseToPicture', // this one is a POST
@@ -28,8 +26,6 @@ type FetchOptions = {
  * @returns 
  */
 export async function fetchFromService(service: keyof typeof SERVICES, options?: FetchOptions) {
-    // // INSTRUMENTATION: MAKE A 'client' SPAN: we want to represent an outgoing network request
-    // return inSpanAsync("fetchFromService", { attributes: { "lib.service": service }, kind: SpanKind.CLIENT, }, async (span) => {
     const { method, body: bodyObject } = options || { method: "GET" };
     let body: string | null = null;
     if (bodyObject) {
@@ -38,31 +34,12 @@ export async function fetchFromService(service: keyof typeof SERVICES, options?:
     const headers: Record<string, string> = {
         "Content-Type": "application/json"
     }
-    // INSTRUMENTATION: PROPAGATION: inject the current trace and span ID into the http headers
-    // const propagator = new W3CTraceContextPropagator();
-    // propagator.inject(context.active(), headers, defaultTextMapSetter); // obviously! :-/
 
     const url = SERVICES[service];
-    ////INSTRUMENTATION: populate some standard attributes
-    // span.setAttributes({
-    //     "http.headers": JSON.stringify(headers),
-    //     [SEMATTRS_HTTP_METHOD]: options?.method || "GET",
-    //     [SEMATTRS_HTTP_URL]: url,
-    // });
 
     const response = await fetch(url, { headers, method, body });
 
-    //// INSTRUMENTATION: populate some standard attributes
-    // span.setAttributes({
-    //     "http.status_code": response.status,
-    //     "http.status_text": response.statusText,
-    //     "http.redirected": response.redirected,
-    // });
-    // if (!response.ok) {
-    //     span.setStatus({ code: SpanStatusCode.ERROR, message: await response.clone().text() });
-    // }
     return response;
-    // }); // end inSpanAsync
 }
 
 const tracer = trace.getTracer("o11yday-lib");
