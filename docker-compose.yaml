@@ -85,6 +85,8 @@ services:
     #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
       - "10114:10114" # Expose port 10114, that is where it should be listening now
+    environment:
+      - HONEYCOMB_API_KEY
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.96.0
