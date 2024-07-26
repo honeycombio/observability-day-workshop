@@ -2,7 +2,6 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
 import * as opentelemetry from '@opentelemetry/api';
-import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici';
 
 opentelemetry.diag.setLogger(
     new opentelemetry.DiagConsoleLogger(),
@@ -17,7 +16,7 @@ const sdk = new NodeSDK({
     // spanProcessors: [new ConfigurationSpanProcessor(), new BatchSpanProcessor(traceExporter)], // INSTRUMENTATION: report global configuration on every span
     instrumentations: [getNodeAutoInstrumentations(
         // { '@opentelemetry/instrumentation-fs': { enabled: false } } // the fs tracing might be interesting here!
-    ), new UndiciInstrumentation()] // 'fetch' is used to download the file
+    ), ] 
 });
 
 sdk.start();
