@@ -4,22 +4,9 @@
 
 To get new versions of the containers on Dockerhub for caching, log in appropriately.
 
-Make sure the `--platform` option is present in the docker-compose (we remove it for faster development)
+Be logged in to Docker as [o11yday](https://hub.docker.com/u/o11yday). This is in 1Password somewhere.
 
-set PROGRAMMING_LANGUAGE to what you need.
-
-push `latest` tag:
-
-`docker compose build --push`
-
-push tag that is used for cache-from:
-
-```bash
-source .env
-WORKSHOP_VERSION=${IMAGE_VERSION} docker compose build --push
-```
-
-... for each $PROGRAMMING_LANGUAGE implemented. (currently nodejs and python)
+Run `scripts/publish.sh`
 
 ## Deploying
 
@@ -47,7 +34,7 @@ and it calls out to the other services.
 
 ### image-picker
 
-the images are in my (jessitron's) S3 bucket, 'random-pictures'.
+the images are in my (devrel sandbox's) S3 bucket, 'random-pictures'.
 They really could be anywhere. The service has a hard-coded list.
 
 ### phrase-picker
