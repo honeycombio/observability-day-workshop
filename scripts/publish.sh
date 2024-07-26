@@ -14,7 +14,7 @@ for lang in $(echo "python nodejs dotnet" ); do
   # hmm, web is gonna get triple-published. do we care? not yet.
   WORKSHOP_VERSION=${IMAGE_VERSION} docker compose -f docker-compose-publish.yaml build --push
 
-  # there has to be a faster way to do this.
+  # now publish the latest tag
   for srv in $(echo "meminator image-picker phrase-picker backend-for-frontend"); do
     docker tag ${IMAGE_REPO_USER}/$srv:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION} ${IMAGE_REPO_USER}/$srv:${PROGRAMMING_LANGUAGE}-latest
     docker push ${IMAGE_REPO_USER}/$srv:${PROGRAMMING_LANGUAGE}-latest
