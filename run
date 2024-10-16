@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Run to start the whole system up, 5 services (one is nginx)
 # `./run``
