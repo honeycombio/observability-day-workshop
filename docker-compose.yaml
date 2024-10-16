@@ -3,15 +3,11 @@ services:
     build:
       context: services/backend-for-frontend-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
-      # platforms:
-      #   # this is useful for pushing to Dockerhub, not for local builds
-      #   - linux/amd64
-      #   - linux/arm64
       cache_from:
         - ${IMAGE_REPO_USER}/backend-for-frontend:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/backend-for-frontend:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
     ports:
-      - "10115:10115" # Expose the port your Express app is listening on
+      - "10115:10115"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
@@ -21,14 +17,11 @@ services:
     build:
       context: services/meminator-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
-      # platforms:
-      #   - linux/amd64
-      #   - linux/arm64
       cache_from:
         - ${IMAGE_REPO_USER}/meminator:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/meminator:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
     ports:
-      - "10116:10116" # they can't be the same
+      - "10116:10116"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
@@ -38,14 +31,11 @@ services:
     build:
       context: services/phrase-picker-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
-      # platforms:
-      #   - linux/amd64
-      #   - linux/arm64
       cache_from:
         - ${IMAGE_REPO_USER}/phrase-picker:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/phrase-picker:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
     ports:
-      - "10117:10117" # the outer ports can't be the same
+      - "10117:10117"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
@@ -55,14 +45,11 @@ services:
     build:
       context: services/image-picker-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
-      # platforms:
-      #   - linux/amd64
-      #   - linux/arm64
       cache_from:
         - ${IMAGE_REPO_USER}/image-picker:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/image-picker:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
     ports:
-      - "10118:10118" # the outer ports can't be the same
+      - "10118:10118"
     environment:
       - BUCKET_NAME
       - OTEL_EXPORTER_OTLP_ENDPOINT
@@ -75,26 +62,12 @@ services:
       dockerfile: Dockerfile
       args:
         HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
-      # platforms:
-      #   - linux/amd64
-      #   - linux/arm64
       cache_from:
         - ${IMAGE_REPO_USER}/web:${IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
     # volumes: # uncomment this for faster development on the frontend
     #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
-      - "10114:10114" # Expose port 10114, that is where it should be listening now
-    environment:
-      - HONEYCOMB_API_KEY
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.96.0
-    ports:
-      - "4317:4317" # OpenTelemetry gRPC
-      - "4318:4318" # OpenTelemetry HTTP
-    volumes:
-      - ./services/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    command: [ "--config=/etc/otel-collector-config.yaml" ]
+      - "10114:10114"
     environment:
       - HONEYCOMB_API_KEY
