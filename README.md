@@ -2,7 +2,7 @@
 
 This contains a sample application for use in the Observability Day workshops.
 
-See it in action: [meminator.honeydemo.io](http://meminator.honeydemo.io)
+See it in action: [meminator.honeydemo.io](https://meminator.honeydemo.io)
 
 It generates images by combining a randomly chosen picture with a randomly chosen phrase.
 
