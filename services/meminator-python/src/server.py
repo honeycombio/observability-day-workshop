@@ -28,10 +28,10 @@ def meminate():
     # request_span = trace.get_current_span()
 
     phrase = input.get("phrase", "words go here").upper()
-    # request_span.set_attribute("app.meminate.phrase", phrase) # INSINSTRUMENTATIONTR: add important bits
+    # request_span.set_attribute("app.phrase", phrase) # INSINSTRUMENTATIONTR: add important bits
 
     imageUrl = input.get("imageUrl", "http://missing.booo/no-url-here.png")
-    # request_span.set_attribute("app.meminate.imageUrl", imageUrl)
+    # request_span.set_attribute("app.imageUrl", imageUrl)
 
     # Get the absolute path to the PNG file
     input_image_path = download_image(imageUrl)
