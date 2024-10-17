@@ -137,18 +137,25 @@ There are different problems in node.js
 2. `docker compose down` and `./run` to restart
 3. Push go (or run the loadgen) and look at traces.
 
-8. Maybe notice that there's a crapton of blahblah from fs-instrumentation. Show them library.name
-9. Disable the fs-instrumentation in backend-for-frontend-nodejs/tracing.ts. Note that i leave it on for meminator because meminator does meaningful stuff in the filesystem. It's already off for phrase-picker and image-picker.
+4. Maybe notice that there's a crapton of blahblah from fs-instrumentation. Show them library.name
+5. Disable the fs-instrumentation in backend-for-frontend-nodejs/tracing.ts. Note that i leave it on for meminator because meminator does meaningful stuff in the filesystem. It's already off for phrase-picker and image-picker.
 
 THe story of a feature flag: nodejs has a feature flag around the imagemagick call, with a separate implementation that runs 25% of the time (or whatever is set in featureFlags.ts). We want to know whether the new way is faster.
 
 You can look at which takes longer by feature flag, but if you drill into a few traces, often the download dominates. We need to see more clearly this particular piece, but there's no span around it. (at least, not when it works the old way. Austin's code for the library is already instrumented.)
 
+Feature flag options:
+
 8. Maybe notice an empty space in a trace, in the meminator. We need a span around some unit of work. In meminator-nodejs/index.ts, add a span around the whole featureFlag check. Watch: you can add this 2 different ways. Start with startSpan (marked with INSTRUMENTATION 1). Don't forget to end the span.
-9. Then add a span in spawnProcess. You always want a span around something like that. Don't forget to end the span.
+9. Maybe add a span in spawnProcess. You always want a span around something like that. Don't forget to end the span.
 10. Run again and notice that the two new spans are siblings. They shouldn't be!
 11. NOw go back to meminator-nodejs/index.ts and change to startActiveSpan, marked with INSTRUMENTATION 2. Close the block at the bottom.
 12. Now you should see the child span. This is a useful concept to know.
+
+Logging and async reporting:
+
+13. Meminator has bunyan logging set up. Add a log, and see it appear on the span.
+14. There's a problem that the text doesn't always fit on the image. How can we find out how often that happens? Un-comment-out the check in applyTextWithImagemagick.
 
 Once you have the new span in place, and loadgen runs for a bit, you should be able to compare the execution times of the two operations. They're pretty close in my observations so far, the library isn't the big win we thought it would be. Graph the heatmap, the AVG, and the P99 and discuss.
 
@@ -169,7 +176,7 @@ Look at the traces, and see that the SDK calls are already instrumented! It look
 - run your app locally
 - make sure you're seeing traces in Honeycomb
 - run the load generator in scripts/loadgen.sh
-- Dockerfile should not contain `platform:...` bits. Comment out all 5 of them.
+- Docker compose should not contain `platform:...` bits. Comment out all 5 of them.
 
 ### updating code
 
