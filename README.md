@@ -23,6 +23,11 @@ Run this locally in docker-compose, sending traces to Honeycomb. Then you can pr
 
 If you don't have Docker locally, you can [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/observability-day-workshop) or use Codespaces.
 
+```
+export HONEYCOMB_API_KEY="paste your api key here"
+./run
+```
+
 ### one-time setup
 
 Clone this repository.
@@ -75,7 +80,7 @@ Here's my daily for looking at the most recent traces:
 
 See the data:
 
-- Click New Query on the left
+- Click Query on the left navigation bar
 - At the top, it says 'New Query in &lt;dropdown&gt;' -- click the dropdown and pick the top option, "All datasets in ..."
 - click 'Run Query'. Now you have a count of all events (trace spans, logs, and metrics). If it's 0, you're not getting data :sad:
 - If you want to take a look at all the data, click on 'Events' under the graph.
@@ -131,10 +136,7 @@ There are different problems in node.js
 1. change PROGRAMMING_LANGUAGE in .env to nodejs
 2. `docker compose down` and `./run` to restart
 3. Push go (or run the loadgen) and look at traces.
-4. The obvious major problem is that the traces aren't connected. Propagation is broken.
-5. Drill from backend-for-frontend-nodejs/index.ts into fetchFromService. It uses `fetch`. The autoinstrumentation (right now) doesn't include this.
-6. The code is there to implement propagation manually, in case you want to talk about that. But the library exists now
-7. Go to backend-for-frontend-nodejs/tracing.ts, and add UndiciInstrumentation. Rerun the service & see connected traces. Notice the values in span.kind
+
 8. Maybe notice that there's a crapton of blahblah from fs-instrumentation. Show them library.name
 9. Disable the fs-instrumentation in backend-for-frontend-nodejs/tracing.ts. Note that i leave it on for meminator because meminator does meaningful stuff in the filesystem. It's already off for phrase-picker and image-picker.
 
