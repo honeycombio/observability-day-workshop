@@ -58,12 +58,12 @@ def meminate():
     
     # #  Execute ImageMagick command to apply text to the image 
     # # INSTRUMENTATION: put this unit of work in its own span
-    # with tracer.start_as_current_span("span-name") as subprocess_span:
-    # subprocess_span.set_attribute("app.subprocess.command", " ".join(command))
-    result = subprocess.run(command, capture_output=True, text=True)
-    # subprocess_span.set_attribute("app.subprocess.returncode", result.returncode)
-    # subprocess_span.set_attribute("app.subprocess.stdout", result.stdout)
-    # subprocess_span.set_attribute("app.subprocess.stderr", result.stderr)
+    with tracer.start_as_current_span("meminate fr") as subprocess_span:
+        subprocess_span.set_attribute("app.subprocess.command", " ".join(command))
+        result = subprocess.run(command, capture_output=True, text=True)
+        subprocess_span.set_attribute("app.subprocess.returncode", result.returncode)
+        subprocess_span.set_attribute("app.subprocess.stdout", result.stdout)
+        subprocess_span.set_attribute("app.subprocess.stderr", result.stderr)
     if result.returncode != 0:
         raise Exception("Subprocess failed with return code:", result.returncode)
         

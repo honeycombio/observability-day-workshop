@@ -21,4 +21,4 @@ ENV FLASK_APP=server.py
 # Command to run the Flask application
 # INSTRUMENTATION: the metrics are noisy duplication of a tiny portion of trace data,
 #  so add: "--metrics_exporter", "none", after "opentelemetry-instrument"
-CMD ["opentelemetry-instrument", "flask", "run", "-p 10115", "--host=0.0.0.0" ]
+CMD ["opentelemetry-instrument","--metrics_exporter", "none", "flask", "run", "-p 10115", "--host=0.0.0.0" ]

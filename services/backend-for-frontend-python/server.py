@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, Response
 from o11yday_lib import fetch_from_service
-# from opentelemetry import trace # INSTRUMENTATION: you can still use the API, everything will no-op if run without opentelemetry configured
+from opentelemetry import trace # INSTRUMENTATION: you can still use the API, everything will no-op if run without opentelemetry configured
 
 app = Flask(__name__)
 # Route for health check
@@ -10,23 +10,25 @@ def health():
 
 @app.route('/createPicture', methods=['POST'])
 def create_picture():
-        # current_span = trace.get_current_span() # INSTRUMENTATION: pull the current span out of thin air
+        current_span = trace.get_current_span() # INSTRUMENTATION: pull the current span out of thin air
         # Fetch data from phrase-picker and image-picker services asynchronously
         phrase_response = fetch_from_service('phrase-picker')
         image_response = fetch_from_service('image-picker')
 
         phrase_result = phrase_response.json() if phrase_response and phrase_response.ok else {"phrase": "This is sparta"}
         image_result = image_response.json() if phrase_response and image_response.ok else {"imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1360px-Banana-Single.jpg"}
-        # current_span.set_attribute("app.phrase", phrase_result['phrase']) # INSTRUMENTATION: add the mose important attributes from the trace
-        # current_span.set_attribute("app.image_url", image_result['imageUrl'])
+        current_span.set_attribute("app.phrase", phrase_result['phrase']) # INSTRUMENTATION: add the mose important attributes from the trace
+        current_span.set_attribute("app.image_url", image_result['imageUrl'])
 
         # Make a request to the meminator service
         body = {**phrase_result, **image_result}
         meminator_response = fetch_from_service('meminator', method="POST", body=body)
+        current_span.set_attribute("app.suspicious_size", meminator_response.__sizeof__)
 
         # Check if the response was successful
         if not meminator_response.ok or meminator_response.content is None:
             raise Exception(f"Failed to fetch picture from meminator: {meminator_response.status_code} {meminator_response.reason}")
+        current_span.set_attribute("app.imageSize", len(meminator_response.content))
 
         # Return the picture data
 

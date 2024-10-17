@@ -1,5 +1,7 @@
 # O11yDay Meminator
 
+Wifi: **@Hyatt_Meeting** access code **honeycomb24** 
+
 open this repo in Codespaces (or clone it) and `./run` (docker compose up)
 
 ## github.com/honeycombio/observability-day-workshop
