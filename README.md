@@ -1,5 +1,9 @@
 # O11yDay Meminator
 
+open this repo in Codespaces (or clone it) and `./run` (docker compose up)
+
+## github.com/honeycombio/observability-day-workshop
+
 This contains a sample application for use in the Observability Day workshops.
 
 See it in action: [meminator.honeydemo.io](https://meminator.honeydemo.io)
@@ -14,8 +18,6 @@ It generates images by combining a randomly chosen picture with a randomly chose
 4. Connect this app to Honeycomb.
 5. See what the traces look like.
 6. Improve the traces.
-
-Also, while you're here, maybe subscribe to our OpenTelemetry practitioner newsletter? [https://opentelemetryinpractice.net/](https://opentelemetryinpractice.net/)
 
 ## Running the application
 
@@ -140,7 +142,7 @@ There are different problems in node.js
 4. Maybe notice that there's a crapton of blahblah from fs-instrumentation. Show them library.name
 5. Disable the fs-instrumentation in backend-for-frontend-nodejs/tracing.ts. Note that i leave it on for meminator because meminator does meaningful stuff in the filesystem. It's already off for phrase-picker and image-picker.
 
-THe story of a feature flag: nodejs has a feature flag around the imagemagick call, with a separate implementation that runs 25% of the time (or whatever is set in featureFlags.ts). We want to know whether the new way is faster.
+The story of a feature flag: nodejs has a feature flag around the imagemagick call, with a separate implementation that runs 25% of the time (or whatever is set in featureFlags.ts). We want to know whether the new way is faster.
 
 You can look at which takes longer by feature flag, but if you drill into a few traces, often the download dominates. We need to see more clearly this particular piece, but there's no span around it. (at least, not when it works the old way. Austin's code for the library is already instrumented.)
 
