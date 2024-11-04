@@ -25,7 +25,11 @@ COPY tsconfig.json .
 COPY ./tmp ./tmp
 COPY ./src ./src
 
-RUN npx tsc 
+RUN mkdir -p /var/lib/dbus
+RUN echo 'nodejs-docker' > /etc/machine-id
+RUN echo 'nodejs-docker' > /var/lib/dbus/machine-id
+
+RUN npx tsc
 
 
 # Expose the port that your app runs on
