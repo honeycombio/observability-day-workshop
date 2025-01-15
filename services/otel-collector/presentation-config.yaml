@@ -1,0 +1,50 @@
+receivers:
+  # ...
+
+processors:
+  # ...  
+
+exporters:
+  # ...
+
+service:
+  pipelines:
+
+service:
+  telemetry:
+    metrics:
+      level: basic
+      readers:
+        - periodic:
+            exporter:
+              otlp:
+                endpoint: https://api.honeycomb.io:443
+                headers:
+                  x-honeycomb-team: ${COLLECTOR_HEALTH_HONEYCOMB_API_KEY}
+                  x-honeycomb-dataset: "collector-metrics"
+
+
+service:
+  telemetry:
+    logs:
+      processors:
+        - batch:
+            exporter:
+              otlp:
+                endpoint: https://api.honeycomb.io:443
+                headers:
+                  x-honeycomb-team: ${COLLECTOR_HEALTH_HONEYCOMB_API_KEY}
+                  x-honeycomb-dataset: "collector-logs"
+
+service:
+  telemetry:
+    traces:
+      processors:
+        - batch:
+            exporter:
+              otlp:
+                endpoint: https://api.honeycomb.io:443
+                headers:
+                  x-honeycomb-team: ${COLLECTOR_HEALTH_HONEYCOMB_API_KEY}
+                  x-honeycomb-dataset: "collector-logs"
+
