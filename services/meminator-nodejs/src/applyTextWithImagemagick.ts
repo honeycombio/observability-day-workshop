@@ -1,7 +1,7 @@
 import { generateRandomFilename } from "./download";
 import { trace } from "@opentelemetry/api";
 import { spawnProcess } from "./shellOut";
-import { logger } from "./logger";
+import { bunyan_logger } from "./logger";
 import { inSpanAsync } from "./o11yday-lib";
 
 const IMAGE_MAX_HEIGHT_PX = 1000;
@@ -81,7 +81,7 @@ async function checkWhetherTextFits(
         text
       );
       if (textWidth > imageWidth) {
-        logger.warn(
+        bunyan_logger.warn(
           {
             "text.width": textWidth,
             "image.width": imageWidth,
@@ -99,7 +99,7 @@ async function checkWhetherTextFits(
       return { textWidth, imageWidth };
     }
   ).then(({ textWidth, imageWidth }) =>
-    logger.info(
+    bunyan_logger.info(
       { "app.textWidth": textWidth, "app.imageWidth": imageWidth },
       "Text width check complete"
     )
