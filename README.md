@@ -169,7 +169,7 @@ Run this version with `docker compose -f docker-compose-awssdk.yaml up --build`
 
 To run this, you need to have AWS creds set up for `devrel-sandbox`.
 
-Look at the traces, and see that the SDK calls are already instrumented! It looks pretty cool.
+Look at the traces, and see that the SDK calls are already instrumented! It looks pretty cool. 
 
 ### Checklist before starting the workshop
 
@@ -178,7 +178,6 @@ Look at the traces, and see that the SDK calls are already instrumented! It look
 - run your app locally
 - make sure you're seeing traces in Honeycomb
 - run the load generator in scripts/loadgen.sh
-- Docker compose should not contain `platform:...` bits. Comment out all 5 of them.
 
 ### updating code
 
