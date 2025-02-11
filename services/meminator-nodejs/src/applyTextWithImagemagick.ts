@@ -1,7 +1,7 @@
 import { generateRandomFilename } from "./download";
 import { trace } from "@opentelemetry/api";
 import { spawnProcess } from "./shellOut";
-import { bunyan_logger } from "./logger";
+import { bunyanLogger } from "./logger";
 import { inSpanAsync } from "./o11yday-lib";
 
 const IMAGE_MAX_HEIGHT_PX = 1000;
@@ -12,7 +12,7 @@ export async function applyTextWithImagemagick(
   inputImagePath: string
 ) {
   const outputImagePath = `/tmp/${generateRandomFilename("png")}`;
-  //   logger.info(
+  //   bunyanLogger.info(
   //     {
   //       "app.inputImagePath": inputImagePath,
   //       "app.outputImagePath": outputImagePath,
@@ -81,7 +81,7 @@ async function checkWhetherTextFits(
         text
       );
       if (textWidth > imageWidth) {
-        bunyan_logger.warn(
+        bunyanLogger.warn(
           {
             "text.width": textWidth,
             "image.width": imageWidth,
@@ -99,7 +99,7 @@ async function checkWhetherTextFits(
       return { textWidth, imageWidth };
     }
   ).then(({ textWidth, imageWidth }) =>
-    bunyan_logger.info(
+    bunyanLogger.info(
       { "app.textWidth": textWidth, "app.imageWidth": imageWidth },
       "Text width check complete"
     )
@@ -132,7 +132,7 @@ async function measureImageWidth(filepath: string) {
   return await spawnProcess("identify", ["-format", "%w %x", filepath]).then(
     (result) => {
       const [width, density] = result.stdout.split(" ").map((s) => parseInt(s));
-      logger.debug(
+      bunyanLogger.debug(
         {
           "identify.filepath": filepath,
           "identify.width": width,
