@@ -1,0 +1,19 @@
+{
+  "tasks": {
+    "start": "deno run -A src/index.ts",
+    "start-local": "OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY} OTEL_SERVICE_NAME=image-picker deno run -A src/index.ts"   
+  },
+  "imports": {
+    "@oak/oak": "jsr:@oak/oak@^17.1.4",
+    "express": "npm:express@^4.21.1",
+    "@opentelemetry/api": "npm:@opentelemetry/api@^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "npm:@opentelemetry/auto-instrumentations-node@^0.50.2",
+    "@opentelemetry/exporter-trace-otlp-proto": "npm:@opentelemetry/exporter-trace-otlp-proto@^0.53.0",
+    "@opentelemetry/sdk-node": "npm:@opentelemetry/sdk-node@^0.53.0",
+    "@opentelemetry/sdk-trace-base": "npm:@opentelemetry/sdk-trace-base@^1.26.0"
+  },
+  "nodeModulesDir": "auto",
+  "compilerOptions": {
+    "strict": true
+  }
+}
