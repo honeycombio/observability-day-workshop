@@ -1,7 +1,7 @@
 {
   "tasks": {
     "start": "deno run -A src/index.ts",
-    "start-local": "OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY} OTEL_SERVICE_NAME=backend-for-frontend deno run -A src/index.ts"
+    "start-local": "OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=your-api-key-here OTEL_SERVICE_NAME=backend-for-frontend deno run -A src/index.ts"
   },
   "imports": {
     "@oak/oak": "jsr:@oak/oak@^17.1.4",
