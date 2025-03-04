@@ -1,5 +1,5 @@
-import "./tracing.ts";
 import express, { Request, Response } from "express";
+import process from "node:process";
 import { trace, context } from "@opentelemetry/api";
 import { BUCKET_NAME } from "./config.ts";
 
@@ -65,7 +65,7 @@ const app = express();
 const PORT = process.env.PORT || 10118;
 
 // Middleware to parse JSON bodies
-app.use(express.json());
+//app.use(express.json());
 
 app.get("/health", (req: Request, res: Response) => {
   res.send("OK");
@@ -73,7 +73,7 @@ app.get("/health", (req: Request, res: Response) => {
 
 app.get("/imageUrl", async (req: Request, res: Response) => {
   const imageUrl = choose(IMAGES);
-  // trace.getActiveSpan()?.setAttributes({ "app.imageUrl": imageUrl, "app.bucketName": BUCKET_NAME }); // INSTRUMENTATION: add relevant info
+  trace.getActiveSpan()?.setAttributes({ "app.imageUrl": imageUrl, "app.bucketName": BUCKET_NAME }); // INSTRUMENTATION: add relevant info
   res.send({ imageUrl });
 });
 

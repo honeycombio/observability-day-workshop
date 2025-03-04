@@ -1,0 +1,31 @@
+{
+  "name": "@o11yday/meminator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-local": "tsc && OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=${HONEYCOMB_API_KEY} OTEL_SERVICE_NAME=meminator node src/index.js",
+    "start": "node src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.670.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.50.2",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.53.0",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.53.0",
+    "@opentelemetry/instrumentation-bunyan": "^0.41.0",
+    "@opentelemetry/instrumentation-undici": "^0.6.0",
+    "@opentelemetry/sdk-node": "^0.53.0",
+    "bunyan": "^1.8.15",
+    "express": "^4.21.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node-fetch": "^2.6.11",
+    "@types/sharp": "^0.32.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

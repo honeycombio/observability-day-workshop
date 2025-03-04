@@ -1,15 +1,23 @@
 import { Hono } from "@hono/hono";
-import "./tracing.ts";
+import { stream } from '@hono/hono/streaming'
 import { fetchFromService } from "./o11yday-lib.ts";
-// import { trace, SpanStatusCode } from "@opentelemetry/api";
+import { trace, SpanStatusCode } from "@opentelemetry/api";
 
 const app = new Hono();
+console.log(Deno.env.get("OTEL_DENO"))
+
 app.get("/health", (c) => {
   return c.json({ message: "I am here", status_code: 200 });
 });
 
+app.get("/", (c) => {
+  const span = trace.getActiveSpan();
+  span?.setAttributes({ "app.phraseResponse": "phraseText", "app.imageResponse": "imageText" }); // INSTRUMENTATION: add relevant info to span
+  return c.json({ message: "I am here", status_code: 200 });
+});
+
 app.post("/createPicture", async (c) => {
-  // const span = trace.getActiveSpan();
+  const span = trace.getActiveSpan();
   try {
     const [phraseResponse, imageResponse] = await Promise.all([
       fetchFromService("phrase-picker"),
@@ -17,7 +25,7 @@ app.post("/createPicture", async (c) => {
     ]);
     const phraseText = phraseResponse.ok ? await phraseResponse.text() : "{}";
     const imageText = imageResponse.ok ? await imageResponse.text() : "{}";
-    //    span?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText }); // INSTRUMENTATION: add relevant info to span
+    span?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText }); // INSTRUMENTATION: add relevant info to span
     const phraseResult = JSON.parse(phraseText);
     const imageResult = JSON.parse(imageText);
 
@@ -41,20 +49,15 @@ app.post("/createPicture", async (c) => {
     }
 
     c.header("Content-Type", "image/png");
-    // Read the response body as binary data
-    const reader = response.body.getReader();
-    // Stream the chunks of the picture data to the response as they are received
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
 
-      c.body(value);
-    }
+    return stream(c, async (stream) => {
+      const reader = response?.body;
+      await stream.pipe(reader!)
+    })
+
   } catch (error) {
-    // span?.recordException(error as Error);
-    // span?.setStatus({ code: SpanStatusCode.ERROR }); // the instrumentation does this on a 500
+    span?.recordException(error as Error);
+    span?.setStatus({ code: SpanStatusCode.ERROR }); // the instrumentation does this on a 500
     console.error("Error creating picture:", error);
     return c.text('This is terrible', 500)
   }

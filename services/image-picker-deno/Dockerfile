@@ -5,7 +5,7 @@ FROM denoland/deno:latest
 WORKDIR /app
 COPY . .
 
-RUN deno cache src/index.ts --allow-scripts
+RUN deno install
 
 # Expose the port that your app runs on
 EXPOSE 10118

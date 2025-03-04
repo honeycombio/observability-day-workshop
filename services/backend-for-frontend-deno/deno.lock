@@ -1122,10 +1122,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@hono/hono@^4.7.2",
-      "npm:@opentelemetry/api@^1.9.0",
-      "npm:@opentelemetry/auto-instrumentations-node@~0.50.2",
-      "npm:@opentelemetry/exporter-trace-otlp-proto@0.53",
-      "npm:@opentelemetry/sdk-node@0.53"
+      "npm:@opentelemetry/api@^1.9.0"
     ]
   }
 }
