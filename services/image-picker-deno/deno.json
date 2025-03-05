@@ -1,0 +1,13 @@
+{
+  "tasks": {
+    "start": "OTEL_DENO=true deno run -A --unstable-otel src/index.ts",
+    "start-local": "OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=your-api-key-here OTEL_SERVICE_NAME=image-picker deno run -A src/index.ts"
+  },
+  "imports": {
+    "express": "npm:express@^4.21.1",
+    "@opentelemetry/api": "npm:@opentelemetry/api@^1.9.0"
+  },
+  "compilerOptions": {
+    "strict": true
+  }
+}
