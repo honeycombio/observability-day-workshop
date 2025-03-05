@@ -4,7 +4,6 @@ import { fetchFromService } from "./o11yday-lib.ts";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 
 const app = new Hono();
-console.log(Deno.env.get("OTEL_DENO"))
 
 app.get("/health", (c) => {
   return c.json({ message: "I am here", status_code: 200 });

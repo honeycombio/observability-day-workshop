@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "start": "OTEL_DENO=1 deno run -A --node-modules-dir=auto --unstable-otel src/index.ts",
+    "start": "OTEL_DENO=true deno run -A --node-modules-dir=auto --unstable-otel src/index.ts",
     "start-local": "OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=your-api-key-here OTEL_SERVICE_NAME=backend-for-frontend deno run -A src/index.ts"
   },
   "imports": {
