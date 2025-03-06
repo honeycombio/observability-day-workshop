@@ -10,8 +10,8 @@ Run `scripts/publish.sh`
 
 ## Deploying
 
-See [k8s/README.md](k8s/README.md) for my notes on deploying to Kubernetes.
-
+This is deployed to meminator.honeydemo.io in the SA Demo k8s cluster.
+The yaml for this is in the honeycombio/repo (private).
 
 ## Structure of the Application
 
