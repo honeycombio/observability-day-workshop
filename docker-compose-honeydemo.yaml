@@ -13,11 +13,11 @@ services:
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=backend-for-frontend
+      - OTEL_SERVICE_NAME=backend-for-frontend-python
 
   meminator:
     build:
-      context: services/meminator-nodejs
+      context: services/meminator-python
       dockerfile: Dockerfile
       platforms:
         - linux/amd64
@@ -28,26 +28,26 @@ services:
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=meminate
+      - OTEL_SERVICE_NAME=meminator-python
 
   phrase-picker:
     build:
-      context: services/phrase-picker-nodejs
+      context: services/phrase-picker-dotnet
       dockerfile: Dockerfile
       platforms:
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/phrase-picker:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
+    image: ${IMAGE_REPO_USER}/phrase-picker:${IMAGE_VERSION}
     ports:
       - "10117:10117" # the outer ports can't be the same
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=phrase-picker-${PROGRAMMING_LANGUAGE}
+      - OTEL_SERVICE_NAME=phrase-picker-dotnet
 
   image-picker:
     build:
-      context: services/image-picker-dotnet
+      context: services/image-picker-awssdk
       dockerfile: Dockerfile
       platforms:
         - linux/amd64
@@ -59,7 +59,7 @@ services:
       - BUCKET_NAME
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=image-picker
+      - OTEL_SERVICE_NAME=image-picker-awssdk
 
   web:
     build:

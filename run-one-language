@@ -7,10 +7,10 @@
 
 set -x # print what you run
 
-docker compose -f docker-compose-honeydemo.yaml up --build -d $*
+docker compose up --build -d $*
 
 source .env
-export HONEYCOMB_API_KEY
+export PROGRAMMING_LANGUAGE
 ./scripts/honeycomb-whoami.sh
 
 echo "http://localhost:10114"

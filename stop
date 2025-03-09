@@ -2,4 +2,4 @@
 
 echo "Stopping meminator application. Hit ^C a few times if you're in a hurry."
 
-docker compose down
+docker compose -f docker-compose-honeydemo.yaml down
