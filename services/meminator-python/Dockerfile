@@ -28,5 +28,5 @@ ENV FLASK_APP=src/server.py
 CMD ["opentelemetry-instrument", \
     # "--metrics_exporter", "none", \
     "flask", "run", \
-    "-p 10118", \
+    "-p 10116", \
     "--host=0.0.0.0"]
