@@ -10,11 +10,11 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-COPY tsconfig.json .
 # Copy the rest of the application code to the working directory
+COPY tsconfig.json .
 COPY ./src ./src
 
-RUN npx tsc 
+RUN npm run build
 
 # Expose the port that your app runs on
 EXPOSE 10118
