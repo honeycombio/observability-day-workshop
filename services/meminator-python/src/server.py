@@ -40,8 +40,6 @@ def meminate():
     if not os.path.exists(input_image_path):
         return 'downloaded image file not found', 500
     
-    # Define the text to apply
-
     # Define the output image path
     output_image_path = generate_random_filename(input_image_path)
 
@@ -58,7 +56,7 @@ def meminate():
     
     # #  Execute ImageMagick command to apply text to the image 
     # # INSTRUMENTATION: put this unit of work in its own span
-    # with tracer.start_as_current_span("span-name") as subprocess_span:
+    # with tracer.start_as_current_span("spawn process") as subprocess_span:
     # subprocess_span.set_attribute("app.subprocess.command", " ".join(command))
     result = subprocess.run(command, capture_output=True, text=True)
     # subprocess_span.set_attribute("app.subprocess.returncode", result.returncode)
