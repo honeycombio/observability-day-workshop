@@ -11,7 +11,6 @@ def health():
 @app.route('/createPicture', methods=['POST'])
 def create_picture():
         # current_span = trace.get_current_span() # INSTRUMENTATION: pull the current span out of thin air
-        # Fetch data from phrase-picker and image-picker services asynchronously
         phrase_response = fetch_from_service('phrase-picker')
         image_response = fetch_from_service('image-picker')
 
@@ -20,15 +19,11 @@ def create_picture():
         # current_span.set_attribute("app.phrase", phrase_result['phrase']) # INSTRUMENTATION: add the mose important attributes from the trace
         # current_span.set_attribute("app.image_url", image_result['imageUrl'])
 
-        # Make a request to the meminator service
         body = {**phrase_result, **image_result}
         meminator_response = fetch_from_service('meminator', method="POST", body=body)
 
-        # Check if the response was successful
         if not meminator_response.ok or meminator_response.content is None:
             raise Exception(f"Failed to fetch picture from meminator: {meminator_response.status_code} {meminator_response.reason}")
-
-        # Return the picture data
 
         flask_response = Response(meminator_response.content, status=meminator_response.status_code, content_type=meminator_response.headers.get('content-type'))
 
