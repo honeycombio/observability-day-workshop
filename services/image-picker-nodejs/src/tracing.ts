@@ -4,6 +4,7 @@ import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentation
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
 import * as opentelemetry from "@opentelemetry/api";
 import { ConfigurationSpanProcessor } from "./config";
+import { ExpressLayerType } from "@opentelemetry/instrumentation-express";
 
 opentelemetry.diag.setLogger(
   new opentelemetry.DiagConsoleLogger(),
@@ -20,8 +21,13 @@ const sdk = new NodeSDK({
     new BatchSpanProcessor(traceExporter),
   ],
   instrumentations: [
-    getNodeAutoInstrumentations(),
-    //  { '@opentelemetry/instrumentation-fs': { enabled: false } }
+    getNodeAutoInstrumentations({
+      //   '@opentelemetry/instrumentation-fs': { enabled: false }
+      //   "@opentelemetry/instrumentation-express": {
+      //     enabled: true,
+      //     ignoreLayersType: [ExpressLayerType.MIDDLEWARE],
+      //   },
+    }),
   ],
 });
 
