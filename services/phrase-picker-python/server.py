@@ -3,6 +3,8 @@ import random
 
 app = Flask(__name__)
 
+print("I am the phrase picker!")
+
 PHRASES = [
     "you're muted",
     "not dead yet",

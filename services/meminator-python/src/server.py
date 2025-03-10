@@ -15,6 +15,8 @@ tracer = trace.get_tracer("meminator-tracer")
 IMAGE_MAX_WIDTH_PX=1000
 IMAGE_MAX_HEIGHT_PX=1000
 
+print("I am the meminator! I put phrases on images")
+
 app = Flask(__name__)
 # Route for health check
 @app.route('/health')

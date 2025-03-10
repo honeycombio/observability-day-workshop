@@ -2,6 +2,8 @@ from flask import Flask, jsonify, Response
 from o11yday_lib import fetch_from_service
 # from opentelemetry import trace # INSTRUMENTATION: you can still use the API, everything will no-op if run without opentelemetry configured
 
+print("I am the backend-for-frontend!")
+
 app = Flask(__name__)
 # Route for health check
 @app.route('/health')
