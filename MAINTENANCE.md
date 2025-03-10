@@ -1,17 +1,19 @@
 # For workshop facilitators
 
-## Publishing
-
-To get new versions of the containers on Dockerhub for caching, log in appropriately.
-
-Be logged in to Docker as [o11yday](https://hub.docker.com/u/o11yday). This is in 1Password somewhere.
-
-Run `scripts/publish.sh`
-
 ## Deploying
 
 This is deployed to meminator.honeydemo.io in the SA Demo k8s cluster.
-The yaml for this is in the honeycombio/repo (private).
+The yaml for this is in the honeycombio/demo repo (private).
+
+To deploy,
+
+- log in to Docker as o11yday user
+- update the IMAGE_VERSION in .env
+- run `scripts/publish-honeydemo.sh`
+- check that something was indeed pushed to Dockerhub
+- log in to AWS
+- go to the demo repo, meminator directory
+- run the update script there.
 
 ## Structure of the Application
 
@@ -48,3 +50,13 @@ This one will always be in a Docker container, because it has 'imagemagick' inst
 It downloads the image to the local filesystem, then runs imagemagick to overlay the text, then returns the result (as binary image data).
 
 It throws files in /tmp, which it never cleans out.
+
+## Publishing images to attempt to make Advanced Instrumentation loading faster
+
+(I don't think this really works)
+
+To get new versions of the containers on Dockerhub for caching, log in appropriately.
+
+Be logged in to Docker as [o11yday](https://hub.docker.com/u/o11yday). This is in 1Password somewhere.
+
+Run `scripts/publish.sh`

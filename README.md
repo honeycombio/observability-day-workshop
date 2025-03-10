@@ -10,14 +10,11 @@ See it in action: [meminator.honeydemo.io](https://meminator.honeydemo.io)
 
 It generates images by combining a randomly chosen picture with a randomly chosen phrase.
 
-## Workshop Agenda
+## Sessions using this repository
 
-1. Hello! Welcome to Advanced Instrumentation with OpenTelemetry. A few [slides](https://docs.google.com/presentation/d/1jNJCuns5wrL9sOJfT8yAaQ5HR5bc_e1d6i88oGspe2k/edit?usp=sharing)
-2. Look at this app. It has default instrumentation.
-3. Run this app.
-4. Connect this app to Honeycomb.
-5. See what the traces look like.
-6. Improve the traces.
+Advanced Instrumentation Workshop ([instructions](docs/advanced-instrumentation.md)) - a 1.5 hour workshop on improving the instrumentation in this app.
+
+Instrumentation Strategies Session ([slides]())
 
 ## Running the application
 
@@ -40,9 +37,7 @@ git clone https://github.com/honeycombio/observability-day-workshop
 
 Have Docker installed.
 
-Edit `.env` if you would like to use the python implementation rather than nodejs.
-
-Define your Honeycomb API key. Add this to the middle of `.env`:
+Define your Honeycomb API key. Add this to the middle of `.env`: (or export it in your shell)
 
 ```bash
 HONEYCOMB_API_KEY="paste your api key here"
@@ -103,77 +98,8 @@ This should take you to a trace view!
 
 Does your trace include all 4 services?
 
-## Workshop Facilitator Notes
+### Checklist before starting the session
 
-First, ask them to clone this repo, log in to Docker Desktop to they don't get rate limited, and run `docker compose up`. Some of them will probably need to use GitPod or CodeSpaces because they brought their work laptop and it is locked down.
-
-While that's going, show them the few intro slides.
-
-Then walk them through getting an API Key in Honeycomb. I tell them to create a new team, unless they already have a personal team for play.
-
-Tell them to put the API key in .env, and then restart the app. If they see traces in Honeycomb, victory.
-
-### Flow through improving the traces
-
-Really, whatever problem shows up, drill into it and talk through how to improve the instrumentation.
-There's more here than fits in 1.5 hours.
-
-#### Python
-
-1. Start in Python. The traces are nicer there.
-2. Notice, maybe that some fail, or maybe that some are slower than others.
-3. See that you don't have important data like "which image was it?"
-4. Go to backend-for-frontend-python/server.py and **add attributes to the current span**.
-5. Rerun just that service: `./run backend-for-frontend`
-6. Maybe notice that there are some metrics coming in, in unknown_metrics. Look at the events in them, at the fields they have available. They're useless. Talk about how these would be better as attributes on the spans.
-7. Remove the metrics in backend-for-frontend-python/Dockerfile. This is an opportunity to talk about how otel is added from the outside in python.
-8. In meminator-python/server.py, un-comment-out the CustomSpanProcessor bit at the top. Show how the custom processor is adding the free space in /tmp, which it measures at most 1x/sec.
-9. Maybe notice (in the traces) that there's a blank space in meminator. After it downloads the file, what does it do?
-10. in meminator-python/server.py, create a span around the subprocess call.
-
-#### Node
-
-There are different problems in node.js
-
-1. change PROGRAMMING_LANGUAGE in .env to nodejs
-2. `docker compose down` and `./run` to restart
-3. Push go (or run the loadgen) and look at traces.
-
-4. Maybe notice that there's a crapton of blahblah from fs-instrumentation. Show them library.name
-5. Disable the fs-instrumentation in backend-for-frontend-nodejs/tracing.ts. Note that i leave it on for meminator because meminator does meaningful stuff in the filesystem. It's already off for phrase-picker and image-picker.
-
-The story of a feature flag: nodejs has a feature flag around the imagemagick call, with a separate implementation that runs 25% of the time (or whatever is set in featureFlags.ts). We want to know whether the new way is faster.
-
-You can look at which takes longer by feature flag, but if you drill into a few traces, often the download dominates. We need to see more clearly this particular piece, but there's no span around it. (at least, not when it works the old way. Austin's code for the library is already instrumented.)
-
-Feature flag options:
-
-8. Maybe notice an empty space in a trace, in the meminator. We need a span around some unit of work. In meminator-nodejs/index.ts, add a span around the whole featureFlag check. Watch: you can add this 2 different ways. Start with startSpan (marked with INSTRUMENTATION 1). Don't forget to end the span.
-9. Maybe add a span in spawnProcess. You always want a span around something like that. Don't forget to end the span.
-10. Run again and notice that the two new spans are siblings. They shouldn't be!
-11. NOw go back to meminator-nodejs/index.ts and change to startActiveSpan, marked with INSTRUMENTATION 2. Close the block at the bottom.
-12. Now you should see the child span. This is a useful concept to know.
-
-Logging and async reporting:
-
-13. Meminator has bunyan logging set up. Add a log, and see it appear on the span.
-14. There's a problem that the text doesn't always fit on the image. How can we find out how often that happens? Un-comment-out the check in applyTextWithImagemagick.
-
-Once you have the new span in place, and loadgen runs for a bit, you should be able to compare the execution times of the two operations. They're pretty close in my observations so far, the library isn't the big win we thought it would be. Graph the heatmap, the AVG, and the P99 and discuss.
-
-#### The AWS SDK version of Node
-
-There's yet another version of the app that uses the AWS SDK instead of hard-coded URLs.
-
-Run this version with `docker compose -f docker-compose-awssdk.yaml up --build`
-
-To run this, you need to have AWS creds set up for `devrel-sandbox`.
-
-Look at the traces, and see that the SDK calls are already instrumented! It looks pretty cool. 
-
-### Checklist before starting the workshop
-
-- .env should be set to the starting language (in main branch and on your computer)
 - additional tracing stuff that you'll add during the workshop should be commented out
 - run your app locally
 - make sure you're seeing traces in Honeycomb
