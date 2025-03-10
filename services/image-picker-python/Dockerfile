@@ -16,7 +16,7 @@ EXPOSE 10118
 ENV FLASK_APP=server.py
 
 CMD ["opentelemetry-instrument", \
-    # "--metrics_exporter", "none", \
+    "--metrics_exporter", "none", \
     "flask", "run", \
     "-p 10118", \
     "--host=0.0.0.0"]
