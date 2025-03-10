@@ -10,4 +10,6 @@ set -e
 
 # it will read .env
 
-docker compose -f docker-compose-honeydemo.yaml build --push
+docker compose -f docker-compose-honeydemo.yaml build --push    
+
+echo "https://hub.docker.com/r/o11yday/web/tags"
