@@ -25,7 +25,7 @@ def health():
     return jsonify(result)
 
 @app.route('/applyPhraseToPicture', methods=['POST', 'GET'])
-def meminate():
+def apply_phrase_to_picture():
     input = request.json or { "phrase": "I got you"}
     # request_span = trace.get_current_span()
 
