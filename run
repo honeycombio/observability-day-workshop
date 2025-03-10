@@ -11,6 +11,7 @@ docker compose -f docker-compose-honeydemo.yaml up --build -d $*
 
 source .env
 export HONEYCOMB_API_KEY
+export PROGRAMMING_LANGUAGE=python # this should to match the backend-for-frontend language in the docker config
 ./scripts/honeycomb-whoami.sh
 
 echo "http://localhost:10114"

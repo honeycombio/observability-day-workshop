@@ -47,7 +47,7 @@ services:
 
   image-picker:
     build:
-      context: services/image-picker-awssdk
+      context: services/image-picker-awssdk-nodejs
       dockerfile: Dockerfile
       platforms:
         - linux/amd64
@@ -59,7 +59,7 @@ services:
       - BUCKET_NAME
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=image-picker-awssdk
+      - OTEL_SERVICE_NAME=image-picker-awssdk-nodejs
 
   web:
     build:
