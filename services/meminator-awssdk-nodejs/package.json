@@ -15,7 +15,7 @@
     "@opentelemetry/auto-instrumentations-node": "^0.48.0",
     "@types/gm": "^1.25.4",
     "bunyan": "^1.8.15",
-    "express": "^4.19.2",
+    "express": "^4.21.2",
     "gm": "^1.25.0",
     "sharp": "^0.33.3",
     "typescript": "^5.4.3"
