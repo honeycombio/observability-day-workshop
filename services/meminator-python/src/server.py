@@ -30,7 +30,7 @@ def apply_phrase_to_picture():
     # request_span = trace.get_current_span()
 
     phrase = input.get("phrase", "words go here").upper()
-    # request_span.set_attribute("app.phrase", phrase) # INSINSTRUMENTATIONTR: add important bits
+    # request_span.set_attribute("app.phrase", phrase) # INSTRUMENTATION: add important bits
 
     imageUrl = input.get("imageUrl", "http://missing.booo/no-url-here.png")
     # request_span.set_attribute("app.imageUrl", imageUrl)
