@@ -7,6 +7,32 @@ RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
+# Function to display help
+show_help() {
+  echo "Usage: $0 [LANGUAGE]"
+  echo ""
+  echo "Run end-to-end tests for the Meminator Workshop application."
+  echo ""
+  echo "Options:"
+  echo "  --help     Display this help message and exit"
+  echo "  LANGUAGE   Specify the language for the backend-for-frontend service"
+  echo "             Valid languages: nodejs, python, dotnet, java"
+  echo ""
+  echo "Examples:"
+  echo "  $0                 # Run with all services"
+  echo "  $0 python          # Run with Python backend-for-frontend"
+  echo "  $0 nodejs          # Run with Node.js backend-for-frontend"
+  echo "  $0 dotnet          # Run with .NET backend-for-frontend"
+  echo "  $0 java            # Run with Java backend-for-frontend"
+  echo ""
+  exit 0
+}
+
+# Check if help is requested
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+  show_help
+fi
+
 # Check if a language argument was provided
 LANGUAGE=$1
 VALID_LANGUAGES=("nodejs" "python" "dotnet" "java")
@@ -24,6 +50,7 @@ if [ ! -z "$LANGUAGE" ]; then
   if [ "$VALID_LANGUAGE" = false ]; then
     echo -e "${RED}Invalid language: $LANGUAGE${NC}"
     echo -e "${YELLOW}Valid languages are: ${VALID_LANGUAGES[*]}${NC}"
+    echo -e "${YELLOW}Use --help for more information${NC}"
     exit 1
   fi
 
