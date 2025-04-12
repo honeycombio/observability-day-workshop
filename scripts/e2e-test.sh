@@ -197,42 +197,85 @@ fi
 
 HONEYCOMB_ENV="meminator-local"
 
-# Query Honeycomb for recent traces
-RECENT_TRACES=$(curl -s \
-  -H "X-Honeycomb-Team: $HONEYCOMB_API_KEY" \
-  "https://api.honeycomb.io/1/events/$HONEYCOMB_ENV/__all__?start_time=$(date -u -v-1M +%s)&end_time=$(date -u +%s)&limit=10")
+# Create a temporary file for the API response
+API_RESPONSE_FILE=$(mktemp)
 
-if echo "$RECENT_TRACES" | grep -q "error"; then
-  echo -e "${RED}Error querying Honeycomb API: $(echo "$RECENT_TRACES" | jq -r '.error')${NC}"
+# Query Honeycomb for recent traces
+echo -e "${YELLOW}Querying Honeycomb API for recent traces...${NC}"
+curl -s \
+  -H "X-Honeycomb-Team: $HONEYCOMB_API_KEY" \
+  "https://api.honeycomb.io/1/events/$HONEYCOMB_ENV/__all__?start_time=$(date -u -v-1M +%s)&end_time=$(date -u +%s)&limit=10" \
+  > "$API_RESPONSE_FILE"
+
+# Check if the response contains an error message
+if grep -q "error" "$API_RESPONSE_FILE"; then
+  echo -e "${RED}Error in Honeycomb API response:${NC}"
+  cat "$API_RESPONSE_FILE"
+  rm "$API_RESPONSE_FILE"
+  exit 1
+fi
+
+# Check if the response is valid JSON
+if ! jq . "$API_RESPONSE_FILE" > /dev/null 2>&1; then
+  echo -e "${RED}Invalid JSON response from Honeycomb API:${NC}"
+  cat "$API_RESPONSE_FILE"
+  rm "$API_RESPONSE_FILE"
   exit 1
 fi
 
 # Check if we have any traces
-TRACE_COUNT=$(echo "$RECENT_TRACES" | jq -r '. | length')
+TRACE_COUNT=$(jq '. | length' "$API_RESPONSE_FILE")
 
-if [ "$TRACE_COUNT" -eq 0 ]; then
+if [ -z "$TRACE_COUNT" ] || [ "$TRACE_COUNT" -eq 0 ]; then
   echo -e "${RED}No traces found in Honeycomb.${NC}"
+  rm "$API_RESPONSE_FILE"
   exit 1
 fi
 
 echo -e "${GREEN}Found $TRACE_COUNT recent traces in Honeycomb.${NC}"
 
 # Get the most recent trace ID
-TRACE_ID=$(echo "$RECENT_TRACES" | jq -r '.[0].trace.trace_id')
+TRACE_ID=$(jq -r '.[0].trace.trace_id' "$API_RESPONSE_FILE")
+
+if [ -z "$TRACE_ID" ] || [ "$TRACE_ID" = "null" ]; then
+  echo -e "${RED}Could not find a valid trace ID in the response.${NC}"
+  rm "$API_RESPONSE_FILE"
+  exit 1
+fi
 
 echo -e "${GREEN}Most recent trace ID: $TRACE_ID${NC}"
 
+# Clean up the first response file
+rm "$API_RESPONSE_FILE"
+
+# Create a new temporary file for the spans response
+SPANS_RESPONSE_FILE=$(mktemp)
+
 # Query for spans in this trace
-TRACE_SPANS=$(curl -s \
+echo -e "${YELLOW}Querying Honeycomb API for spans in trace $TRACE_ID...${NC}"
+curl -s \
   -H "X-Honeycomb-Team: $HONEYCOMB_API_KEY" \
-  "https://api.honeycomb.io/1/events/$HONEYCOMB_ENV/__all__?trace_id=$TRACE_ID")
+  "https://api.honeycomb.io/1/events/$HONEYCOMB_ENV/__all__?trace_id=$TRACE_ID" \
+  > "$SPANS_RESPONSE_FILE"
+
+# Check if the response is valid JSON
+if ! jq . "$SPANS_RESPONSE_FILE" > /dev/null 2>&1; then
+  echo -e "${RED}Invalid JSON response for spans:${NC}"
+  cat "$SPANS_RESPONSE_FILE"
+  rm "$SPANS_RESPONSE_FILE"
+  exit 1
+fi
+
+# Extract service names from the spans
+SERVICE_NAMES_FILE=$(mktemp)
+jq -r '.[].service.name' "$SPANS_RESPONSE_FILE" | sort | uniq > "$SERVICE_NAMES_FILE"
 
 # Check for spans from each service
 SERVICES=("backend-for-frontend-python" "meminator-python" "phrase-picker-dotnet" "image-picker-nodejs")
 MISSING_SERVICES=()
 
 for SERVICE in "${SERVICES[@]}"; do
-  if ! echo "$TRACE_SPANS" | jq -r '.[].service.name' | grep -q "$SERVICE"; then
+  if ! grep -q "$SERVICE" "$SERVICE_NAMES_FILE"; then
     MISSING_SERVICES+=("$SERVICE")
   fi
 done
@@ -242,14 +285,24 @@ if [ ${#MISSING_SERVICES[@]} -gt 0 ]; then
   for SERVICE in "${MISSING_SERVICES[@]}"; do
     echo -e "${RED}- $SERVICE${NC}"
   done
+
+  echo -e "${YELLOW}Services found in the trace:${NC}"
+  cat "$SERVICE_NAMES_FILE" | while read SERVICE; do
+    echo -e "${YELLOW}- $SERVICE${NC}"
+  done
+
+  rm "$SPANS_RESPONSE_FILE" "$SERVICE_NAMES_FILE"
   exit 1
 fi
 
 echo -e "${GREEN}All services contributed spans to the trace:${NC}"
 for SERVICE in "${SERVICES[@]}"; do
-  SPAN_COUNT=$(echo "$TRACE_SPANS" | jq -r ".[].service.name | select(. == \"$SERVICE\") | ." | wc -l | tr -d ' ')
+  SPAN_COUNT=$(grep -c "$SERVICE" "$SERVICE_NAMES_FILE")
   echo -e "${GREEN}- $SERVICE: $SPAN_COUNT spans${NC}"
 done
+
+# Clean up temporary files
+rm "$SPANS_RESPONSE_FILE" "$SERVICE_NAMES_FILE"
 
 # Print a link to view the trace in Honeycomb
 echo -e "${GREEN}End-to-end test completed successfully!${NC}"
