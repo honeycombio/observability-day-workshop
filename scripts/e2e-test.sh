@@ -303,7 +303,7 @@ if [ ! -z "$TRACE_ID" ]; then
     try {
       console.log('Navigating to trace URL...');
       // Navigate to the trace URL
-      await page.goto('$TRACE_URL', { timeout: 60000 });
+      await page.goto('${TRACE_URL}', { timeout: 60000 });
 
       // Wait for the trace to load
       console.log('Waiting for trace to load...');
@@ -316,8 +316,8 @@ if [ ! -z "$TRACE_ID" ]; then
 
       // Take a screenshot of the trace
       console.log('Taking screenshot of trace...');
-      await page.screenshot({ path: '$TRACE_SCREENSHOT_PATH', fullPage: true });
-      console.log('Screenshot saved to: $TRACE_SCREENSHOT_PATH');
+      await page.screenshot({ path: '${TRACE_SCREENSHOT_PATH}', fullPage: true });
+      console.log('Screenshot saved to: ${TRACE_SCREENSHOT_PATH}');
     } catch (error) {
       console.error('Error taking trace screenshot:', error);
       process.exit(1);
