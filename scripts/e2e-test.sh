@@ -270,13 +270,76 @@ if [ ! -z "$TRACE_ID" ]; then
   echo -e "${GREEN}Found trace ID: $TRACE_ID${NC}"
 
   # Provide a direct link to the trace
+  TRACE_URL="https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/trace?trace_id=$TRACE_ID"
   echo -e "${YELLOW}View the trace in Honeycomb:${NC}"
-  echo -e "${YELLOW}https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/trace?trace_id=$TRACE_ID${NC}"
+  echo -e "${YELLOW}$TRACE_URL${NC}"
 
   # Open the trace in the browser if requested
   if [ "$OPEN_TRACE" = "true" ]; then
     echo -e "${YELLOW}Opening trace in browser...${NC}"
-    open "https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/trace?trace_id=$TRACE_ID"
+    open "$TRACE_URL"
+  fi
+
+  # Create a script to take a screenshot of the trace
+  echo -e "${YELLOW}Taking a screenshot of the trace...${NC}"
+
+  # Create a temporary directory for the trace screenshot
+  TRACE_SCREENSHOT_DIR=$(mktemp -d)
+  TRACE_SCREENSHOT_PATH="$TRACE_SCREENSHOT_DIR/trace-screenshot.png"
+
+  # Create a script to visit the trace URL and take a screenshot
+  cat > trace-screenshot.js << EOL
+  const { chromium } = require('playwright');
+
+  (async () => {
+    // Launch the browser with more debugging options
+    const browser = await chromium.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    try {
+      console.log('Navigating to trace URL...');
+      // Navigate to the trace URL
+      await page.goto('$TRACE_URL', { timeout: 60000 });
+
+      // Wait for the trace to load
+      console.log('Waiting for trace to load...');
+
+      // Wait for the trace waterfall to appear
+      await page.waitForSelector('.trace-timeline', { timeout: 60000 });
+
+      // Wait a bit more for the trace to fully render
+      await page.waitForTimeout(5000);
+
+      // Take a screenshot of the trace
+      console.log('Taking screenshot of trace...');
+      await page.screenshot({ path: '$TRACE_SCREENSHOT_PATH', fullPage: true });
+      console.log('Screenshot saved to: $TRACE_SCREENSHOT_PATH');
+    } catch (error) {
+      console.error('Error taking trace screenshot:', error);
+      process.exit(1);
+    } finally {
+      await browser.close();
+    }
+  })();
+  EOL
+
+  # Run the script to take a screenshot of the trace
+  echo -e "${YELLOW}Running trace screenshot script...${NC}"
+  node trace-screenshot.js
+
+  # Check if the screenshot was created
+  if [ -f "$TRACE_SCREENSHOT_PATH" ]; then
+    echo -e "${GREEN}Trace screenshot saved to: $TRACE_SCREENSHOT_PATH${NC}"
+
+    # Copy the screenshot to a more accessible location
+    cp "$TRACE_SCREENSHOT_PATH" "./trace-screenshot.png"
+    echo -e "${GREEN}Trace screenshot also saved to: ./trace-screenshot.png${NC}"
+  else
+    echo -e "${RED}Failed to take a screenshot of the trace.${NC}"
   fi
 
   # Provide instructions for manually checking the trace

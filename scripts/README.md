@@ -35,8 +35,9 @@ export HONEYCOMB_API_KEY=your_api_key
    - Wait for the meme image to load
    - Take a screenshot after the image loads
    - Verify the image is displayed correctly
-5. Provides a direct link to the trace in Honeycomb UI
-6. Provides instructions for manually checking the trace in Honeycomb UI
+5. Takes a screenshot of the trace in Honeycomb UI
+6. Provides a direct link to the trace in Honeycomb UI
+7. Provides instructions for manually checking the trace in Honeycomb UI
 
 ### Troubleshooting
 
