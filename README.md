@@ -8,66 +8,38 @@ This contains a sample application for use in various workshops. Note that "o11y
 
 ## Service Architecture
 
-```
-                           ┌──────────────────────────┐
-                           │                          │
-                           │      Web Browser         │
-                           │                          │
-                           │                          │
-                           └────────────────┬─────────┘
-                                         │
-                                         │ HTTP Request
-                                         │ ▼
-                                 ┌───────────────┐
-                                 │               │
-                                 │  Web (Nginx)  │
-                                 │  Port: 10114  │
-                                 │               │
-                                 └───────┬───────┘
-                                         │ ▲
-                                         │ HTTP Response
-                                         │ (Image)
-                                         │
-                                         │ POST /backend/createPicture
-                                         ▼
-                           ┌─────────────────────────────┐
-                           │                             │
-                           │    Backend-for-Frontend    │
-                           │     (Python/Flask)         │
-                           │     Port: 10115            │
-                           │                             │
-                           └─┬─────────────┬────────────┬┘
-                             │             │            │
-                             │             │            │
-                             │             │            │
-┌──────────────────────┐     │             │            │     ┌──────────────────────┐
-│                      │     │             │            │     │                      │
-│    Phrase-Picker     │◄────┘             │            └────►│     Meminator        │
-│    (.NET)            │                   │                  │     (Python/Flask)   │
-│    Port: 10117       │                   │                  │     Port: 10116      │
-│                      │                   │                  │                      │
-└──────────────────────┘                   │                  └──────────────────────┘
-                                           │                           ▲
-                                           │                           │
-                                           │                           │
-                                           ▼                           │
-                           ┌──────────────────────────┐                │
-                           │                          │                │
-                           │     Image-Picker         │                │
-                           │     (Node.js/Express)    │                │
-                           │     Port: 10118          │                │
-                           │                          │                │
-                           └──────────────────────────┘                │
-                                                                       │
-                                                                       │
-                                                                       │
-                           ┌──────────────────────────┐                │
-                           │                          │                │
-                           │     External Image       │────────────────┘
-                           │     (S3 or Web URL)      │
-                           │                          │
-                           │                          │
-                           └──────────────────────────┘
+```mermaid
+graph TD
+    Browser["Web Browser"] --> |"HTTP Request"| Web
+    Web --> |"HTTP Response<br>(Image)"| Browser
+
+    Web["Web (Nginx)<br>Port: 10114"] --> |"POST /backend/createPicture"| BFF
+    BFF --> |"Response<br>(Image)"| Web
+
+    BFF["Backend-for-Frontend<br>(Python/Flask)<br>Port: 10115"] --> |"GET /phrase"| PhrasePicker
+    PhrasePicker --> |"Response<br>(Text)"| BFF
+
+    BFF --> |"GET /imageUrl"| ImagePicker
+    ImagePicker --> |"Response<br>(URL)"| BFF
+
+    BFF --> |"POST /createPicture"| Meminator
+    Meminator --> |"Response<br>(Image)"| BFF
+
+    PhrasePicker["Phrase-Picker<br>(.NET)<br>Port: 10117"]
+    ImagePicker["Image-Picker<br>(Node.js/Express)<br>Port: 10118"]
+    Meminator["Meminator<br>(Python/Flask)<br>Port: 10116"]
+
+    ImagePicker --> |"Returns URL"| BFF
+    Meminator --> |"Downloads"| ExternalImage
+    ExternalImage["External Image<br>(S3 or Web URL)"]
+
+    classDef service fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef browser fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef external fill:#bfb,stroke:#333,stroke-width:2px;
+
+    class PhrasePicker,ImagePicker,BFF,Meminator,Web service;
+    class Browser browser;
+    class ExternalImage external;
 ```
 
 The application flow:
