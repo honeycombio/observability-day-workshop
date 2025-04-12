@@ -87,9 +87,38 @@ const { chromium } = require('playwright');
     // Wait a moment to see if there's an error
     await page.waitForTimeout(2000);
 
+    // Enable console logging from the browser
+    page.on('console', msg => console.log(`Browser console: ${msg.text()}`));
+
+    // Wait a bit longer for the trace to be created
+    await page.waitForTimeout(3000);
+
     // Extract the trace ID from localStorage
     const traceId = await page.evaluate(() => {
-      return localStorage.getItem('currentTraceId') || document.body.getAttribute('data-trace-id') || null;
+      // Log the Honeycomb SDK object to see what's available
+      console.log('Honeycomb SDK:', window.Hny);
+
+      // Try to get the trace context
+      let traceContext = null;
+      if (window.Hny && typeof window.Hny.getTraceContext === 'function') {
+        try {
+          traceContext = window.Hny.getTraceContext();
+          console.log('Trace context:', traceContext);
+        } catch (e) {
+          console.error('Error getting trace context:', e);
+        }
+      } else {
+        console.warn('Honeycomb SDK not available or getTraceContext is not a function');
+      }
+
+      // Check localStorage and data attribute as fallbacks
+      const localStorageTraceId = localStorage.getItem('currentTraceId');
+      const dataAttributeTraceId = document.body.getAttribute('data-trace-id');
+
+      console.log('localStorage traceId:', localStorageTraceId);
+      console.log('data-trace-id attribute:', dataAttributeTraceId);
+
+      return (traceContext && traceContext.traceId) || localStorageTraceId || dataAttributeTraceId || null;
     });
 
     if (traceId) {
@@ -208,6 +237,11 @@ HONEYCOMB_ENV="meminator-local"
 # Check if we have a trace ID from the browser
 if [ -f "${TMP_DIR}/trace-id.txt" ]; then
   TRACE_ID=$(cat "${TMP_DIR}/trace-id.txt")
+elif [ -f "trace-id.txt" ]; then
+  TRACE_ID=$(cat "trace-id.txt")
+fi
+
+if [ ! -z "$TRACE_ID" ]; then
   echo -e "${GREEN}Found trace ID: $TRACE_ID${NC}"
 
   # Provide a direct link to the trace
