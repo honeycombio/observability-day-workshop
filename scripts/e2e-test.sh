@@ -98,19 +98,6 @@ const { chromium } = require('playwright');
       // Log the Honeycomb SDK object to see what's available
       console.log('Honeycomb SDK:', window.Hny);
 
-      // Try to get the trace context
-      let traceContext = null;
-      if (window.Hny && typeof window.Hny.getTraceContext === 'function') {
-        try {
-          traceContext = window.Hny.getTraceContext();
-          console.log('Trace context:', traceContext);
-        } catch (e) {
-          console.error('Error getting trace context:', e);
-        }
-      } else {
-        console.warn('Honeycomb SDK not available or getTraceContext is not a function');
-      }
-
       // Check localStorage and data attribute as fallbacks
       const localStorageTraceId = localStorage.getItem('currentTraceId');
       const dataAttributeTraceId = document.body.getAttribute('data-trace-id');
@@ -118,8 +105,46 @@ const { chromium } = require('playwright');
       console.log('localStorage traceId:', localStorageTraceId);
       console.log('data-trace-id attribute:', dataAttributeTraceId);
 
-      return (traceContext && traceContext.traceId) || localStorageTraceId || dataAttributeTraceId || null;
+      return localStorageTraceId || dataAttributeTraceId || null;
     });
+
+    // If we couldn't get the trace ID directly, let's try to find it in the network requests
+    if (!traceId) {
+      console.log('Trying to extract trace ID from network requests...');
+
+      // Enable network request monitoring
+      await page.route('**', route => {
+        const request = route.request();
+        const headers = request.headers();
+        console.log(`Request to ${request.url()}`);
+        console.log('Headers:', headers);
+
+        // Look for trace ID in headers
+        const traceParent = headers['traceparent'];
+        if (traceParent) {
+          console.log('Found traceparent header:', traceParent);
+          // traceparent format: 00-<trace-id>-<span-id>-<trace-flags>
+          const parts = traceParent.split('-');
+          if (parts.length >= 2) {
+            const extractedTraceId = parts[1];
+            console.log('Extracted trace ID from traceparent:', extractedTraceId);
+            require('fs').writeFileSync('trace-id.txt', extractedTraceId);
+          }
+        }
+
+        route.continue();
+      });
+
+      // Reload the page to capture the network requests
+      await page.reload();
+
+      // Wait a bit and then click GO again
+      await page.waitForSelector('#go');
+      await page.click('#go');
+
+      // Wait for any network requests to complete
+      await page.waitForTimeout(5000);
+    }
 
     if (traceId) {
       console.log('Extracted trace ID:', traceId);
