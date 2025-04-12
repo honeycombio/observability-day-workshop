@@ -15,45 +15,98 @@ if ! docker info > /dev/null 2>&1; then
   exit 1
 fi
 
+# Check if Node.js is installed
+if ! command -v node &> /dev/null; then
+  echo -e "${RED}Node.js is not installed. Please install Node.js and try again.${NC}"
+  exit 1
+fi
+
 # Check if the application is already running
 if ! docker ps | grep -q "meminator-workshop-web"; then
   echo -e "${YELLOW}Application is not running. Starting it now...${NC}"
   ./run
-  
+
   # Wait for services to be ready
   echo -e "${YELLOW}Waiting for services to be ready...${NC}"
   sleep 10
 fi
 
-# Make a request to the application
-echo -e "${YELLOW}Making a request to the application...${NC}"
-RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:10114)
+# Create a temporary directory for Playwright
+TMP_DIR=$(mktemp -d)
+cd "$TMP_DIR"
 
-if [ "$RESPONSE" != "200" ]; then
-  echo -e "${RED}Failed to get a successful response from the web service. Got HTTP $RESPONSE${NC}"
+# Initialize a Node.js project
+echo -e "${YELLOW}Setting up Playwright...${NC}"
+npm init -y > /dev/null 2>&1
+
+# Install Playwright
+npm install playwright > /dev/null 2>&1
+
+# Create a script to test the application with Playwright
+cat > test.js << 'EOL'
+const { chromium } = require('playwright');
+
+(async () => {
+  // Launch the browser
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  try {
+    // Navigate to the application
+    await page.goto('http://localhost:10114');
+
+    // Wait for the page to load
+    await page.waitForSelector('#go');
+
+    // Take a screenshot before clicking GO
+    await page.screenshot({ path: 'before-click.png' });
+
+    // Click the GO button
+    await page.click('#go');
+
+    // Wait for the image to load (the picture element becomes visible)
+    await page.waitForSelector('#picture[style*="display:block"]', { timeout: 30000 });
+
+    // Take a screenshot after the image is loaded
+    await page.screenshot({ path: 'after-click.png' });
+
+    // Check if the image is displayed
+    const isImageDisplayed = await page.evaluate(() => {
+      const img = document.querySelector('#picture');
+      return img && window.getComputedStyle(img).display !== 'none';
+    });
+
+    if (!isImageDisplayed) {
+      console.error('Image is not displayed');
+      process.exit(1);
+    }
+
+    console.log('Test completed successfully!');
+  } catch (error) {
+    console.error('Test failed:', error);
+    process.exit(1);
+  } finally {
+    await browser.close();
+  }
+})();
+EOL
+
+# Run the Playwright script
+echo -e "${YELLOW}Running browser test...${NC}"
+node test.js
+
+if [ $? -ne 0 ]; then
+  echo -e "${RED}Browser test failed.${NC}"
+  cd - > /dev/null
   exit 1
 fi
 
-echo -e "${GREEN}Web service is responding correctly.${NC}"
+echo -e "${GREEN}Browser test completed successfully.${NC}"
+echo -e "${GREEN}Screenshots saved in ${TMP_DIR}/before-click.png and ${TMP_DIR}/after-click.png${NC}"
 
-# Make a request to generate a meme
-echo -e "${YELLOW}Generating a meme...${NC}"
-MEME_RESPONSE=$(curl -s -o /tmp/meme.jpg -w "%{http_code}" -X POST http://localhost:10115/createPicture)
-
-if [ "$MEME_RESPONSE" != "200" ]; then
-  echo -e "${RED}Failed to generate a meme. Got HTTP $MEME_RESPONSE${NC}"
-  exit 1
-fi
-
-echo -e "${GREEN}Successfully generated a meme.${NC}"
-
-# Check if the meme file was created and has content
-if [ ! -s /tmp/meme.jpg ]; then
-  echo -e "${RED}Meme file is empty or was not created.${NC}"
-  exit 1
-fi
-
-echo -e "${GREEN}Meme file was created successfully.${NC}"
+# Return to the original directory
+cd - > /dev/null
 
 # Wait for traces to be sent to Honeycomb
 echo -e "${YELLOW}Waiting for traces to be sent to Honeycomb...${NC}"

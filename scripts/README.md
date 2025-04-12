@@ -9,8 +9,9 @@ The `e2e-test.sh` script performs an end-to-end test of the Meminator applicatio
 ### Prerequisites
 
 - Docker must be installed and running
+- Node.js must be installed (for Playwright)
 - The Meminator application must be built (the script will start it if not already running)
-- `curl` and `jq` must be installed
+- `jq` must be installed
 - A Honeycomb API key must be set in the `HONEYCOMB_API_KEY` environment variable
 
 ### Usage
@@ -25,10 +26,16 @@ export HONEYCOMB_API_KEY=your_api_key
 
 ### What the Script Does
 
-1. Checks if Docker is running
+1. Checks if Docker and Node.js are installed
 2. Starts the application if it's not already running
-3. Makes a request to the web service to verify it's responding
-4. Generates a meme by calling the backend-for-frontend service
+3. Sets up a temporary environment for Playwright
+4. Uses a headless browser to:
+   - Navigate to the web interface
+   - Take a screenshot before clicking the GO button
+   - Click the GO button
+   - Wait for the meme image to load
+   - Take a screenshot after the image loads
+   - Verify the image is displayed correctly
 5. Waits for traces to be sent to Honeycomb
 6. Queries the Honeycomb API to find recent traces
 7. Verifies that all services (backend-for-frontend, meminator, phrase-picker, image-picker) contributed spans to the trace
