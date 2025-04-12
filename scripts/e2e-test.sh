@@ -150,60 +150,14 @@ const { chromium } = require('playwright');
     page.on('console', msg => console.log(`Browser console: ${msg.text()}`));
 
     // Wait a bit longer for the trace to be created
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(5000);
 
-    // Extract the trace ID from localStorage
+    // Extract the trace ID from the body tag attribute
     const traceId = await page.evaluate(() => {
-      // Log the Honeycomb SDK object to see what's available
-      console.log('Honeycomb SDK:', window.Hny);
-
-      // Check localStorage and data attribute as fallbacks
-      const localStorageTraceId = localStorage.getItem('currentTraceId');
       const dataAttributeTraceId = document.body.getAttribute('data-trace-id');
-
-      console.log('localStorage traceId:', localStorageTraceId);
       console.log('data-trace-id attribute:', dataAttributeTraceId);
-
-      return localStorageTraceId || dataAttributeTraceId || null;
+      return dataAttributeTraceId || null;
     });
-
-    // If we couldn't get the trace ID directly, let's try to find it in the network requests
-    if (!traceId) {
-      console.log('Trying to extract trace ID from network requests...');
-
-      // Enable network request monitoring
-      await page.route('**', route => {
-        const request = route.request();
-        const headers = request.headers();
-        console.log(`Request to ${request.url()}`);
-        console.log('Headers:', headers);
-
-        // Look for trace ID in headers
-        const traceParent = headers['traceparent'];
-        if (traceParent) {
-          console.log('Found traceparent header:', traceParent);
-          // traceparent format: 00-<trace-id>-<span-id>-<trace-flags>
-          const parts = traceParent.split('-');
-          if (parts.length >= 2) {
-            const extractedTraceId = parts[1];
-            console.log('Extracted trace ID from traceparent:', extractedTraceId);
-            require('fs').writeFileSync('trace-id.txt', extractedTraceId);
-          }
-        }
-
-        route.continue();
-      });
-
-      // Reload the page to capture the network requests
-      await page.reload();
-
-      // Wait a bit and then click GO again
-      await page.waitForSelector('#go');
-      await page.click('#go');
-
-      // Wait for any network requests to complete
-      await page.waitForTimeout(5000);
-    }
 
     if (traceId) {
       console.log('Extracted trace ID:', traceId);
