@@ -46,9 +46,11 @@ export HONEYCOMB_API_KEY=your_api_key
 If the script fails, it will provide an error message indicating what went wrong. Common issues include:
 
 - Docker not running
+- Node.js not installed or too old (Node.js 14+ is recommended)
 - Services not starting correctly
 - Honeycomb API key not set or invalid
 - Network connectivity issues
 - Tracing not configured correctly in the services
+- Browser installation issues (the script will attempt to install the required browsers automatically)
 
 Check the error message and logs for more details on how to resolve the issue.

@@ -39,8 +39,10 @@ cd "$TMP_DIR"
 echo -e "${YELLOW}Setting up Playwright...${NC}"
 npm init -y > /dev/null 2>&1
 
-# Install Playwright
+# Install Playwright and browsers
+echo -e "${YELLOW}Installing Playwright and browsers...${NC}"
 npm install playwright > /dev/null 2>&1
+npx playwright install chromium > /dev/null 2>&1
 
 # Create a script to test the application with Playwright
 cat > test.js << 'EOL'
