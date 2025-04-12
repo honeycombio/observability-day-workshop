@@ -9,12 +9,24 @@ This contains a sample application for use in various workshops. Note that "o11y
 ## Service Architecture
 
 ```
+                           ┌──────────────────────────┐
+                           │                          │
+                           │      Web Browser         │
+                           │                          │
+                           │                          │
+                           └────────────────┬─────────┘
+                                         │
+                                         │ HTTP Request
+                                         │ ▼
                                  ┌───────────────┐
                                  │               │
                                  │  Web (Nginx)  │
                                  │  Port: 10114  │
                                  │               │
                                  └───────┬───────┘
+                                         │ ▲
+                                         │ HTTP Response
+                                         │ (Image)
                                          │
                                          │ POST /backend/createPicture
                                          ▼
@@ -60,17 +72,19 @@ This contains a sample application for use in various workshops. Note that "o11y
 
 The application flow:
 
-1. User clicks "GO" button on the web interface (meminator-web service)
-2. Web service sends POST request to Backend-for-Frontend via nginx proxy (/backend/createPicture)
-3. Backend-for-Frontend makes two parallel requests:
+1. User clicks "GO" button in the web browser
+2. Browser sends HTTP request to the Web service (Nginx)
+3. Web service forwards the POST request to Backend-for-Frontend via nginx proxy (/backend/createPicture)
+4. Backend-for-Frontend makes two parallel requests:
    - GET request to Phrase-Picker for a random phrase
    - GET request to Image-Picker for a random image URL
-4. Backend-for-Frontend combines the phrase and image URL and sends a POST request to Meminator
-5. Meminator downloads the image from the external source
-6. Meminator applies the phrase text to the image using ImageMagick
-7. Meminator returns the modified image to Backend-for-Frontend
-8. Backend-for-Frontend returns the image to the Web service
-9. The image is displayed on the web interface
+5. Backend-for-Frontend combines the phrase and image URL and sends a POST request to Meminator
+6. Meminator downloads the image from the external source
+7. Meminator applies the phrase text to the image using ImageMagick
+8. Meminator returns the modified image to Backend-for-Frontend
+9. Backend-for-Frontend returns the image to the Web service
+10. Web service returns the image to the browser
+11. Browser displays the generated meme image to the user
 
 See it in action: [meminator.honeydemo.io](https://meminator.honeydemo.io)
 
