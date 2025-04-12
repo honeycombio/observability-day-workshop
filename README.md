@@ -4,7 +4,56 @@ Open this repo in Codespaces (or clone it) and `./run` (docker compose up)
 
 ## github.com/honeycombio/meminator-workshop
 
-This contains a sample application for use in various workshops.
+This contains a sample application for use in various workshops. Note that "o11y" is a synonym for "observability". The application is implemented in various languages, so that you can play with instrumentation in any of them (or mix and match).
+
+## Service Architecture
+
+```
+                                 ┌───────────────┐
+                                 │               │
+                                 │  Web (Nginx)  │
+                                 │  Port: 10114  │
+                                 │               │
+                                 └───────┬───────┘
+                                         │
+                                         │ /backend/createPicture
+                                         ▼
+                           ┌─────────────────────────────┐
+                           │                             │
+                           │    Backend-for-Frontend    │
+                           │        Port: 10115         │
+                           │                             │
+                           └───┬─────────────┬───────────┘
+                               │             │
+                 ┌─────────────┘             └────────────┐
+                 │                                         │
+                 ▼                                         ▼
+     ┌───────────────────────┐               ┌───────────────────────┐
+     │                       │               │                       │
+     │     Phrase-Picker     │               │     Image-Picker      │
+     │     Port: 10117       │               │     Port: 10118       │
+     │                       │               │                       │
+     └───────────┬───────────┘               └───────────┬───────────┘
+                 │                                       │
+                 └───────────────┐       ┌───────────────┘
+                                 │       │
+                                 ▼       ▼
+                           ┌─────────────────────┐
+                           │                     │
+                           │     Meminator      │
+                           │     Port: 10116    │
+                           │                     │
+                           └─────────────────────┘
+```
+
+The application flow:
+
+1. User clicks "GO" button on the web interface
+2. Web service sends request to Backend-for-Frontend
+3. Backend-for-Frontend requests a random phrase from Phrase-Picker and a random image URL from Image-Picker
+4. Backend-for-Frontend sends both to Meminator
+5. Meminator downloads the image, applies the phrase text to it, and returns the modified image
+6. The image is displayed on the web interface
 
 See it in action: [meminator.honeydemo.io](https://meminator.honeydemo.io)
 
