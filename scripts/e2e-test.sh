@@ -148,7 +148,28 @@ if [ $? -ne 0 ]; then
 fi
 
 echo -e "${GREEN}Browser test completed successfully.${NC}"
-echo -e "${GREEN}Screenshots saved in ${TMP_DIR}/before-click.png and ${TMP_DIR}/after-click.png${NC}"
+
+# Check which screenshots were created and display appropriate message
+if [ -f "${TMP_DIR}/after-click.png" ]; then
+  echo -e "${GREEN}Image loaded successfully. Screenshots saved in:${NC}"
+  echo -e "${GREEN}- ${TMP_DIR}/before-click.png${NC}"
+  echo -e "${GREEN}- ${TMP_DIR}/after-click.png${NC}"
+elif [ -f "${TMP_DIR}/timeout-state.png" ]; then
+  echo -e "${YELLOW}Image loading timed out. Screenshots saved in:${NC}"
+  echo -e "${YELLOW}- ${TMP_DIR}/before-click.png${NC}"
+  echo -e "${YELLOW}- ${TMP_DIR}/timeout-state.png${NC}"
+elif [ -f "${TMP_DIR}/error-state.png" ]; then
+  echo -e "${YELLOW}Application showed an error. Screenshots saved in:${NC}"
+  echo -e "${YELLOW}- ${TMP_DIR}/before-click.png${NC}"
+  echo -e "${YELLOW}- ${TMP_DIR}/error-state.png${NC}"
+else
+  echo -e "${YELLOW}Only initial screenshot available: ${TMP_DIR}/before-click.png${NC}"
+fi
+
+# Check if the HTML content was saved
+if [ -f "${TMP_DIR}/page-content.html" ]; then
+  echo -e "${GREEN}Page HTML content saved to: ${TMP_DIR}/page-content.html${NC}"
+fi
 
 # Return to the original directory
 cd - > /dev/null
