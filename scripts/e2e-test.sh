@@ -266,96 +266,79 @@ elif [ -f "trace-id.txt" ]; then
   TRACE_ID=$(cat "trace-id.txt")
 fi
 
-if [ ! -z "$TRACE_ID" ]; then
-  echo -e "${GREEN}Found trace ID: $TRACE_ID${NC}"
+if [ -z "$TRACE_ID" ]; then
+  echo -e "${RED}No trace ID found. Exiting.${NC}"
+  exit 1
+fi
 
-  # Provide a direct link to the trace
-  TRACE_URL="https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/trace?trace_id=$TRACE_ID"
-  echo -e "${YELLOW}View the trace in Honeycomb:${NC}"
-  echo -e "${YELLOW}$TRACE_URL${NC}"
+echo -e "${GREEN}Found trace ID: $TRACE_ID${NC}"
 
-  # Open the trace in the browser if requested
-  if [ "$OPEN_TRACE" = "true" ]; then
-    echo -e "${YELLOW}Opening trace in browser...${NC}"
-    open "$TRACE_URL"
-  fi
+# Provide a direct link to the trace
+TRACE_URL="https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/trace?trace_id=$TRACE_ID"
+echo -e "${YELLOW}View the trace in Honeycomb:${NC}"
+echo -e "${YELLOW}$TRACE_URL${NC}"
 
-  # Create a script to take a screenshot of the trace
-  echo -e "${YELLOW}Taking a screenshot of the trace...${NC}"
+# Create a script to take a screenshot of the trace
+echo -e "${YELLOW}Taking a screenshot of the trace...${NC}"
 
-  # Create a temporary directory for the trace screenshot
-  TRACE_SCREENSHOT_DIR=$(mktemp -d)
-  TRACE_SCREENSHOT_PATH="$TRACE_SCREENSHOT_DIR/trace-screenshot.png"
+# Create a temporary directory for the trace screenshot
+TRACE_SCREENSHOT_DIR=$(mktemp -d)
+TRACE_SCREENSHOT_PATH="$TRACE_SCREENSHOT_DIR/trace-screenshot.png"
 
-  # Create a script to visit the trace URL and take a screenshot
-  cat > trace-screenshot.js << EOL
-  const { chromium } = require('playwright');
+# Create a script to visit the trace URL and take a screenshot
+cat > trace-screenshot.js << EOL
+const { chromium } = require('playwright');
 
-  (async () => {
-    // Launch the browser with more debugging options
-    const browser = await chromium.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const context = await browser.newContext();
-    const page = await context.newPage();
+(async () => {
+  // Launch the browser with more debugging options
+  const browser = await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+  const context = await browser.newContext();
+  const page = await context.newPage();
 
-    try {
-      console.log('Navigating to trace URL...');
-      // Navigate to the trace URL
-      await page.goto('${TRACE_URL}', { timeout: 60000 });
+  try {
+    console.log('Navigating to trace URL...');
+    // Navigate to the trace URL
+    await page.goto('${TRACE_URL}', { timeout: 60000 });
 
-      // Wait for the trace to load
-      console.log('Waiting for trace to load...');
+    // Wait for the trace to load
+    console.log('Waiting for trace to load...');
 
-      // Wait for the trace waterfall to appear
-      await page.waitForSelector('.trace-timeline', { timeout: 60000 });
+    // Wait for the trace waterfall to appear
+    await page.waitForSelector('.trace-timeline', { timeout: 60000 });
 
-      // Wait a bit more for the trace to fully render
-      await page.waitForTimeout(5000);
+    // Wait a bit more for the trace to fully render
+    await page.waitForTimeout(5000);
 
-      // Take a screenshot of the trace
-      console.log('Taking screenshot of trace...');
-      await page.screenshot({ path: '${TRACE_SCREENSHOT_PATH}', fullPage: true });
-      console.log('Screenshot saved to: ${TRACE_SCREENSHOT_PATH}');
-    } catch (error) {
-      console.error('Error taking trace screenshot:', error);
-      process.exit(1);
-    } finally {
-      await browser.close();
-    }
-  })();
-  EOL
+    // Take a screenshot of the trace
+    console.log('Taking screenshot of trace...');
+    await page.screenshot({ path: '${TRACE_SCREENSHOT_PATH}', fullPage: true });
+    console.log('Screenshot saved to: ${TRACE_SCREENSHOT_PATH}');
+  } catch (error) {
+    console.error('Error taking trace screenshot:', error);
+    process.exit(1);
+  } finally {
+    await browser.close();
+  }
+})();
+EOL
 
-  # Run the script to take a screenshot of the trace
-  echo -e "${YELLOW}Running trace screenshot script...${NC}"
-  node trace-screenshot.js
+# Run the script to take a screenshot of the trace
+echo -e "${YELLOW}Running trace screenshot script...${NC}"
+node trace-screenshot.js
 
-  # Check if the screenshot was created
-  if [ -f "$TRACE_SCREENSHOT_PATH" ]; then
-    echo -e "${GREEN}Trace screenshot saved to: $TRACE_SCREENSHOT_PATH${NC}"
+# Check if the screenshot was created
+if [ -f "$TRACE_SCREENSHOT_PATH" ]; then
+  echo -e "${GREEN}Trace screenshot saved to: $TRACE_SCREENSHOT_PATH${NC}"
 
-    # Copy the screenshot to a more accessible location
-    cp "$TRACE_SCREENSHOT_PATH" "./trace-screenshot.png"
-    echo -e "${GREEN}Trace screenshot also saved to: ./trace-screenshot.png${NC}"
-  else
-    echo -e "${RED}Failed to take a screenshot of the trace.${NC}"
-  fi
-
-  # Provide instructions for manually checking the trace
-  echo -e "${YELLOW}Please check the trace in Honeycomb UI to verify that all services contributed spans:${NC}"
-  echo -e "${YELLOW}- backend-for-frontend-python${NC}"
-  echo -e "${YELLOW}- meminator-python${NC}"
-  echo -e "${YELLOW}- phrase-picker-dotnet${NC}"
-  echo -e "${YELLOW}- image-picker-nodejs${NC}"
+  # Copy the screenshot to a more accessible location
+  cp "$TRACE_SCREENSHOT_PATH" "./trace-screenshot.png"
+  echo -e "${GREEN}Trace screenshot also saved to: ./trace-screenshot.png${NC}"
 else
-  echo -e "${YELLOW}No trace ID found. Please check Honeycomb UI for traces:${NC}"
-  echo -e "${YELLOW}https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/datasets/__all__/home${NC}"
-  echo -e "${YELLOW}Look for traces with the following services:${NC}"
-  echo -e "${YELLOW}- backend-for-frontend-python${NC}"
-  echo -e "${YELLOW}- meminator-python${NC}"
-  echo -e "${YELLOW}- phrase-picker-dotnet${NC}"
-  echo -e "${YELLOW}- image-picker-nodejs${NC}"
+  echo -e "${RED}Failed to take a screenshot of the trace.${NC}"
+  exit 1
 fi
 
 echo -e "${GREEN}End-to-end test completed successfully!${NC}"
