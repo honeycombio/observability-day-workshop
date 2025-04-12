@@ -286,6 +286,7 @@ TRACE_SCREENSHOT_DIR=$(mktemp -d)
 TRACE_SCREENSHOT_PATH="$TRACE_SCREENSHOT_DIR/trace-screenshot.png"
 
 # Create a script to visit the trace URL and take a screenshot
+cd "$TMP_DIR"
 cat > trace-screenshot.js << EOL
 const { chromium } = require('playwright');
 
@@ -328,6 +329,7 @@ EOL
 # Run the script to take a screenshot of the trace
 echo -e "${YELLOW}Running trace screenshot script...${NC}"
 node trace-screenshot.js
+cd - > /dev/null
 
 # Check if the screenshot was created
 if [ -f "$TRACE_SCREENSHOT_PATH" ]; then
