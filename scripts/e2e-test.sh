@@ -7,7 +7,30 @@ RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}Starting end-to-end test for Meminator Workshop...${NC}"
+# Check if a language argument was provided
+LANGUAGE=$1
+VALID_LANGUAGES=("nodejs" "python" "dotnet" "java")
+
+# Validate language if provided
+if [ ! -z "$LANGUAGE" ]; then
+  VALID_LANGUAGE=false
+  for VALID in "${VALID_LANGUAGES[@]}"; do
+    if [ "$LANGUAGE" = "$VALID" ]; then
+      VALID_LANGUAGE=true
+      break
+    fi
+  done
+
+  if [ "$VALID_LANGUAGE" = false ]; then
+    echo -e "${RED}Invalid language: $LANGUAGE${NC}"
+    echo -e "${YELLOW}Valid languages are: ${VALID_LANGUAGES[*]}${NC}"
+    exit 1
+  fi
+
+  echo -e "${YELLOW}Starting end-to-end test for Meminator Workshop using $LANGUAGE...${NC}"
+else
+  echo -e "${YELLOW}Starting end-to-end test for Meminator Workshop...${NC}"
+fi
 
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
@@ -24,7 +47,16 @@ fi
 # Check if the application is already running
 if ! docker ps | grep -q "meminator-workshop-web"; then
   echo -e "${YELLOW}Application is not running. Starting it now...${NC}"
-  ./run
+
+  if [ ! -z "$LANGUAGE" ]; then
+    # Use run-one-language with the specified language
+    echo -e "${YELLOW}Using $LANGUAGE for backend-for-frontend...${NC}"
+    export PROGRAMMING_LANGUAGE=$LANGUAGE
+    ./run-one-language
+  else
+    # Use the default run script
+    ./run
+  fi
 
   # Wait for services to be ready
   echo -e "${YELLOW}Waiting for services to be ready...${NC}"

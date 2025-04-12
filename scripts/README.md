@@ -18,9 +18,17 @@ The `e2e-test.sh` script performs an end-to-end test of the Meminator applicatio
 # Set your Honeycomb API key
 export HONEYCOMB_API_KEY=your_api_key
 
-# Run the end-to-end test
+# Run the end-to-end test with all services
 ./scripts/e2e-test.sh
+
+# Run with a specific language for the backend-for-frontend service
+./scripts/e2e-test.sh python
+./scripts/e2e-test.sh nodejs
+./scripts/e2e-test.sh dotnet
+./scripts/e2e-test.sh java
 ```
+
+When a language is specified, the script will use the `run-one-language` script instead of the default `run` script, and set the `PROGRAMMING_LANGUAGE` environment variable to the specified language.
 
 ### What the Script Does
 
