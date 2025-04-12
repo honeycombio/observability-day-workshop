@@ -87,6 +87,20 @@ const { chromium } = require('playwright');
     // Wait a moment to see if there's an error
     await page.waitForTimeout(2000);
 
+    // Extract the trace ID from localStorage
+    const traceId = await page.evaluate(() => {
+      return localStorage.getItem('currentTraceId') || document.body.getAttribute('data-trace-id') || null;
+    });
+
+    if (traceId) {
+      console.log('Extracted trace ID:', traceId);
+      // Write the trace ID to a file for the shell script to use
+      require('fs').writeFileSync('trace-id.txt', traceId);
+      console.log('Saved trace ID to', process.cwd() + '/trace-id.txt');
+    } else {
+      console.log('Could not extract trace ID');
+    }
+
     // Check for errors after clicking
     const errorAfterClick = await page.evaluate(() => {
       const errorElement = document.querySelector('#error');
@@ -191,16 +205,29 @@ echo -e "${YELLOW}Checking for traces in Honeycomb...${NC}"
 # Set Honeycomb environment
 HONEYCOMB_ENV="meminator-local"
 
-# Since we can't reliably use the Honeycomb API directly in this script,
-# we'll provide instructions for manually checking the traces
-echo -e "${GREEN}Browser test completed successfully!${NC}"
-echo -e "${YELLOW}To verify tracing, please check Honeycomb UI for traces:${NC}"
-echo -e "${YELLOW}https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/datasets/__all__/home${NC}"
-echo -e "${YELLOW}Look for traces with the following services:${NC}"
-echo -e "${YELLOW}- backend-for-frontend-python${NC}"
-echo -e "${YELLOW}- meminator-python${NC}"
-echo -e "${YELLOW}- phrase-picker-dotnet${NC}"
-echo -e "${YELLOW}- image-picker-nodejs${NC}"
+# Check if we have a trace ID from the browser
+if [ -f "${TMP_DIR}/trace-id.txt" ]; then
+  TRACE_ID=$(cat "${TMP_DIR}/trace-id.txt")
+  echo -e "${GREEN}Found trace ID: $TRACE_ID${NC}"
+
+  # Provide a direct link to the trace
+  echo -e "${YELLOW}View the trace in Honeycomb:${NC}"
+  echo -e "${YELLOW}https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/trace?trace_id=$TRACE_ID${NC}"
+
+  # Open the trace in the browser if requested
+  if [ "$OPEN_TRACE" = "true" ]; then
+    echo -e "${YELLOW}Opening trace in browser...${NC}"
+    open "https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/trace?trace_id=$TRACE_ID"
+  fi
+else
+  echo -e "${YELLOW}No trace ID found. Please check Honeycomb UI for traces:${NC}"
+  echo -e "${YELLOW}https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/datasets/__all__/home${NC}"
+  echo -e "${YELLOW}Look for traces with the following services:${NC}"
+  echo -e "${YELLOW}- backend-for-frontend-python${NC}"
+  echo -e "${YELLOW}- meminator-python${NC}"
+  echo -e "${YELLOW}- phrase-picker-dotnet${NC}"
+  echo -e "${YELLOW}- image-picker-nodejs${NC}"
+fi
 
 echo -e "${GREEN}End-to-end test completed successfully!${NC}"
 

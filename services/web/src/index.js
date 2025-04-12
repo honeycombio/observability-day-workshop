@@ -18,6 +18,29 @@ async function fetchPicture() {
     document.getElementById("message").innerText = "Generating meme...";
     document.getElementById("message").style = "display:block";
 
+    // Get the current trace ID from Honeycomb SDK
+    let traceId = "unknown";
+    try {
+      // Access the current active span from the global Honeycomb SDK
+      if (window.Hny && window.Hny.getTraceContext) {
+        const traceContext = window.Hny.getTraceContext();
+        traceId = traceContext.traceId || "unknown";
+        console.log("Current trace ID:", traceId);
+
+        // Store the trace ID in localStorage for the e2e test to access
+        localStorage.setItem("currentTraceId", traceId);
+
+        // Also add it as a data attribute to the body for easier access
+        document.body.setAttribute("data-trace-id", traceId);
+      } else {
+        console.warn(
+          "Honeycomb SDK not available or missing getTraceContext method"
+        );
+      }
+    } catch (error) {
+      console.error("Error accessing trace context:", error);
+    }
+
     const response = await fetch("/backend/createPicture", {
       method: "POST",
       headers: {
