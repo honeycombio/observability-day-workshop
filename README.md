@@ -1,10 +1,10 @@
-# O11yDay Meminator
+# Meminator Workshop
 
-open this repo in Codespaces (or clone it) and `./run` (docker compose up)
+Open this repo in Codespaces (or clone it) and `./run` (docker compose up)
 
-## github.com/honeycombio/observability-day-workshop
+## github.com/honeycombio/meminator-workshop
 
-This contains a sample application for use in the Observability Day workshops.
+This contains a sample application for use in various workshops.
 
 See it in action: [meminator.honeydemo.io](https://meminator.honeydemo.io)
 
@@ -20,7 +20,7 @@ Instrumentation Strategies Session ([slides]())
 
 Run this locally in docker-compose, sending traces to Honeycomb. Then you can practice improving the instrumentation for better observability.
 
-If you don't have Docker locally, you can [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/observability-day-workshop) or use Codespaces.
+If you don't have Docker locally, you can [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/meminator-workshop) or use Codespaces.
 
 ```
 export HONEYCOMB_API_KEY="paste your api key here"
@@ -32,7 +32,7 @@ export HONEYCOMB_API_KEY="paste your api key here"
 Clone this repository.
 
 ```bash
-git clone https://github.com/honeycombio/observability-day-workshop
+git clone https://github.com/honeycombio/meminator-workshop
 ```
 
 Have Docker installed.

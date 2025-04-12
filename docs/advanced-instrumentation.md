@@ -1,6 +1,6 @@
 # Advanced Instrumentation workshop
 
-This is a workshop delivered at Observability Days throughout 2024.
+This is a workshop that can be delivered at various events throughout the year.
 
 ## Workshop Agenda
 
@@ -21,7 +21,7 @@ In `.env` uncomment-out one of the PROGRAMMING_LANGUAGE definitions.
 
 Run this locally in docker-compose, sending traces to Honeycomb. Then you can practice improving the instrumentation for better observability.
 
-If you don't have Docker locally, you can [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/observability-day-workshop) or use Codespaces.
+If you don't have Docker locally, you can [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/meminator-workshop) or use Codespaces.
 
 ```
 export HONEYCOMB_API_KEY="paste your api key here"
@@ -33,7 +33,7 @@ export HONEYCOMB_API_KEY="paste your api key here"
 Clone this repository.
 
 ```bash
-git clone https://github.com/honeycombio/observability-day-workshop
+git clone https://github.com/honeycombio/meminator-workshop
 ```
 
 Have Docker installed.
