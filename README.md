@@ -16,44 +16,61 @@ This contains a sample application for use in various workshops. Note that "o11y
                                  │               │
                                  └───────┬───────┘
                                          │
-                                         │ /backend/createPicture
+                                         │ POST /backend/createPicture
                                          ▼
                            ┌─────────────────────────────┐
                            │                             │
                            │    Backend-for-Frontend    │
-                           │        Port: 10115         │
+                           │     (Python/Flask)         │
+                           │     Port: 10115            │
                            │                             │
-                           └───┬─────────────┬───────────┘
-                               │             │
-                 ┌─────────────┘             └────────────┐
-                 │                                         │
-                 ▼                                         ▼
-     ┌───────────────────────┐               ┌───────────────────────┐
-     │                       │               │                       │
-     │     Phrase-Picker     │               │     Image-Picker      │
-     │     Port: 10117       │               │     Port: 10118       │
-     │                       │               │                       │
-     └───────────┬───────────┘               └───────────┬───────────┘
-                 │                                       │
-                 └───────────────┐       ┌───────────────┘
-                                 │       │
-                                 ▼       ▼
-                           ┌─────────────────────┐
-                           │                     │
-                           │     Meminator      │
-                           │     Port: 10116    │
-                           │                     │
-                           └─────────────────────┘
+                           └─┬─────────────┬────────────┬┘
+                             │             │            │
+                             │             │            │
+                             │             │            │
+┌──────────────────────┐     │             │            │     ┌──────────────────────┐
+│                      │     │             │            │     │                      │
+│    Phrase-Picker     │◄────┘             │            └────►│     Meminator        │
+│    (.NET)            │                   │                  │     (Python/Flask)   │
+│    Port: 10117       │                   │                  │     Port: 10116      │
+│                      │                   │                  │                      │
+└──────────────────────┘                   │                  └──────────────────────┘
+                                           │                           ▲
+                                           │                           │
+                                           │                           │
+                                           ▼                           │
+                           ┌──────────────────────────┐                │
+                           │                          │                │
+                           │     Image-Picker         │                │
+                           │     (Node.js/Express)    │                │
+                           │     Port: 10118          │                │
+                           │                          │                │
+                           └──────────────────────────┘                │
+                                                                       │
+                                                                       │
+                                                                       │
+                           ┌──────────────────────────┐                │
+                           │                          │                │
+                           │     External Image       │────────────────┘
+                           │     (S3 or Web URL)      │
+                           │                          │
+                           │                          │
+                           └──────────────────────────┘
 ```
 
 The application flow:
 
-1. User clicks "GO" button on the web interface
-2. Web service sends request to Backend-for-Frontend
-3. Backend-for-Frontend requests a random phrase from Phrase-Picker and a random image URL from Image-Picker
-4. Backend-for-Frontend sends both to Meminator
-5. Meminator downloads the image, applies the phrase text to it, and returns the modified image
-6. The image is displayed on the web interface
+1. User clicks "GO" button on the web interface (meminator-web service)
+2. Web service sends POST request to Backend-for-Frontend via nginx proxy (/backend/createPicture)
+3. Backend-for-Frontend makes two parallel requests:
+   - GET request to Phrase-Picker for a random phrase
+   - GET request to Image-Picker for a random image URL
+4. Backend-for-Frontend combines the phrase and image URL and sends a POST request to Meminator
+5. Meminator downloads the image from the external source
+6. Meminator applies the phrase text to the image using ImageMagick
+7. Meminator returns the modified image to Backend-for-Frontend
+8. Backend-for-Frontend returns the image to the Web service
+9. The image is displayed on the web interface
 
 See it in action: [meminator.honeydemo.io](https://meminator.honeydemo.io)
 
