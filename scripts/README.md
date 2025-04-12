@@ -35,12 +35,8 @@ export HONEYCOMB_API_KEY=your_api_key
    - Wait for the meme image to load
    - Take a screenshot after the image loads
    - Verify the image is displayed correctly
-5. Validates the distributed trace in Honeycomb:
-   - Queries the Honeycomb API for all spans in the trace
-   - Verifies that all expected services contributed spans
-   - Counts the number of spans per service
-   - Fails if any expected service is missing
-6. Provides a direct link to the trace in Honeycomb UI
+5. Provides a direct link to the trace in Honeycomb UI
+6. Provides instructions for manually checking the trace in Honeycomb UI
 
 ### Troubleshooting
 

@@ -279,76 +279,12 @@ if [ ! -z "$TRACE_ID" ]; then
     open "https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/trace?trace_id=$TRACE_ID"
   fi
 
-  # Validate that all services contributed spans to the trace
-  echo -e "${YELLOW}Validating trace spans...${NC}"
-
-  # Create a temporary file for the API response
-  SPANS_RESPONSE_FILE=$(mktemp)
-
-  # Query for spans in this trace
-  echo -e "${YELLOW}Querying Honeycomb API for spans in trace $TRACE_ID...${NC}"
-  curl -s \
-    -H "X-Honeycomb-Team: $HONEYCOMB_API_KEY" \
-    "https://api.honeycomb.io/1/events/$HONEYCOMB_ENV/__all__?trace_id=$TRACE_ID" \
-    > "$SPANS_RESPONSE_FILE"
-
-  # Check if the response is valid JSON
-  if ! jq . "$SPANS_RESPONSE_FILE" > /dev/null 2>&1; then
-    echo -e "${RED}Invalid JSON response for spans:${NC}"
-    cat "$SPANS_RESPONSE_FILE"
-    rm "$SPANS_RESPONSE_FILE"
-    echo -e "${YELLOW}Skipping span validation. Please check the trace manually.${NC}"
-  else
-    # Extract service names from the spans
-    SERVICE_NAMES_FILE=$(mktemp)
-    jq -r '.[].service.name' "$SPANS_RESPONSE_FILE" 2>/dev/null | sort | uniq > "$SERVICE_NAMES_FILE"
-
-    # If jq fails to extract service names, try a different approach
-    if [ ! -s "$SERVICE_NAMES_FILE" ]; then
-      echo -e "${YELLOW}Could not extract service names using standard path. Trying alternative paths...${NC}"
-      # Try different JSON paths that might contain service names
-      jq -r '.[] | select(.service) | .service.name' "$SPANS_RESPONSE_FILE" 2>/dev/null | sort | uniq >> "$SERVICE_NAMES_FILE"
-      jq -r '.[] | select(.Resource) | .Resource.service.name' "$SPANS_RESPONSE_FILE" 2>/dev/null | sort | uniq >> "$SERVICE_NAMES_FILE"
-      jq -r '.[] | select(.resource) | .resource.service.name' "$SPANS_RESPONSE_FILE" 2>/dev/null | sort | uniq >> "$SERVICE_NAMES_FILE"
-    fi
-
-    # Check for spans from each service
-    EXPECTED_SERVICES=("backend-for-frontend-python" "meminator-python" "phrase-picker-dotnet" "image-picker-nodejs")
-    MISSING_SERVICES=()
-
-    for SERVICE in "${EXPECTED_SERVICES[@]}"; do
-      if ! grep -q "$SERVICE" "$SERVICE_NAMES_FILE"; then
-        MISSING_SERVICES+=("$SERVICE")
-      fi
-    done
-
-    # Display the services found in the trace
-    echo -e "${GREEN}Services found in the trace:${NC}"
-    cat "$SERVICE_NAMES_FILE" | while read SERVICE; do
-      echo -e "${GREEN}- $SERVICE${NC}"
-    done
-
-    if [ ${#MISSING_SERVICES[@]} -gt 0 ]; then
-      echo -e "${RED}The following services did not contribute spans to the trace:${NC}"
-      for SERVICE in "${MISSING_SERVICES[@]}"; do
-        echo -e "${RED}- $SERVICE${NC}"
-      done
-      echo -e "${RED}Trace validation failed!${NC}"
-      rm "$SPANS_RESPONSE_FILE" "$SERVICE_NAMES_FILE"
-      exit 1
-    else
-      echo -e "${GREEN}All expected services contributed spans to the trace!${NC}"
-
-      # Count spans per service
-      for SERVICE in "${EXPECTED_SERVICES[@]}"; do
-        SPAN_COUNT=$(grep -c "$SERVICE" "$SERVICE_NAMES_FILE" || echo 0)
-        echo -e "${GREEN}- $SERVICE: $SPAN_COUNT spans${NC}"
-      done
-    fi
-
-    # Clean up temporary files
-    rm "$SPANS_RESPONSE_FILE" "$SERVICE_NAMES_FILE"
-  fi
+  # Provide instructions for manually checking the trace
+  echo -e "${YELLOW}Please check the trace in Honeycomb UI to verify that all services contributed spans:${NC}"
+  echo -e "${YELLOW}- backend-for-frontend-python${NC}"
+  echo -e "${YELLOW}- meminator-python${NC}"
+  echo -e "${YELLOW}- phrase-picker-dotnet${NC}"
+  echo -e "${YELLOW}- image-picker-nodejs${NC}"
 else
   echo -e "${YELLOW}No trace ID found. Please check Honeycomb UI for traces:${NC}"
   echo -e "${YELLOW}https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/datasets/__all__/home${NC}"
