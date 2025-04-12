@@ -31,10 +31,11 @@ export HONEYCOMB_API_KEY=your_api_key
    - Navigate to the web interface
    - Take a screenshot before clicking the GO button
    - Click the GO button
+   - Extract the trace ID from the traceparent header
    - Wait for the meme image to load
    - Take a screenshot after the image loads
    - Verify the image is displayed correctly
-5. Provides instructions for manually checking traces in the Honeycomb UI
+5. Provides a direct link to the trace in Honeycomb UI
 
 ### Troubleshooting
 
