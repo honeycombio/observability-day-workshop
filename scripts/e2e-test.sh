@@ -104,19 +104,26 @@ const { chromium } = require('playwright');
       console.log('Continuing test despite error...');
     } else {
       console.log('Waiting for image to load...');
-      // Wait for the image to load with a longer timeout
-      try {
-        await page.waitForSelector('#picture[style*="display:block"]', { timeout: 15000 });
-        console.log('Image loaded successfully');
+      // Wait a moment for any network requests to complete
+      await page.waitForTimeout(5000);
 
-        // Take a screenshot after the image is loaded
-        await page.screenshot({ path: 'after-click.png' });
-        console.log('Took screenshot after image loaded');
-      } catch (timeoutError) {
-        console.error('Timeout waiting for image to load');
-        // Take a screenshot anyway to see the current state
+      // Take a screenshot of the current state
+      await page.screenshot({ path: 'after-click.png' });
+      console.log('Took screenshot after clicking GO');
+
+      // Check if the image element has a src attribute (indicating it loaded something)
+      const imageLoaded = await page.evaluate(() => {
+        const img = document.querySelector('#picture');
+        return img && img.src && img.src !== '' && !img.src.includes('undefined');
+      });
+
+      if (imageLoaded) {
+        console.log('Image loaded successfully');
+      } else {
+        console.error('Image may not have loaded properly');
+        // Save this screenshot as the timeout state as well for backward compatibility
         await page.screenshot({ path: 'timeout-state.png' });
-        console.log('Took screenshot of timeout state');
+        console.log('Saved additional screenshot as timeout-state.png');
       }
     }
 
