@@ -18,6 +18,15 @@ async function fetchPicture() {
     document.getElementById("message").innerText = "Generating meme...";
     document.getElementById("message").style = "display:block";
 
+    // Hide feedback and dimensions when loading a new image
+    document.getElementById("feedback").style = "display:none";
+
+    // Hide dimensions display if it exists
+    const dimensionsElement = document.getElementById("image-dimensions");
+    if (dimensionsElement) {
+      dimensionsElement.style = "display:none";
+    }
+
     // Get the current trace ID from Honeycomb SDK
     let traceId = "unknown";
     try {
