@@ -10,18 +10,20 @@ set -e
 
 if [[ "$1" == "python" || "$1" == "nodejs" || "$1" == "dotnet" ]]; then
   PROGRAMMING_LANGUAGE_FROM_ARG=$1
-  echo "Using $PROGRAMMING_LANGUAGE_FROM_ARG as programming language"
+ 
   shift
 fi
-
-docker compose up --build -d $*
 
 source .env
 # if the first argument is python, nodejs, or dotnet, override whatever was in .env
 if [[ -n "$PROGRAMMING_LANGUAGE_FROM_ARG" ]]; then
-  export PROGRAMMING_LANGUAGE=$PROGRAMMING_LANGUAGE_FROM_ARG
+  echo "Using $PROGRAMMING_LANGUAGE_FROM_ARG as programming language"
+  PROGRAMMING_LANGUAGE=$PROGRAMMING_LANGUAGE_FROM_ARG
 fi
 export PROGRAMMING_LANGUAGE
+
+docker compose up --build -d $*
+
 ./scripts/honeycomb-whoami.sh
 
 echo "http://localhost:10114"
