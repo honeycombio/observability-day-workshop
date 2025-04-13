@@ -42,10 +42,12 @@ async function fetchPicture() {
       console.error("Error getting trace ID:", error);
     }
 
+    // Call the Python backend-for-frontend service
     const response = await fetch("/backend/createPicture", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-Trace-Id": traceId
       },
       // Optionally, you can send data in the request body if needed
       // body: JSON.stringify({ /* any data you want to send */ })
@@ -87,18 +89,49 @@ async function submitRating(rating) {
   console.log("User rating:", rating);
 
   // Create a span for the rating submission
-  window.Hny.inChildSpan("meminator-web", "submit-rating", undefined, (span) => {
+  window.Hny.inChildSpan("meminator-web", "submit-rating", (span) => {
     try {
       span.setAttribute("rating.value", rating);
 
-      // Here you would typically send the rating to the server
-      // For now, we'll just log it and show a thank you message
-      document.getElementById("feedback").innerHTML = `
-      <p>Thanks for your feedback!</p>
-      <p>You rated this meme: ${rating === "thumbs-up" ? "👍" : "👎"}</p>
-      `;
+      // Get the current trace ID
+      let traceId = "unknown";
+      try {
+        const spanContext = window.Hny.activeSpanContext();
+        if (spanContext) {
+          traceId = spanContext.traceId || "unknown";
+        }
+      } catch (error) {
+        console.error("Error getting trace ID for rating:", error);
+      }
+
+      // Send the rating to the backend
+      fetch("/backend/rating", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Trace-Id": traceId
+        },
+        body: JSON.stringify({ rating: rating })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to submit rating");
+        }
+        return response.json();
+      })
+      .then(() => {
+        // Show thank you message
+        document.getElementById("feedback").innerHTML = `
+        <p>Thanks for your feedback!</p>
+        <p>You rated this meme: ${rating === "thumbs-up" ? "👍" : "👎"}</p>
+        `;
+      })
+      .catch(error => {
+        console.error("Error submitting rating to server:", error);
+        alert("There was an error submitting your rating. Please try again.");
+      });
     } catch (error) {
-      console.error("Error submitting rating:", error);
+      console.error("Error in rating submission:", error);
       alert("There was an error submitting your rating. Please try again.");
     }
   });
