@@ -43,11 +43,11 @@ async function fetchPicture() {
     }
 
     // Call the Python backend-for-frontend service
+    // OpenTelemetry will automatically handle trace propagation
     const response = await fetch("/backend/createPicture", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "X-Trace-Id": traceId
+        "Content-Type": "application/json"
       },
       // Optionally, you can send data in the request body if needed
       // body: JSON.stringify({ /* any data you want to send */ })
@@ -93,23 +93,12 @@ async function submitRating(rating) {
     try {
       span.setAttribute("rating.value", rating);
 
-      // Get the current trace ID
-      let traceId = "unknown";
-      try {
-        const spanContext = window.Hny.activeSpanContext();
-        if (spanContext) {
-          traceId = spanContext.traceId || "unknown";
-        }
-      } catch (error) {
-        console.error("Error getting trace ID for rating:", error);
-      }
-
       // Send the rating to the backend
+      // OpenTelemetry will automatically handle trace propagation
       fetch("/backend/rating", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "X-Trace-Id": traceId
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({ rating: rating })
       })
