@@ -72,12 +72,12 @@ services:
     environment:
       - HONEYCOMB_API_KEY
 
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:${COLLECTOR_VERSION}
-    ports:
-      - "4317:4317" # OpenTelemetry gRPC
-      - "4318:4318" # OpenTelemetry HTTP
-    volumes:
-      - ./services/otel-collector/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
-    environment:
-      - HONEYCOMB_API_KEY
+  # otel-collector:
+  #   image: otel/opentelemetry-collector-contrib:${COLLECTOR_VERSION}
+  #   ports:
+  #     - "4317:4317" # OpenTelemetry gRPC
+  #     - "4318:4318" # OpenTelemetry HTTP
+  #   volumes:
+  #     - ./services/otel-collector/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+  #   environment:
+  #     - HONEYCOMB_API_KEY
