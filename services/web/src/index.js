@@ -90,7 +90,6 @@ async function submitRating(rating) {
 
   // Create a span for the rating submission
   window.Hny.inChildSpan("meminator-web", "submit-rating", (span) => {
-    try {
       span.setAttribute("rating.value", rating);
 
       // Send the rating to the backend
@@ -115,14 +114,6 @@ async function submitRating(rating) {
         <p>You rated this meme: ${rating === "thumbs-up" ? "👍" : "👎"}</p>
         `;
       })
-      .catch(error => {
-        console.error("Error submitting rating to server:", error);
-        alert("There was an error submitting your rating. Please try again.");
-      });
-    } catch (error) {
-      console.error("Error in rating submission:", error);
-      alert("There was an error submitting your rating. Please try again.");
-    }
   });
 }
 
