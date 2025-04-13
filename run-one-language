@@ -11,6 +11,10 @@ set -e
 docker compose up --build -d $*
 
 source .env
+// if the first argument is python, nodejs, dotnet, or java, override whatever was in .env
+if [[ "$1" == "python" || "$1" == "nodejs" || "$1" == "dotnet" || "$1" == "java" ]]; then
+  PROGRAMMING_LANGUAGE=$1
+fi
 export PROGRAMMING_LANGUAGE
 ./scripts/honeycomb-whoami.sh
 
