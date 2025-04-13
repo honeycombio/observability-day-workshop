@@ -6,7 +6,7 @@
 # `./run meminator`
 
 set -x # print what you run
-
+set -e
 docker compose -f docker-compose-honeydemo.yaml up --build -d $*
 
 source .env

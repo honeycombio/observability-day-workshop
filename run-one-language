@@ -6,6 +6,7 @@
 # `./run meminator`
 
 set -x # print what you run
+set -e 
 
 docker compose up --build -d $*
 
