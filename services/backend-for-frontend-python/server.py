@@ -33,6 +33,8 @@ def create_picture():
 
         return flask_response
 
+special_tracer = trace.get_tracer("report-rating")
+
 @app.route('/rating', methods=['POST'])
 def submit_rating():
     rating_data = request.json
@@ -42,35 +44,21 @@ def submit_rating():
     if current_span and rating_data and 'rating' in rating_data:
         current_span.set_attribute("app.rating", rating_data['rating'])
 
-    # Check if we have picture trace and span IDs
-    if rating_data and 'pictureTraceId' in rating_data and 'pictureSpanId' in rating_data:
-        try:
-            # Get the tracer
-            tracer = trace.get_tracer(__name__)
-
-            # Log the received trace and span IDs
-            picture_trace_id = rating_data['pictureTraceId']
-            picture_span_id = rating_data['pictureSpanId']
-            print(f"Received picture trace_id: {picture_trace_id} and span_id: {picture_span_id}")
-
-            # Create a span in the context of the picture's trace
-            # Note: In a real implementation, we would use the trace context to create a span
-            # in the same trace as the picture. However, for this example, we'll create a span
-            # in the current trace and link it to the picture's trace via attributes.
-            with tracer.start_as_current_span(
-                "rating-received",
-                kind=SpanKind.SERVER
-            ) as rating_span:
-                # Add attributes to link this span to the picture's trace
-                rating_span.set_attribute("picture.trace_id", picture_trace_id)
-                rating_span.set_attribute("picture.span_id", picture_span_id)
-                rating_span.set_attribute("rating.value", rating_data['rating'])
-                rating_span.set_attribute("rating.source", "backend-for-frontend-python")
-
-                # Log that we created a span
-                print(f"Created rating span with picture trace_id: {picture_trace_id} and span_id: {picture_span_id}")
-        except Exception as e:
-            print(f"Error creating span in picture trace context: {e}")
+    # Create a special span that is attached to the picture-creation trace.
+    special_context = trace.set_span_in_context(
+            trace.NonRecordingSpan(
+                trace.SpanContext(
+                    # trace an span ids are encoded in hex, so must be converted
+                    trace_id=rating_data.pictureSpanContext.traceId,
+                    span_id=rating_data.pictureSpanContext.spanId,
+                    is_remote=True,
+                    trace_flags=trace.TraceFlags(trace.TraceFlags.SAMPLED),
+                    trace_state=trace.TraceState(),
+                )
+            ))
+    specialSpan = special_tracer.start_span("user rating", context=special_context)
+    specialSpan.set_attribute("app.rating", rating_data['rating'])
+    specialSpan.end()
 
     return jsonify({"status": "success"})
 
