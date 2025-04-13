@@ -86,23 +86,22 @@ document.getElementById("go").addEventListener("click", fetchPicture);
 async function submitRating(rating) {
   console.log("User rating:", rating);
 
-  try {
-    // Create a span for the rating submission
-    const span = window.Hny.startSpan("submit-rating");
-    span.setAttribute("rating.value", rating);
+  // Create a span for the rating submission
+  window.Hny.inChildSpan("submit-rating", (span) => {
+    try {
+      span.setAttribute("rating.value", rating);
 
-    // Here you would typically send the rating to the server
-    // For now, we'll just log it and show a thank you message
-    document.getElementById("feedback").innerHTML = `
+      // Here you would typically send the rating to the server
+      // For now, we'll just log it and show a thank you message
+      document.getElementById("feedback").innerHTML = `
       <p>Thanks for your feedback!</p>
       <p>You rated this meme: ${rating === "thumbs-up" ? "👍" : "👎"}</p>
-    `;
-
-    span.end();
-  } catch (error) {
-    console.error("Error submitting rating:", error);
-    alert("There was an error submitting your rating. Please try again.");
-  }
+      `;
+    } catch (error) {
+      console.error("Error submitting rating:", error);
+      alert("There was an error submitting your rating. Please try again.");
+    }
+  });
 }
 
 // Add event listeners for the rating buttons
