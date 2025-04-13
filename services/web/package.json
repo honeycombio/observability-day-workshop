@@ -4,12 +4,13 @@
   "description": "bundle up a static page",
   "main": "static/index.html",
   "scripts": {
-    "build": "parcel build static/index.html"
+    "build": "node build.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "parcel-bundler": "^1.12.5"
+    "esbuild": "^0.20.2",
+    "esbuild-plugin-copy": "^2.1.1"
   },
   "dependencies": {
     "@honeycombio/opentelemetry-web": "^0.1.0",
