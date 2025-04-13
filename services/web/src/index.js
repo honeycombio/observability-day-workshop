@@ -74,15 +74,7 @@ async function fetchPicture() {
 document.getElementById("go").addEventListener("click", fetchPicture);
 
 // Function to handle the rating submission
-async function submitRating() {
-  const selectedRating = document.querySelector('input[name="rating"]:checked');
-
-  if (!selectedRating) {
-    alert("Please select a rating before submitting");
-    return;
-  }
-
-  const rating = selectedRating.value;
+async function submitRating(rating) {
   console.log("User rating:", rating);
 
   try {
@@ -104,6 +96,10 @@ async function submitRating() {
   }
 }
 
+// Add event listeners for the rating buttons
 document
-  .getElementById("submit-rating")
-  .addEventListener("click", submitRating);
+  .getElementById("thumbs-up")
+  .addEventListener("click", () => submitRating("thumbs-up"));
+document
+  .getElementById("thumbs-down")
+  .addEventListener("click", () => submitRating("thumbs-down"));

@@ -76,39 +76,27 @@
             margin: 15px 0;
         }
 
-        .rating-option {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .rating-option input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-        }
-
         .emoji {
             font-size: 2.5rem;
-            transition: transform 0.2s;
-        }
-
-        .rating-option:hover .emoji,
-        .rating-option input[type="radio"]:checked + .emoji {
-            transform: scale(1.3);
+            display: block;
+            margin-bottom: 5px;
         }
 
         .label {
+            display: block;
             margin-top: 5px;
             font-size: 1rem;
         }
 
         .rating-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             border: 3px solid orange;
             background-color: #333;
             color: white;
-            border-radius: 8px;
-            padding: 8px 16px;
+            border-radius: 12px;
+            padding: 10px 20px;
             font-weight: 600;
             font-size: 1rem;
             font-family: 'Roboto', sans-serif;
@@ -119,6 +107,7 @@
         .rating-button:hover {
             background-color: orange;
             color: black;
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -135,18 +124,15 @@
         <div id="feedback" style="display:none" class="feedback-container">
             <p>How do you like this meme?</p>
             <div class="rating-options">
-                <label class="rating-option">
-                    <input type="radio" name="rating" value="thumbs-up">
+                <button id="thumbs-up" class="rating-button">
                     <span class="emoji">👍</span>
                     <span class="label">Love it!</span>
-                </label>
-                <label class="rating-option">
-                    <input type="radio" name="rating" value="thumbs-down">
+                </button>
+                <button id="thumbs-down" class="rating-button">
                     <span class="emoji">👎</span>
                     <span class="label">Not great</span>
-                </label>
+                </button>
             </div>
-            <button id="submit-rating" class="rating-button">Submit</button>
         </div>
     </div>
     <script type="text/javascript" src="../src/index.js">
