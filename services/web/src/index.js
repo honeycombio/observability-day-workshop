@@ -84,7 +84,7 @@ document.getElementById("go").addEventListener("click", fetchPicture);
 
 // Function to handle the rating submission
 async function submitRating(rating) {
-  console.log("User rating:", rating);
+  console.log("User rating was:", rating);
 
   // Create a span for the rating submission
   window.Hny.inChildSpan("meminator-web", "submit-rating", (span) => {
