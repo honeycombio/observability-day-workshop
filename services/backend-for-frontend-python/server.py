@@ -1,10 +1,11 @@
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, Response, request
 from o11yday_lib import fetch_from_service
-# from opentelemetry import trace # INSTRUMENTATION: you can still use the API, everything will no-op if run without opentelemetry configured
+from opentelemetry import trace  # Uncomment this for tracing
 
 print("I am the backend-for-frontend!")
 
 app = Flask(__name__)
+
 # Route for health check
 @app.route('/health')
 def health():
@@ -30,6 +31,16 @@ def create_picture():
         flask_response = Response(meminator_response.content, status=meminator_response.status_code, content_type=meminator_response.headers.get('content-type'))
 
         return flask_response
+
+@app.route('/rating', methods=['POST'])
+def submit_rating():
+    rating_data = request.json
+    current_span = trace.get_current_span()
+    
+    if current_span and rating_data and 'rating' in rating_data:
+        current_span.set_attribute("app.rating", rating_data['rating'])
+    
+    return jsonify({"status": "success"})
 
 if __name__ == '__main__':
     app.run(debug=True, port=10115)
