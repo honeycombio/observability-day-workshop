@@ -115,8 +115,10 @@ async function submitRating(rating) {
         },
         body: JSON.stringify({
           rating: rating,
-          pictureTraceId: storedTraceId,
-          pictureSpanId: storedSpanId
+          pictureSpanContext: { 
+            traceId: storedTraceId,
+            spanId: storedSpanId
+          }
         })
       })
       .then(response => {
