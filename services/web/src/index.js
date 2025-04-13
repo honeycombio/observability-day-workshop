@@ -27,19 +27,23 @@ async function fetchPicture() {
       dimensionsElement.style = "display:none";
     }
 
-    // Get the current trace ID from Honeycomb SDK
+    // Get the current trace ID and span ID from Honeycomb SDK
     let traceId = "unknown";
+    let spanId = "unknown";
     try {
       const spanContext = window.Hny.activeSpanContext();
       if (spanContext) {
         console.log("Span context when hitting Go: ", spanContext);
         traceId = spanContext.traceId || "unknown";
+        spanId = spanContext.spanId || "unknown";
       }
 
-      // add it as a data attribute to the body for the e2e test to access
+      // add them as data attributes to the body for later access
       document.body.setAttribute("data-trace-id", traceId);
+      document.body.setAttribute("data-span-id", spanId);
+      console.log(`Stored trace_id: ${traceId} and span_id: ${spanId} in body attributes`);
     } catch (error) {
-      console.error("Error getting trace ID:", error);
+      console.error("Error getting trace/span IDs:", error);
     }
 
     // Call the Python backend-for-frontend service
@@ -92,10 +96,14 @@ async function submitRating(rating) {
   window.Hny.inChildSpan("meminator-web", "submit-rating", undefined, (span) => {
       span.setAttribute("rating.value", rating);
 
-      // Get the trace ID from the body tag that was stored during picture fetch
+      // Get the trace ID and span ID from the body tag that was stored during picture fetch
       const storedTraceId = document.body.getAttribute("data-trace-id") || "unknown";
+      const storedSpanId = document.body.getAttribute("data-span-id") || "unknown";
+
+      // Add them as span attributes for better tracing
       span.setAttribute("picture.trace_id", storedTraceId);
-      console.log("Using stored trace ID for rating:", storedTraceId);
+      span.setAttribute("picture.span_id", storedSpanId);
+      console.log(`Using stored trace_id: ${storedTraceId} and span_id: ${storedSpanId} for rating`);
 
       // Send the rating to the backend
       // Include the stored trace ID in the request body
@@ -107,7 +115,8 @@ async function submitRating(rating) {
         },
         body: JSON.stringify({
           rating: rating,
-          pictureTraceId: storedTraceId
+          pictureTraceId: storedTraceId,
+          pictureSpanId: storedSpanId
         })
       })
       .then(response => {
