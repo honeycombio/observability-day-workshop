@@ -55,8 +55,30 @@ async function fetchPicture() {
     // Set the image source to the URL
     document.getElementById("loading-meme").style = "display:none";
     document.getElementById("message").style = "display:none";
-    document.getElementById("picture").src = imgUrl;
-    document.getElementById("picture").style = "display:block;";
+    const pictureElement = document.getElementById("picture");
+    pictureElement.src = imgUrl;
+    pictureElement.style = "display:block;";
+
+    // Add event listener to get image dimensions after it loads
+    pictureElement.onload = function () {
+      const width = this.naturalWidth;
+      const height = this.naturalHeight;
+      console.log(`Image dimensions: ${width}x${height}`);
+
+      // Create or update dimensions display
+      let dimensionsElement = document.getElementById("image-dimensions");
+      if (!dimensionsElement) {
+        dimensionsElement = document.createElement("div");
+        dimensionsElement.id = "image-dimensions";
+        dimensionsElement.style =
+          "margin-top: 10px; font-size: 0.9rem; color: #aaa;";
+        pictureElement.parentNode.insertBefore(
+          dimensionsElement,
+          document.getElementById("feedback")
+        );
+      }
+      dimensionsElement.textContent = `Image dimensions: ${width}x${height} pixels`;
+    };
 
     // Show the feedback form
     document.getElementById("feedback").style = "display:block";
@@ -65,6 +87,13 @@ async function fetchPicture() {
     document.getElementById("loading-meme").style = "display:none";
     document.getElementById("picture").style = "display:none;";
     document.getElementById("feedback").style = "display:none";
+
+    // Hide dimensions display if it exists
+    const dimensionsElement = document.getElementById("image-dimensions");
+    if (dimensionsElement) {
+      dimensionsElement.style = "display:none;";
+    }
+
     document.getElementById("message").innerText =
       "There was an error fetching a picture. Please retry.";
     document.getElementById("message").style = "display:block;";
