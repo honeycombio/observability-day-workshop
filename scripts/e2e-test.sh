@@ -94,6 +94,10 @@ fi
 TMP_DIR=$(mktemp -d)
 cd "$TMP_DIR"
 
+# Record start time for the trace link
+TRACE_START_TIME=$(date +%s)
+echo "Test start time: $(date)"
+
 # Initialize a Node.js project
 echo -e "${YELLOW}Setting up Playwright...${NC}"
 npm init -y > /dev/null 2>&1
@@ -262,6 +266,14 @@ fi
 # Return to the original directory
 cd - > /dev/null
 
+# Record end time for the trace link
+TRACE_END_TIME=$(date +%s)
+echo "Test end time: $(date)"
+
+# Add a buffer to the time range (5 minutes before start, 5 minutes after end)
+TRACE_START_TIME=$((TRACE_START_TIME - 300))
+TRACE_END_TIME=$((TRACE_END_TIME + 300))
+
 # Wait for traces to be sent to Honeycomb
 echo -e "${YELLOW}Waiting for traces to be sent to Honeycomb...${NC}"
 sleep 5
@@ -286,10 +298,11 @@ fi
 
 echo -e "${GREEN}Found trace ID: $TRACE_ID${NC}"
 
-# Provide a direct link to the trace
-TRACE_URL="https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/trace?trace_id=$TRACE_ID"
+# Provide a direct link to the trace with time range
+TRACE_URL="https://ui.honeycomb.io/modernity/environments/$HONEYCOMB_ENV/trace?trace_id=$TRACE_ID&trace_start_ts=$TRACE_START_TIME&trace_end_ts=$TRACE_END_TIME"
 echo -e "${YELLOW}View the trace in Honeycomb:${NC}"
 echo -e "${YELLOW}$TRACE_URL${NC}"
+echo -e "${YELLOW}(Time range: $(date -r $TRACE_START_TIME) to $(date -r $TRACE_END_TIME))${NC}"
 
 # Create a script to take a screenshot of the trace
 echo -e "${YELLOW}Taking a screenshot of the trace...${NC}"
