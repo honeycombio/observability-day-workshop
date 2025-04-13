@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, Response, request
 from o11yday_lib import fetch_from_service
-from opentelemetry import trace  # Uncomment this for tracing
+from opentelemetry import trace
+from opentelemetry.trace import SpanKind
 
 print("I am the backend-for-frontend!")
 
@@ -36,10 +37,41 @@ def create_picture():
 def submit_rating():
     rating_data = request.json
     current_span = trace.get_current_span()
-    
+
+    # Set rating attribute on current span
     if current_span and rating_data and 'rating' in rating_data:
         current_span.set_attribute("app.rating", rating_data['rating'])
-    
+
+    # Check if we have picture trace and span IDs
+    if rating_data and 'pictureTraceId' in rating_data and 'pictureSpanId' in rating_data:
+        try:
+            # Get the tracer
+            tracer = trace.get_tracer(__name__)
+
+            # Log the received trace and span IDs
+            picture_trace_id = rating_data['pictureTraceId']
+            picture_span_id = rating_data['pictureSpanId']
+            print(f"Received picture trace_id: {picture_trace_id} and span_id: {picture_span_id}")
+
+            # Create a span in the context of the picture's trace
+            # Note: In a real implementation, we would use the trace context to create a span
+            # in the same trace as the picture. However, for this example, we'll create a span
+            # in the current trace and link it to the picture's trace via attributes.
+            with tracer.start_as_current_span(
+                "rating-received",
+                kind=SpanKind.SERVER
+            ) as rating_span:
+                # Add attributes to link this span to the picture's trace
+                rating_span.set_attribute("picture.trace_id", picture_trace_id)
+                rating_span.set_attribute("picture.span_id", picture_span_id)
+                rating_span.set_attribute("rating.value", rating_data['rating'])
+                rating_span.set_attribute("rating.source", "backend-for-frontend-python")
+
+                # Log that we created a span
+                print(f"Created rating span with picture trace_id: {picture_trace_id} and span_id: {picture_span_id}")
+        except Exception as e:
+            print(f"Error creating span in picture trace context: {e}")
+
     return jsonify({"status": "success"})
 
 if __name__ == '__main__':
