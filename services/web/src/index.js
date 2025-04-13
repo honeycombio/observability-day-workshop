@@ -49,7 +49,7 @@ async function fetchPicture() {
       headers: {
         "Content-Type": "application/json"
       },
-      // Optionally, you can send data in the request body if needed
+      // later, send a user ID in the body
       // body: JSON.stringify({ /* any data you want to send */ })
     });
 
