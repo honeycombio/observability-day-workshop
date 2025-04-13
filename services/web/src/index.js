@@ -57,10 +57,14 @@ async function fetchPicture() {
     document.getElementById("message").style = "display:none";
     document.getElementById("picture").src = imgUrl;
     document.getElementById("picture").style = "display:block;";
+
+    // Show the feedback form
+    document.getElementById("feedback").style = "display:block";
   } catch (error) {
     console.error("Error fetching picture:", error);
     document.getElementById("loading-meme").style = "display:none";
     document.getElementById("picture").style = "display:none;";
+    document.getElementById("feedback").style = "display:none";
     document.getElementById("message").innerText =
       "There was an error fetching a picture. Please retry.";
     document.getElementById("message").style = "display:block;";
@@ -68,3 +72,38 @@ async function fetchPicture() {
 }
 
 document.getElementById("go").addEventListener("click", fetchPicture);
+
+// Function to handle the rating submission
+async function submitRating() {
+  const selectedRating = document.querySelector('input[name="rating"]:checked');
+
+  if (!selectedRating) {
+    alert("Please select a rating before submitting");
+    return;
+  }
+
+  const rating = selectedRating.value;
+  console.log("User rating:", rating);
+
+  try {
+    // Create a span for the rating submission
+    const span = window.Hny.startSpan("submit-rating");
+    span.setAttribute("rating.value", rating);
+
+    // Here you would typically send the rating to the server
+    // For now, we'll just log it and show a thank you message
+    document.getElementById("feedback").innerHTML = `
+      <p>Thanks for your feedback!</p>
+      <p>You rated this meme: ${rating === "thumbs-up" ? "👍" : "👎"}</p>
+    `;
+
+    span.end();
+  } catch (error) {
+    console.error("Error submitting rating:", error);
+    alert("There was an error submitting your rating. Please try again.");
+  }
+}
+
+document
+  .getElementById("submit-rating")
+  .addEventListener("click", submitRating);

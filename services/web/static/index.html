@@ -59,6 +59,67 @@
         img#loading-meme {
             width: 250px;
         }
+
+        .feedback-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid orange;
+            border-radius: 10px;
+            background-color: #222;
+            max-width: 500px;
+        }
+
+        .rating-options {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 15px 0;
+        }
+
+        .rating-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .rating-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .emoji {
+            font-size: 2.5rem;
+            transition: transform 0.2s;
+        }
+
+        .rating-option:hover .emoji,
+        .rating-option input[type="radio"]:checked + .emoji {
+            transform: scale(1.3);
+        }
+
+        .label {
+            margin-top: 5px;
+            font-size: 1rem;
+        }
+
+        .rating-button {
+            border: 3px solid orange;
+            background-color: #333;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            font-family: 'Roboto', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rating-button:hover {
+            background-color: orange;
+            color: black;
+        }
     </style>
 </head>
 
@@ -71,6 +132,22 @@
     <div class="content">
         <img id="picture" src="#" alt="Picture" style="display:none"></img>
         <img id="loading-meme" src="./loading-meme.gif" alt="Loading Meme" style="display:none"></img>
+        <div id="feedback" style="display:none" class="feedback-container">
+            <p>How do you like this meme?</p>
+            <div class="rating-options">
+                <label class="rating-option">
+                    <input type="radio" name="rating" value="thumbs-up">
+                    <span class="emoji">👍</span>
+                    <span class="label">Love it!</span>
+                </label>
+                <label class="rating-option">
+                    <input type="radio" name="rating" value="thumbs-down">
+                    <span class="emoji">👎</span>
+                    <span class="label">Not great</span>
+                </label>
+            </div>
+            <button id="submit-rating" class="rating-button">Submit</button>
+        </div>
     </div>
     <script type="text/javascript" src="../src/index.js">
     </script>
