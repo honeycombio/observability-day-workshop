@@ -11,13 +11,15 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the rest of the application
-COPY nginx.conf src static build.js ./
+COPY src ./src
+COPY static ./static
 
 # Set environment variable during build
 ARG HONEYCOMB_API_KEY=value
 ENV HONEYCOMB_API_KEY=$HONEYCOMB_API_KEY
 
 # Build the application
+RUN ls  
 RUN npm run build
 
 # Stage 2: Serve the built files using Nginx

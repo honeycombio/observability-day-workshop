@@ -4,16 +4,13 @@
   "description": "bundle up a static page",
   "main": "static/index.html",
   "scripts": {
-    "build": "node build.js"
+    "build": "mkdir -p dist && cp static/* dist && sed \"s/process.env.HONEYCOMB_API_KEY/${HONEYCOMB_API_KEY}/g\" static/index.html > dist/index.html && cp src/* dist",
+    "clean": "rm -rf dist/*"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "esbuild": "^0.20.2",
-    "esbuild-plugin-copy": "^2.1.1"
   },
   "dependencies": {
-    "@honeycombio/opentelemetry-web": "^0.1.0",
-    "@opentelemetry/auto-instrumentations-web": "^0.37.0"
   }
 }
