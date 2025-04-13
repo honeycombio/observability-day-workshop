@@ -86,20 +86,29 @@ document.getElementById("go").addEventListener("click", fetchPicture);
 
 // Function to handle the rating submission
 async function submitRating(rating) {
-  console.log("User rating:", rating);
+  console.log("User rating migh work this time:", rating);
 
   // Create a span for the rating submission
-  window.Hny.inChildSpan("meminator-web", "submit-rating", (span) => {
+  window.Hny.inChildSpan("meminator-web", "submit-rating", undefined, (span) => {
       span.setAttribute("rating.value", rating);
 
+      // Get the trace ID from the body tag that was stored during picture fetch
+      const storedTraceId = document.body.getAttribute("data-trace-id") || "unknown";
+      span.setAttribute("picture.trace_id", storedTraceId);
+      console.log("Using stored trace ID for rating:", storedTraceId);
+
       // Send the rating to the backend
-      // OpenTelemetry will automatically handle trace propagation
+      // Include the stored trace ID in the request body
+      // OpenTelemetry will still handle trace propagation automatically
       fetch("/backend/rating", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ rating: rating })
+        body: JSON.stringify({
+          rating: rating,
+          pictureTraceId: storedTraceId
+        })
       })
       .then(response => {
         if (!response.ok) {
