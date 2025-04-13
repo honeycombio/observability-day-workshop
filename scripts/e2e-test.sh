@@ -16,14 +16,14 @@ show_help() {
   echo "Options:"
   echo "  --help     Display this help message and exit"
   echo "  LANGUAGE   Specify the language for the backend-for-frontend service"
-  echo "             Valid languages: nodejs, python, dotnet, java"
+  echo "             Valid languages: nodejs, python, dotnet"
   echo ""
   echo "Examples:"
   echo "  $0                 # Run with all services"
   echo "  $0 python          # Run with Python backend-for-frontend"
   echo "  $0 nodejs          # Run with Node.js backend-for-frontend"
   echo "  $0 dotnet          # Run with .NET backend-for-frontend"
-  echo "  $0 java            # Run with Java backend-for-frontend"
+
   echo ""
   exit 0
 }
@@ -35,7 +35,7 @@ fi
 
 # Check if a language argument was provided
 LANGUAGE=$1
-VALID_LANGUAGES=("nodejs" "python" "dotnet" "java")
+VALID_LANGUAGES=("nodejs" "python" "dotnet")
 
 # Validate language if provided
 if [ ! -z "$LANGUAGE" ]; then

@@ -25,7 +25,7 @@ export HONEYCOMB_API_KEY=your_api_key
 ./scripts/e2e-test.sh python
 ./scripts/e2e-test.sh nodejs
 ./scripts/e2e-test.sh dotnet
-./scripts/e2e-test.sh java
+
 ```
 
 When a language is specified, the script will use the `run-one-language` script instead of the default `run` script, and set the `PROGRAMMING_LANGUAGE` environment variable to the specified language.
