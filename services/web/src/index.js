@@ -87,7 +87,7 @@ async function submitRating(rating) {
   console.log("User rating:", rating);
 
   // Create a span for the rating submission
-  window.Hny.inChildSpan("submit-rating", (span) => {
+  window.Hny.inChildSpan("meminator-web", "submit-rating", (span) => {
     try {
       span.setAttribute("rating.value", rating);
 
