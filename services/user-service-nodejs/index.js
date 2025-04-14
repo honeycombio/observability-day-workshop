@@ -3,7 +3,8 @@ const express = require("express");
 const { trace } = require("@opentelemetry/api");
 
 const app = express();
-const PORT = 10119;
+// Use environment variable for port with a different default for local development
+const PORT = process.env.PORT || 3000; // Docker uses 10119, local dev uses 3000
 
 app.use(express.json());
 
