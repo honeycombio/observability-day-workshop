@@ -74,7 +74,7 @@ services:
 
   user-service:
     build:
-      context: services/user-service-nodejs
+      context: services/user-service-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
       cache_from:
         - ${IMAGE_REPO_USER}/user-service:${IMAGE_VERSION}
@@ -84,7 +84,7 @@ services:
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=user-service-nodejs
+      - OTEL_SERVICE_NAME=user-service-${PROGRAMMING_LANGUAGE}
 
   # otel-collector:
   #   image: otel/opentelemetry-collector-contrib:${COLLECTOR_VERSION}
