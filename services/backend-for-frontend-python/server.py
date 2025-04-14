@@ -45,12 +45,17 @@ def submit_rating():
         current_span.set_attribute("app.rating", rating_data['rating'])
 
     # Create a special span that is attached to the picture-creation trace.
+    if not rating_data or 'pictureSpanContext' not in rating_data:
+        return jsonify({"status": "error", "message": "Missing pictureSpanContext in request body"})
+    
+    trace_id_int = int(rating_data['pictureSpanContext']['traceId'], 16)
+    span_id_int = int(rating_data['pictureSpanContext']['spanId'], 16)
     special_context = trace.set_span_in_context(
             trace.NonRecordingSpan(
                 trace.SpanContext(
                     # trace an span ids are encoded in hex, so must be converted
-                    trace_id=rating_data.pictureSpanContext.traceId,
-                    span_id=rating_data.pictureSpanContext.spanId,
+                    trace_id=trace_id_int,
+                    span_id=span_id_int,
                     is_remote=True,
                     trace_flags=trace.TraceFlags(trace.TraceFlags.SAMPLED),
                     trace_state=trace.TraceState(),
