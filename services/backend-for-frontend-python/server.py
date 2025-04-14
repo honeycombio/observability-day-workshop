@@ -86,12 +86,7 @@ def user_info():
     }
 
     # Parse the user data from the response
-    if user_response and user_response.ok:
-        user_data = user_response.json()
-        print(f"User data from service: {user_data}")
-    else:
-        user_data = default_user
-        print(f"Using default user data: {user_data}")
+    user_data = user_response.json() if user_response and user_response.ok else default_user
 
     # Add user info to the current span
     if current_span:
