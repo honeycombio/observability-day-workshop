@@ -105,10 +105,39 @@
             color: black;
             transform: scale(1.1);
         }
+
+        .user-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 10px 20px;
+            background-color: #222;
+            border-bottom: 2px solid #333;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid orange;
+        }
+
+        .user-name {
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+        }
     </style>
 </head>
 
 <body>
+    <div class="user-container">
+        <img id="user-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User Avatar" class="user-avatar">
+        <span id="user-name" class="user-name">Anonymous</span>
+    </div>
     <h1>Meminator 10114</h1>
     <p>
         <button id="go">GO</button>
