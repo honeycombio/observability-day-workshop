@@ -18,6 +18,59 @@ app.get("/health", (req: Request, res: Response) => {
   res.send({ message: "I am here", status_code: 0 });
 });
 
+// User info endpoint to fetch and display user information
+app.get("/user-info", async (req: Request, res: Response) => {
+  const currentSpan = trace.getActiveSpan();
+
+  try {
+    // Fetch user data from user-service
+    const userResponse = await fetchFromService("user-service");
+
+    // Default user data in case the service is unavailable
+    const defaultUser = {
+      id: "0",
+      name: "Anonymous User",
+      avatarUrl:
+        "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+    };
+
+    // Parse the user data from the response
+    let userData;
+    if (userResponse.ok) {
+      const userText = await userResponse.text();
+      userData = JSON.parse(userText);
+    } else {
+      userData = defaultUser;
+    }
+
+    // Add user info to the current span
+    if (currentSpan) {
+      currentSpan.setAttribute("user.id", userData.id || "0");
+      currentSpan.setAttribute("user.name", userData.name || "Anonymous User");
+    }
+
+    // HTML template for the user info
+    const userInfoTemplate = `
+    <div class="user-info" id="user-info" data-user-id="${userData.id}" data-user-name="${userData.name}">
+      <a href="https://commons.wikimedia.org/wiki/Famous_portraits">
+        <img id="user-avatar" src="${userData.avatarUrl}" alt="User Avatar" class="user-avatar">
+      </a>
+      <span id="user-name" class="user-name">${userData.name}</span>
+    </div>
+    `;
+
+    // Return the rendered template
+    res.send(userInfoTemplate);
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    res
+      .status(500)
+      .send(
+        '<div class="user-info" id="user-info">Error loading user information</div>'
+      );
+  }
+});
+
 app.post("/createPicture", async (req: Request, res: Response) => {
   // const span = trace.getActiveSpan();
   try {
@@ -31,11 +84,17 @@ app.post("/createPicture", async (req: Request, res: Response) => {
     const phraseResult = JSON.parse(phraseText);
     const imageResult = JSON.parse(imageText);
 
+    // Extract user data from the request body
+    const userId = req.body.userId || "unknown";
+    const userName = req.body.userName || "Anonymous User";
+
     const response = await fetchFromService("meminator", {
       method: "POST",
       body: {
         ...phraseResult,
         ...imageResult,
+        userId,
+        userName,
       },
     });
 
@@ -103,6 +162,10 @@ app.post("/rating", (req: Request, res: Response) => {
     traceFlags: 1, // Sampled
   });
 
+  // Extract user data from the request body
+  const userId = ratingData.userId || "unknown";
+  const userName = ratingData.userName || "Anonymous User";
+
   // Create a span in the context of the picture's trace
   const specialSpan = tracer.startSpan(
     "user rating",
@@ -110,6 +173,8 @@ app.post("/rating", (req: Request, res: Response) => {
       attributes: {
         "app.rating": ratingData.rating,
         "app.rating.emoji": ratingData.ratingEmoji,
+        "user.id": userId,
+        "user.name": userName,
       },
     },
     specialContext
