@@ -31,11 +31,12 @@ app.MapGet("/user-info", async (HttpClient client) => {
         var userResponse = await client.GetAsync("http://user-service:10119/current-user");
 
         // Default user data in case the service is unavailable
-        var defaultUser = new UserResponse(
-            "0",
-            "Anonymous User",
-            "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
-        );
+        var defaultUser = new UserResponse
+        {
+            Id = "0",
+            Name = "Anonymous User",
+            AvatarUrl = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+        };
 
         // Parse the user data from the response
         UserResponse userData;
