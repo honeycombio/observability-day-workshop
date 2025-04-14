@@ -189,4 +189,14 @@ record CreatePictureRequest
     public string? UserName { get; init; }
 }
 
-record UserResponse(string Id, string Name, string AvatarUrl);
+record UserResponse
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; init; }
+
+    [JsonPropertyName("name")]
+    public string? Name { get; init; }
+
+    [JsonPropertyName("avatarUrl")]
+    public string? AvatarUrl { get; init; }
+}
