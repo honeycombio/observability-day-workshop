@@ -7,25 +7,13 @@ const PORT = 10119;
 
 app.use(express.json());
 
-// Sample user data
-const users = [
-  {
-    id: "1",
-    name: "Meminator User",
-    avatarUrl:
-      "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
-  },
-  {
-    id: "2",
-    name: "Honeycomb Hero",
-    avatarUrl: "https://www.gravatar.com/avatar/abc123?d=identicon&s=128",
-  },
-  {
-    id: "3",
-    name: "Observability Fan",
-    avatarUrl: "https://www.gravatar.com/avatar/def456?d=retro&s=128",
-  },
-];
+// Current user data
+const currentUser = {
+  id: "1",
+  name: "Meminator User",
+  avatarUrl:
+    "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+};
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -41,28 +29,6 @@ app.get("/current-user", (req, res) => {
 
   if (currentSpan) {
     currentSpan.setAttribute("user.id", user.id);
-    currentSpan.setAttribute("user.name", user.name);
-  }
-
-  res.json(user);
-});
-
-// Get user by ID endpoint
-app.get("/user/:id", (req, res) => {
-  const currentSpan = trace.getActiveSpan();
-  const userId = req.params.id;
-
-  if (currentSpan) {
-    currentSpan.setAttribute("user.id.requested", userId);
-  }
-
-  const user = users.find((u) => u.id === userId);
-
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
-
-  if (currentSpan) {
     currentSpan.setAttribute("user.name", user.name);
   }
 
