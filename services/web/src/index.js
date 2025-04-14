@@ -8,6 +8,22 @@
 // });
 // sdk.start();
 
+// Function to extract user data from the user-info div
+function getUserData() {
+  const userInfoDiv = document.getElementById("user-info");
+  if (!userInfoDiv) {
+    console.warn("User info div not found");
+    return { userId: "unknown", userName: "Anonymous User" };
+  }
+
+  const userId = userInfoDiv.getAttribute("data-user-id") || "unknown";
+  const userName =
+    userInfoDiv.getAttribute("data-user-name") || "Anonymous User";
+
+  console.log(`Retrieved user data: ID=${userId}, Name=${userName}`);
+  return { userId, userName };
+}
+
 // Function to fetch the image binary data from the server
 
 async function fetchPicture() {
@@ -59,20 +75,28 @@ async function fetchPicture() {
       // add them as data attributes to the body for later access
       document.body.setAttribute("data-trace-id", traceId);
       document.body.setAttribute("data-span-id", spanId);
-      console.log(`Stored trace_id: ${traceId} and span_id: ${spanId} in body attributes`);
+      console.log(
+        `Stored trace_id: ${traceId} and span_id: ${spanId} in body attributes`
+      );
     } catch (error) {
       console.error("Error getting trace/span IDs:", error);
     }
+
+    // Get user data from the user-info div
+    const { userId, userName } = getUserData();
 
     // Call the Python backend-for-frontend service
     // OpenTelemetry will automatically handle trace propagation
     const response = await fetch("/backend/createPicture", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      // later, send a user ID in the body
-      // body: JSON.stringify({ /* any data you want to send */ })
+      // Include user data in the request body
+      body: JSON.stringify({
+        userId: userId,
+        userName: userName,
+      }),
     });
 
     if (!response.ok) {
@@ -106,11 +130,11 @@ async function fetchPicture() {
 
 // Function to set up rating button event listeners
 function setupRatingButtonListeners() {
-  document.getElementById("thumbs-up").addEventListener("click", function() {
+  document.getElementById("thumbs-up").addEventListener("click", function () {
     submitRating("thumbs-up");
   });
 
-  document.getElementById("thumbs-down").addEventListener("click", function() {
+  document.getElementById("thumbs-down").addEventListener("click", function () {
     submitRating("thumbs-down");
   });
 }
@@ -129,49 +153,62 @@ async function submitRating(rating) {
   const ratingEmoji = rating === "thumbs-up" ? "🥰" : "😒";
 
   // Create a span for the rating submission
-  window.Hny.inChildSpan("meminator-web", "submit-rating", undefined, (span) => {
+  window.Hny.inChildSpan(
+    "meminator-web",
+    "submit-rating",
+    undefined,
+    (span) => {
       span.setAttribute("rating.value", rating);
       span.setAttribute("app.rating.emoji", ratingEmoji);
 
       // Get the trace ID and span ID from the body tag that was stored during picture fetch
-      const storedTraceId = document.body.getAttribute("data-trace-id") || "unknown";
-      const storedSpanId = document.body.getAttribute("data-span-id") || "unknown";
+      const storedTraceId =
+        document.body.getAttribute("data-trace-id") || "unknown";
+      const storedSpanId =
+        document.body.getAttribute("data-span-id") || "unknown";
 
       // Add them as span attributes for better tracing
       span.setAttribute("picture.trace_id", storedTraceId);
       span.setAttribute("picture.span_id", storedSpanId);
-      console.log(`Using stored trace_id: ${storedTraceId} and span_id: ${storedSpanId} for rating`);
+      console.log(
+        `Using stored trace_id: ${storedTraceId} and span_id: ${storedSpanId} for rating`
+      );
+
+      // Get user data from the user-info div
+      const { userId, userName } = getUserData();
 
       // Send the rating to the backend
-      // Include the stored trace ID in the request body
+      // Include the stored trace ID and user data in the request body
       // OpenTelemetry will still handle trace propagation automatically
       fetch("/backend/rating", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           rating: rating,
           ratingEmoji: ratingEmoji,
+          userId: userId,
+          userName: userName,
           pictureSpanContext: {
             traceId: storedTraceId,
-            spanId: storedSpanId
+            spanId: storedSpanId,
+          },
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to submit rating");
           }
+          return response.json();
         })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Failed to submit rating");
-        }
-        return response.json();
-      })
-      .then(() => {
-        // Show thank you message
-        document.getElementById("feedback").innerHTML = `
+        .then(() => {
+          // Show thank you message
+          document.getElementById("feedback").innerHTML = `
         <p>Thanks for your feedback!</p>
         <p>You rated this meme: ${rating === "thumbs-up" ? "👍" : "👎"}</p>
         `;
-      })
-  });
+        });
+    }
+  );
 }
-
