@@ -73,16 +73,40 @@ def submit_rating():
 
 @app.route('/user-info', methods=['GET'])
 def user_info():
+    current_span = trace.get_current_span()
+
+    # Fetch user data from user-service
+    user_response = fetch_from_service('user-service', endpoint='/current-user')
+
+    # Default user data in case the service is unavailable
+    default_user = {
+        "id": "0",
+        "name": "Anonymous User",
+        "avatarUrl": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+    }
+
+    # Parse the user data from the response
+    user_data = user_response.json() if user_response and user_response.ok else default_user
+
+    # Add user info to the current span
+    if current_span:
+        current_span.set_attribute("user.id", user_data.get("id", "0"))
+        current_span.set_attribute("user.name", user_data.get("name", "Anonymous User"))
+
     # HTML template for the user info
     user_info_template = '''
     <div class="user-info" id="user-info">
-        <img id="user-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User Avatar" class="user-avatar">
-        <span id="user-name" class="user-name">Meminator User</span>
+        <img id="user-avatar" src="{{ avatar_url }}" alt="User Avatar" class="user-avatar">
+        <span id="user-name" class="user-name">{{ user_name }}</span>
     </div>
     '''
 
-    # Return the rendered template
-    return render_template_string(user_info_template)
+    # Return the rendered template with user data
+    return render_template_string(
+        user_info_template,
+        avatar_url=user_data.get("avatarUrl", default_user["avatarUrl"]),
+        user_name=user_data.get("name", default_user["name"])
+    )
 
 if __name__ == '__main__':
     app.run(debug=True, port=10115)
