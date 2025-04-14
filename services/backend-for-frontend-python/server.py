@@ -95,17 +95,20 @@ def user_info():
 
     # HTML template for the user info
     user_info_template = '''
-    <div class="user-info" id="user-info">
+    <div class="user-info" id="user-info" data-user-id="{{ user_id }}" data-user-name="{{ user_name }}">
+      <a href="https://commons.wikimedia.org/wiki/Famous_portraits">
         <img id="user-avatar" src="{{ avatar_url }}" alt="User Avatar" class="user-avatar">
-        <span id="user-name" class="user-name">{{ user_name }}</span>
+      </a>
+      <span id="user-name" class="user-name">{{ user_name }}</span>
     </div>
     '''
 
     # Return the rendered template with user data
     return render_template_string(
         user_info_template,
-        avatar_url=user_data.get("avatarUrl", default_user["avatarUrl"]),
-        user_name=user_data.get("name", default_user["name"])
+        user_id=user_data.get("id", default_user["id"]),
+        user_name=user_data.get("name", default_user["name"]),
+        avatar_url=user_data.get("avatarUrl", default_user["avatarUrl"])
     )
 
 if __name__ == '__main__':
