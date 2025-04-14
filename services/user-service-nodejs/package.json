@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "cors": "^2.8.5",
     "@opentelemetry/api": "^1.7.0",
     "@opentelemetry/sdk-node": "^0.48.0",
     "@opentelemetry/auto-instrumentations-node": "^0.41.1",
