@@ -70,8 +70,10 @@ app.post("/createPicture", async (req: Request, res: Response) => {
   }
 });
 
+const tracer = trace.getTracer("report-rating");
+
 // Rating endpoint to handle user ratings
-app.post("/rating", function (req: Request, res: Response) {
+app.post("/rating", (req: Request, res: Response) => {
   const ratingData = req.body;
   const currentSpan = trace.getActiveSpan();
 
@@ -85,54 +87,36 @@ app.post("/rating", function (req: Request, res: Response) {
 
   // Create a special span that is attached to the picture-creation trace
   if (!ratingData || !ratingData.pictureSpanContext) {
-    return res.status(400).json({
+    res.status(400).json({
       status: "error",
       message: "Missing pictureSpanContext in request body",
     });
   }
 
-  try {
-    // Get the tracer
-    const tracer = trace.getTracer("report-rating");
+  const traceIdHex = ratingData.pictureSpanContext.traceId;
+  const spanIdHex = ratingData.pictureSpanContext.spanId;
 
-    // Convert hex trace and span IDs to BigInts
-    const traceIdHex = ratingData.pictureSpanContext.traceId;
-    const spanIdHex = ratingData.pictureSpanContext.spanId;
+  const specialContext = trace.setSpanContext(context.active(), {
+    traceId: traceIdHex,
+    spanId: spanIdHex,
+    isRemote: true,
+    traceFlags: 1, // Sampled
+  });
 
-    // Create a non-recording span to establish the context
-    const spanContext: SpanContext = {
-      traceId: traceIdHex,
-      spanId: spanIdHex,
-      isRemote: true,
-      traceFlags: 1, // Sampled
-    };
-
-    // Create a span in the context of the picture's trace
-    const specialSpan = tracer.startSpan(
-      "user rating",
-      {
-        kind: SpanKind.SERVER,
+  // Create a span in the context of the picture's trace
+  const specialSpan = tracer.startSpan(
+    "user rating",
+    {
+      attributes: {
+        "app.rating": ratingData.rating,
+        "app.rating.emoji": ratingData.ratingEmoji,
       },
-      trace.setSpanContext(context.active(), spanContext)
-    );
+    },
+    specialContext
+  );
+  specialSpan.end();
 
-    // Add attributes to the span
-    specialSpan.setAttribute("app.rating", ratingData.rating);
-    if (ratingData.ratingEmoji) {
-      specialSpan.setAttribute("app.rating.emoji", ratingData.ratingEmoji);
-    }
-
-    // End the span
-    specialSpan.end();
-
-    return res.json({ status: "success" });
-  } catch (error) {
-    console.error("Error creating span in picture trace context:", error);
-    return res.status(500).json({
-      status: "error",
-      message: "Error processing rating",
-    });
-  }
+  res.json({ status: "success" });
 });
 
 // Start the server
