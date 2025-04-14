@@ -53,14 +53,12 @@ app.MapGet("/user-info", async (HttpClient client) => {
         }
 
         // HTML template for the user info
-        var userInfoTemplate = $@"
-        <div class=""user-info"" id=""user-info"" data-user-id=""{userData.Id}"" data-user-name=""{userData.Name}"">
+        var userInfoTemplate = $@"<div class=""user-info"" id=""user-info"" data-user-id=""{userData.Id}"" data-user-name=""{userData.Name}"">
           <a href=""https://commons.wikimedia.org/wiki/Famous_portraits"">
             <img id=""user-avatar"" src=""{userData.AvatarUrl}"" alt=""User Avatar"" class=""user-avatar"">
           </a>
           <span id=""user-name"" class=""user-name"">{userData.Name}</span>
-        </div>
-        "";
+        </div>";
 
         // Return the rendered template
         return Results.Content(userInfoTemplate, "text/html");
