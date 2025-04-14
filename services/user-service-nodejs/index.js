@@ -24,8 +24,13 @@ app.get("/health", (req, res) => {
 app.get("/current-user", (req, res) => {
   const currentSpan = trace.getActiveSpan();
 
-  // Always return the first user for now
-  const user = users[0];
+  // Current user data
+  const user = {
+    id: "1",
+    name: "Meminator User",
+    avatarUrl:
+      "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+  };
 
   if (currentSpan) {
     currentSpan.setAttribute("user.id", user.id);
