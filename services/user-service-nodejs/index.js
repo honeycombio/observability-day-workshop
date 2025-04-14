@@ -1,6 +1,8 @@
 require("./tracing");
 const express = require("express");
 const { trace } = require("@opentelemetry/api");
+const sqlite3 = require("sqlite3").verbose();
+const path = require("path");
 
 const app = express();
 // Use environment variable for port with a different default for local development
@@ -8,8 +10,20 @@ const PORT = process.env.PORT || 3000; // Docker uses 10119, local dev uses 3000
 
 app.use(express.json());
 
-// Array of users with famous portraits from Wikimedia Commons
-const users = [
+// Path to the SQLite database
+const dbPath = path.join(__dirname, "../shared-data/users.db");
+
+// Initialize database connection
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error(`Error opening database at ${dbPath}:`, err.message);
+  } else {
+    console.log(`Connected to the SQLite database at ${dbPath}`);
+  }
+});
+
+// Fallback array of users in case the database is not available
+const fallbackUsers = [
   {
     id: "1",
     name: "Lisa Gherardini",
@@ -227,10 +241,41 @@ app.get("/health", (req, res) => {
   res.json({ message: "User service is healthy", status_code: 0 });
 });
 
-// Helper function to get a random user
-function getRandomUser() {
-  const randomIndex = Math.floor(Math.random() * users.length);
-  return users[randomIndex];
+// Helper function to get a random user from the database
+function getRandomUser(callback) {
+  // Count the total number of users
+  db.get("SELECT COUNT(*) as count FROM users", (err, row) => {
+    if (err) {
+      console.error("Error counting users:", err.message);
+      // Fall back to the array if there's an error
+      const randomIndex = Math.floor(Math.random() * fallbackUsers.length);
+      callback(fallbackUsers[randomIndex]);
+      return;
+    }
+
+    // Get a random user from the database
+    const count = row.count;
+    const randomId = Math.floor(Math.random() * count) + 1;
+
+    db.get(
+      "SELECT * FROM users WHERE id = ?",
+      [randomId.toString()],
+      (err, user) => {
+        if (err || !user) {
+          console.error(
+            "Error getting random user:",
+            err ? err.message : "User not found"
+          );
+          // Fall back to the array if there's an error
+          const randomIndex = Math.floor(Math.random() * fallbackUsers.length);
+          callback(fallbackUsers[randomIndex]);
+          return;
+        }
+
+        callback(user);
+      }
+    );
+  });
 }
 
 // Get current user endpoint
@@ -238,17 +283,46 @@ app.get("/current-user", (req, res) => {
   const currentSpan = trace.getActiveSpan();
 
   // Get a random user
-  const user = getRandomUser();
+  getRandomUser((user) => {
+    if (currentSpan) {
+      currentSpan.setAttribute("user.id", user.id);
+      currentSpan.setAttribute("user.name", user.name);
+    }
 
-  if (currentSpan) {
-    currentSpan.setAttribute("user.id", user.id);
-    currentSpan.setAttribute("user.name", user.name);
-  }
-
-  res.json(user);
+    res.json(user);
+  });
 });
 
 // Start the server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`User service running on http://localhost:${PORT}`);
+});
+
+// Close database connection when the server is shut down
+process.on("SIGINT", () => {
+  db.close((err) => {
+    if (err) {
+      console.error("Error closing database:", err.message);
+    } else {
+      console.log("Database connection closed");
+    }
+    server.close(() => {
+      console.log("Server shut down");
+      process.exit(0);
+    });
+  });
+});
+
+process.on("SIGTERM", () => {
+  db.close((err) => {
+    if (err) {
+      console.error("Error closing database:", err.message);
+    } else {
+      console.log("Database connection closed");
+    }
+    server.close(() => {
+      console.log("Server shut down");
+      process.exit(0);
+    });
+  });
 });

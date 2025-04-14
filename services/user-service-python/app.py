@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from opentelemetry import trace
 import random
 import os
+import sqlite3
 import tracing
 
 app = Flask(__name__)
@@ -10,8 +11,22 @@ tracing.instrument_app(app)
 # Use environment variable for port with a different default for local development
 PORT = int(os.environ.get("PORT", 3000))  # Docker uses 10119, local dev uses 3000
 
-# Array of users with famous portraits from Wikimedia Commons
-users = [
+# Path to the SQLite database
+db_path = os.path.join(os.path.dirname(__file__), "../shared-data/users.db")
+
+# Initialize database connection
+def get_db_connection():
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row  # This enables column access by name
+        print(f"Connected to the SQLite database at {db_path}")
+        return conn
+    except sqlite3.Error as e:
+        print(f"Error connecting to database at {db_path}: {e}")
+        return None
+
+# Fallback array of users in case the database is not available
+fallback_users = [
     {
         "id": "1",
         "name": "Lisa Gherardini",
@@ -189,9 +204,42 @@ users = [
     },
 ]
 
-# Helper function to get a random user
+# Helper function to get a random user from the database
 def get_random_user():
-    return random.choice(users)
+    conn = get_db_connection()
+    if conn is None:
+        # Fall back to the array if the database connection fails
+        return random.choice(fallback_users)
+
+    try:
+        # Count the total number of users
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) as count FROM users")
+        count = cursor.fetchone()[0]
+
+        if count == 0:
+            conn.close()
+            return random.choice(fallback_users)
+
+        # Get a random user from the database
+        random_id = str(random.randint(1, count))
+        cursor.execute("SELECT * FROM users WHERE id = ?", (random_id,))
+        user = cursor.fetchone()
+
+        if user is None:
+            conn.close()
+            return random.choice(fallback_users)
+
+        # Convert the sqlite3.Row to a dictionary
+        user_dict = {key: user[key] for key in user.keys()}
+        conn.close()
+        return user_dict
+
+    except sqlite3.Error as e:
+        print(f"Error getting random user: {e}")
+        if conn:
+            conn.close()
+        return random.choice(fallback_users)
 
 # Health check endpoint
 @app.route("/health", methods=["GET"])
@@ -202,14 +250,14 @@ def health():
 @app.route("/current-user", methods=["GET"])
 def current_user():
     current_span = trace.get_current_span()
-    
+
     # Get a random user
     user = get_random_user()
-    
+
     if current_span:
         current_span.set_attribute("user.id", user["id"])
         current_span.set_attribute("user.name", user["name"])
-    
+
     return jsonify(user)
 
 if __name__ == "__main__":

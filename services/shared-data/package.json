@@ -1,0 +1,13 @@
+{
+  "name": "shared-data",
+  "version": "1.0.0",
+  "description": "Shared data for Meminator services",
+  "main": "init-db.js",
+  "scripts": {
+    "init-db": "node init-db.js",
+    "init-db-py": "python init-db.py"
+  },
+  "dependencies": {
+    "sqlite3": "^5.1.6"
+  }
+}
