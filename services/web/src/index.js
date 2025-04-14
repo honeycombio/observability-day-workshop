@@ -125,9 +125,13 @@ setupRatingButtonListeners();
 async function submitRating(rating) {
   console.log("User rating migh work this time:", rating);
 
+  // Get the emoji for the rating
+  const ratingEmoji = rating === "thumbs-up" ? "🥰" : "😒";
+
   // Create a span for the rating submission
   window.Hny.inChildSpan("meminator-web", "submit-rating", undefined, (span) => {
       span.setAttribute("rating.value", rating);
+      span.setAttribute("app.rating.emoji", ratingEmoji);
 
       // Get the trace ID and span ID from the body tag that was stored during picture fetch
       const storedTraceId = document.body.getAttribute("data-trace-id") || "unknown";
@@ -148,6 +152,7 @@ async function submitRating(rating) {
         },
         body: JSON.stringify({
           rating: rating,
+          ratingEmoji: ratingEmoji,
           pictureSpanContext: {
             traceId: storedTraceId,
             spanId: storedSpanId

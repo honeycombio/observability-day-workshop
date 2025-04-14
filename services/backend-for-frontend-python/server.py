@@ -40,14 +40,16 @@ def submit_rating():
     rating_data = request.json
     current_span = trace.get_current_span()
 
-    # Set rating attribute on current span
+    # Set rating attributes on current span
     if current_span and rating_data and 'rating' in rating_data:
         current_span.set_attribute("app.rating", rating_data['rating'])
+        if 'ratingEmoji' in rating_data:
+            current_span.set_attribute("app.rating.emoji", rating_data['ratingEmoji'])
 
     # Create a special span that is attached to the picture-creation trace.
     if not rating_data or 'pictureSpanContext' not in rating_data:
         return jsonify({"status": "error", "message": "Missing pictureSpanContext in request body"})
-    
+
     trace_id_int = int(rating_data['pictureSpanContext']['traceId'], 16)
     span_id_int = int(rating_data['pictureSpanContext']['spanId'], 16)
     special_context = trace.set_span_in_context(
@@ -63,6 +65,8 @@ def submit_rating():
             ))
     specialSpan = special_tracer.start_span("user rating", context=special_context)
     specialSpan.set_attribute("app.rating", rating_data['rating'])
+    if 'ratingEmoji' in rating_data:
+        specialSpan.set_attribute("app.rating.emoji", rating_data['ratingEmoji'])
     specialSpan.end()
 
     return jsonify({"status": "success"})
