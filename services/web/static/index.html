@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meminator 10114</title>
+    <title>Meminator</title>
     <link rel="shortcut icon" href="favicon.ico" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -20,6 +20,9 @@
 
         h1 {
             font-family: 'Roboto Mono', Roboto;
+            margin: 0;
+            font-size: 1.8rem;
+            color: orange;
         }
 
         button {
@@ -109,12 +112,17 @@
         .user-container {
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: space-between;
             padding: 10px 20px;
             background-color: #222;
             border-bottom: 2px solid #333;
             position: relative;
             margin-bottom: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
         }
 
         .user-avatar {
@@ -135,10 +143,12 @@
 
 <body>
     <div class="user-container">
-        <img id="user-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User Avatar" class="user-avatar">
-        <span id="user-name" class="user-name">Anonymous</span>
+        <h1>Meminator 10114</h1>
+        <div class="user-info">
+            <img id="user-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User Avatar" class="user-avatar">
+            <span id="user-name" class="user-name">Anonymous</span>
+        </div>
     </div>
-    <h1>Meminator 10114</h1>
     <p>
         <button id="go">GO</button>
     </p>
