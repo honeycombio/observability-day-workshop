@@ -76,7 +76,7 @@ def user_info():
     current_span = trace.get_current_span()
 
     # Fetch user data from user-service
-    user_response = fetch_from_service('user-service', endpoint='/current-user')
+    user_response = fetch_from_service('user-service')
 
     # Default user data in case the service is unavailable
     default_user = {
