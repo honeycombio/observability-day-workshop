@@ -22,14 +22,68 @@ builder.Services.AddOpenTelemetry()
 
 var app = builder.Build();
 
-app.MapPost("/createPicture", async (HttpClient client) => {
+// User info endpoint to fetch and display user information
+app.MapGet("/user-info", async (HttpClient client) => {
+    var currentActivity = Activity.Current;
+
+    try {
+        // Fetch user data from user-service
+        var userResponse = await client.GetAsync("http://user-service:10119/current-user");
+
+        // Default user data in case the service is unavailable
+        var defaultUser = new UserResponse(
+            "0",
+            "Anonymous User",
+            "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+        );
+
+        // Parse the user data from the response
+        UserResponse userData;
+        if (userResponse.IsSuccessStatusCode) {
+            var userContent = await userResponse.Content.ReadAsStringAsync();
+            userData = JsonSerializer.Deserialize<UserResponse>(userContent) ?? defaultUser;
+        } else {
+            userData = defaultUser;
+        }
+
+        // Add user info to the current activity (span)
+        if (currentActivity != null) {
+            currentActivity.SetTag("user.id", userData.Id ?? "0");
+            currentActivity.SetTag("user.name", userData.Name ?? "Anonymous User");
+        }
+
+        // HTML template for the user info
+        var userInfoTemplate = $@"
+        <div class=""user-info"" id=""user-info"" data-user-id=""{userData.Id}"" data-user-name=""{userData.Name}"">
+          <a href=""https://commons.wikimedia.org/wiki/Famous_portraits"">
+            <img id=""user-avatar"" src=""{userData.AvatarUrl}"" alt=""User Avatar"" class=""user-avatar"">
+          </a>
+          <span id=""user-name"" class=""user-name"">{userData.Name}</span>
+        </div>
+        "";
+
+        // Return the rendered template
+        return Results.Content(userInfoTemplate, "text/html");
+    } catch (Exception ex) {
+        Console.Error.WriteLine($"Error fetching user info: {ex}");
+        return Results.Content("<div class=\"user-info\" id=\"user-info\">Error loading user information</div>", "text/html");
+    }
+});
+
+app.MapPost("/createPicture", async (HttpClient client, CreatePictureRequest request) => {
     var imagePickerResponse = await client.GetFromJsonAsync<ImagePickerResponse>("http://image-picker:10118/imageUrl");
     var phrasePickerResponse = await client.GetFromJsonAsync<PhrasePickerResponse>("http://phrase-picker:10117/phrase");
+
+    // Extract user data from the request
+    var userId = request.UserId ?? "unknown";
+    var userName = request.UserName ?? "Anonymous User";
 
     var image = await client.PostAsJsonAsync($"http://meminator:10116/applyPhraseToImage",
         new {
             imageUrl = imagePickerResponse!.ImageUrl,
-            inputPhrase = phrasePickerResponse!.Phrase
+            inputPhrase = phrasePickerResponse!.Phrase,
+            userId = userId,
+            userName = userName
         });
     if (!image.IsSuccessStatusCode)
     {
@@ -86,6 +140,10 @@ app.MapPost("/rating", (RatingRequest ratingData) => {
                 {
                     activity.SetTag("app.rating.emoji", ratingData.RatingEmoji);
                 }
+
+                // Add user data to the span
+                activity.SetTag("user.id", ratingData.UserId ?? "unknown");
+                activity.SetTag("user.name", ratingData.UserName ?? "Anonymous User");
             }
         }
 
@@ -116,4 +174,21 @@ record RatingRequest
 
     [JsonPropertyName("pictureSpanContext")]
     public PictureSpanContext? PictureSpanContext { get; init; }
+
+    [JsonPropertyName("userId")]
+    public string? UserId { get; init; }
+
+    [JsonPropertyName("userName")]
+    public string? UserName { get; init; }
 }
+
+record CreatePictureRequest
+{
+    [JsonPropertyName("userId")]
+    public string? UserId { get; init; }
+
+    [JsonPropertyName("userName")]
+    public string? UserName { get; init; }
+}
+
+record UserResponse(string Id, string Name, string AvatarUrl);
