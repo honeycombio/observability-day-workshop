@@ -19,7 +19,25 @@ async function fetchPicture() {
     document.getElementById("message").style = "display:block";
 
     // Hide feedback and dimensions when loading a new image
-    document.getElementById("feedback").style = "display:none";
+    const feedbackElement = document.getElementById("feedback");
+    feedbackElement.style = "display:none";
+
+    // Reset the feedback box to its original state with rating buttons
+    feedbackElement.innerHTML = `
+      <div class="rating-options">
+        <button id="thumbs-up" class="rating-button">
+          <span class="emoji">🥰</span>
+          <span class="label">Love it!</span>
+        </button>
+        <button id="thumbs-down" class="rating-button">
+          <span class="emoji">😒</span>
+          <span class="label">Not great</span>
+        </button>
+      </div>
+    `;
+
+    // Re-attach event listeners to the rating buttons
+    setupRatingButtonListeners();
 
     // Hide dimensions display if it exists
     const dimensionsElement = document.getElementById("image-dimensions");
@@ -86,7 +104,22 @@ async function fetchPicture() {
   }
 }
 
+// Function to set up rating button event listeners
+function setupRatingButtonListeners() {
+  document.getElementById("thumbs-up").addEventListener("click", function() {
+    submitRating("thumbs-up");
+  });
+
+  document.getElementById("thumbs-down").addEventListener("click", function() {
+    submitRating("thumbs-down");
+  });
+}
+
+// Add event listener to the GO button
 document.getElementById("go").addEventListener("click", fetchPicture);
+
+// Set up initial rating button listeners
+setupRatingButtonListeners();
 
 // Function to handle the rating submission
 async function submitRating(rating) {
@@ -115,7 +148,7 @@ async function submitRating(rating) {
         },
         body: JSON.stringify({
           rating: rating,
-          pictureSpanContext: { 
+          pictureSpanContext: {
             traceId: storedTraceId,
             spanId: storedSpanId
           }
@@ -137,10 +170,3 @@ async function submitRating(rating) {
   });
 }
 
-// Add event listeners for the rating buttons
-document
-  .getElementById("thumbs-up")
-  .addEventListener("click", () => submitRating("thumbs-up"));
-document
-  .getElementById("thumbs-down")
-  .addEventListener("click", () => submitRating("thumbs-down"));
