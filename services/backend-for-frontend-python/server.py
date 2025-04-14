@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response, request, render_template_string
+from flask import Flask, jsonify, Response, request
 from o11yday_lib import fetch_from_service
 from opentelemetry import trace
 from opentelemetry.trace import SpanKind
@@ -73,16 +73,8 @@ def submit_rating():
 
 @app.route('/user-info', methods=['GET'])
 def user_info():
-    # HTML template for the user info
-    user_info_template = '''
-    <div class="user-info">
-        <img id="user-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User Avatar" class="user-avatar">
-        <span id="user-name" class="user-name">Meminator User</span>
-    </div>
-    '''
-
-    # Return the rendered template
-    return render_template_string(user_info_template)
+    # Just return the username text
+    return "Meminator User"
 
 if __name__ == '__main__':
     app.run(debug=True, port=10115)

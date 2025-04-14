@@ -145,9 +145,10 @@
 <body>
     <div class="user-container">
         <h1>Meminator 10114</h1>
-        <div class="user-info" id="user-info" hx-get="/backend/user-info" hx-trigger="load">
+        <div class="user-info" id="user-info">
+            <!-- This div will be replaced by the content from the server -->
             <img id="user-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User Avatar" class="user-avatar">
-            <span id="user-name" class="user-name">Anonymous</span>
+            <span id="user-name" class="user-name" hx-get="/backend/user-info" hx-trigger="load" hx-swap="innerHTML">Anonymous</span>
         </div>
     </div>
     <p>
