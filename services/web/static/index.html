@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/@jessitronica/hny-otel-web@0.10.38/dist/hny.js"></script>
     <script>window.Hny.initializeTracing({provideOneLinkToHoneycomb: true, apiKey: "process.env.HONEYCOMB_API_KEY", serviceName: "meminator-web"})</script>
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
     <style>
         body {
             text-align: center;
@@ -144,7 +145,7 @@
 <body>
     <div class="user-container">
         <h1>Meminator 10114</h1>
-        <div class="user-info">
+        <div class="user-info" id="user-info" hx-get="/backend/user-info" hx-trigger="load">
             <img id="user-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User Avatar" class="user-avatar">
             <span id="user-name" class="user-name">Anonymous</span>
         </div>
