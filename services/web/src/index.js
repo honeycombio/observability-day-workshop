@@ -17,15 +17,27 @@ function getUserData() {
   }
 
   const userId = userInfoDiv.getAttribute("data-user-id") || "unknown";
-  const userName =
-    userInfoDiv.getAttribute("data-user-name") || "Anonymous User";
+  const userName = userInfoDiv.getAttribute("data-user-name") || "Anonymous User";
 
   console.log(`Retrieved user data: ID=${userId}, Name=${userName}`);
   return { userId, userName };
 }
 
-// Function to fetch the image binary data from the server
+function getPictureCreationSpanContext() {
+  const storedTraceId = document.body.getAttribute("data-trace-id") || "unknown";
+  const storedSpanId = document.body.getAttribute("data-span-id") || "unknown";
 
+  // When being clever, make the actions clearer to your future self
+  span.setAttribute("picture.trace_id", storedTraceId);
+  span.setAttribute("picture.span_id", storedSpanId);
+
+  return {
+    traceId: storedTraceId,
+    spanId: storedSpanId,
+  };
+}
+
+// Function to fetch the image binary data from the server
 async function fetchPicture() {
   try {
     // Start with the loading image
@@ -75,9 +87,7 @@ async function fetchPicture() {
       // add them as data attributes to the body for later access
       document.body.setAttribute("data-trace-id", traceId);
       document.body.setAttribute("data-span-id", spanId);
-      console.log(
-        `Stored trace_id: ${traceId} and span_id: ${spanId} in body attributes`
-      );
+      console.log(`Stored trace_id: ${traceId} and span_id: ${spanId} in body attributes`);
     } catch (error) {
       console.error("Error getting trace/span IDs:", error);
     }
@@ -122,8 +132,7 @@ async function fetchPicture() {
     document.getElementById("loading-meme").style = "display:none";
     document.getElementById("picture").style = "display:none;";
     document.getElementById("feedback").style = "display:none";
-    document.getElementById("message").innerText =
-      "There was an error fetching a picture. Please retry.";
+    document.getElementById("message").innerText = "There was an error fetching a picture. Please retry.";
     document.getElementById("message").style = "display:block;";
   }
 }
@@ -152,63 +161,41 @@ async function submitRating(rating) {
   // Get the emoji for the rating
   const ratingEmoji = rating === "thumbs-up" ? "🥰" : "😒";
 
-  // Create a span for the rating submission
-  window.Hny.inChildSpan(
-    "meminator-web",
-    "submit-rating",
-    undefined,
-    (span) => {
-      span.setAttribute("rating.value", rating);
-      span.setAttribute("app.rating.emoji", ratingEmoji);
+  // INSTRUMENTATION: Create a span that says what we're doing (more descriptive than 'click')
+  // This syntax is specific to Jessitron's wrapper of the Honeycomb Web SDK
+  // window.Hny.inChildSpan(
+  //   "meminator-web",
+  //   "submit-rating",
+  //   undefined,
+  //   (span) => { // OPEN CREATE OWN SPAN
+  // span.setAttribute("rating.value", rating);
+  // span.setAttribute("app.rating.emoji", ratingEmoji);
 
-      // Get the trace ID and span ID from the body tag that was stored during picture fetch
-      const storedTraceId =
-        document.body.getAttribute("data-trace-id") || "unknown";
-      const storedSpanId =
-        document.body.getAttribute("data-span-id") || "unknown";
-
-      // Add them as span attributes for better tracing
-      span.setAttribute("picture.trace_id", storedTraceId);
-      span.setAttribute("picture.span_id", storedSpanId);
-      console.log(
-        `Using stored trace_id: ${storedTraceId} and span_id: ${storedSpanId} for rating`
-      );
-
-      // Get user data from the user-info div
-      const { userId, userName } = getUserData();
-
-      // Send the rating to the backend
-      // Include the stored trace ID and user data in the request body
-      // OpenTelemetry will still handle trace propagation automatically
-      fetch("/backend/rating", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          rating: rating,
-          ratingEmoji: ratingEmoji,
-          userId: userId,
-          userName: userName,
-          pictureSpanContext: {
-            traceId: storedTraceId,
-            spanId: storedSpanId,
-          },
-        }),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to submit rating");
-          }
-          return response.json();
-        })
-        .then(() => {
-          // Show thank you message
-          document.getElementById("feedback").innerHTML = `
+  fetch("/backend/rating", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      rating: rating,
+      ratingEmoji: ratingEmoji,
+      ...getUserData(),
+      pictureSpanContext: getPictureCreationSpanContext(),
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to submit rating");
+      }
+      return response.json();
+    })
+    .then(() => {
+      // Show thank you message
+      document.getElementById("feedback").innerHTML = `
         <p>Thanks for your feedback!</p>
         <p>You rated this meme: ${rating === "thumbs-up" ? "👍" : "👎"}</p>
         `;
-        });
-    }
-  );
+    });
+  //   } // CLOSE CREATE OWN SPAN
+  // );
 }
