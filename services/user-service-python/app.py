@@ -210,10 +210,15 @@ fallback_users = [
 
 # Helper function to get a random user from the database
 def get_random_user():
+    current_span = trace.get_current_span()
     conn = get_db_connection()
     if conn is None:
         # Return None to indicate failure instead of falling back
-        print("Failed to connect to database")
+        if current_span:
+            current_span.add_event(
+                name="database.connection.error",
+                attributes={"error.message": "Failed to connect to database"}
+            )
         return None
 
     try:
@@ -224,7 +229,11 @@ def get_random_user():
 
         if count == 0:
             conn.close()
-            print("No users found in database")
+            if current_span:
+                current_span.add_event(
+                    name="database.query.error",
+                    attributes={"error.message": "No users found in database"}
+                )
             return None
 
         # Get a random user from the database
@@ -234,7 +243,14 @@ def get_random_user():
 
         if user is None:
             conn.close()
-            print(f"User with ID {random_id} not found")
+            if current_span:
+                current_span.add_event(
+                    name="database.query.error",
+                    attributes={
+                        "error.message": f"User with ID {random_id} not found",
+                        "user.id": random_id
+                    }
+                )
             return None
 
         # Convert the sqlite3.Row to a dictionary
@@ -243,7 +259,15 @@ def get_random_user():
         return user_dict
 
     except sqlite3.Error as e:
-        print(f"Error getting random user: {e}")
+        error_message = f"Error getting random user: {e}"
+        if current_span:
+            current_span.add_event(
+                name="database.query.exception",
+                attributes={
+                    "error.message": error_message,
+                    "error.type": "sqlite3.Error"
+                }
+            )
         if conn:
             conn.close()
         return None
@@ -267,12 +291,27 @@ def current_user():
         if current_span:
             current_span.set_attribute("error", True)
             current_span.set_attribute("error.message", "Failed to retrieve user data")
+            current_span.add_event(
+                name="api.error",
+                attributes={
+                    "error.message": "Failed to retrieve user data",
+                    "http.status_code": 500,
+                    "service.name": "user-service-python"
+                }
+            )
         return jsonify(error_message), 500
 
     # Add user info to the current span
     if current_span:
         current_span.set_attribute("user.id", user["id"])
         current_span.set_attribute("user.name", user["name"])
+        current_span.add_event(
+            name="user.retrieved",
+            attributes={
+                "user.id": user["id"],
+                "user.name": user["name"]
+            }
+        )
 
     return jsonify(user)
 
