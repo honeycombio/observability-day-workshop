@@ -1,0 +1,12 @@
+{
+  "name": "meminator-loadgen",
+  "version": "1.0.0",
+  "description": "Load generator for Meminator workshop",
+  "main": "loadgen.js",
+  "scripts": {
+    "start": "node loadgen.js"
+  },
+  "dependencies": {
+    "playwright": "^1.42.1"
+  }
+}
