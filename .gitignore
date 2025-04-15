@@ -3,3 +3,4 @@ bin/
 obj/
 .mono/
 .vscode
+node_modules/
