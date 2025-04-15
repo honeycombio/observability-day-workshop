@@ -20,7 +20,12 @@ var phrases = new [] {
     "deploy != release",
     "oh, just the crimes",
     "not a bug, it's a feature",
-    "test in prod"
+    "test in prod",
+    "it was dns",
+    "all the best things are stupid",
+    "entropy comes for us all",
+    "I'm down if you're up for it",
+    "Can you give me a concrete example?"
 };
 
 var builder = WebApplication.CreateBuilder(args);
