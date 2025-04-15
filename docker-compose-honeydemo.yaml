@@ -7,7 +7,7 @@ services:
         # this is useful for pushing to Dockerhub, not for local builds
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/backend-for-frontend:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/backend-for-frontend:${WORKSHOP_VERSION}
     ports:
       - "10115:10115" # Expose the port your Express app is listening on
     environment:
@@ -22,7 +22,7 @@ services:
       platforms:
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/meminator:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/meminator:${WORKSHOP_VERSION}
     ports:
       - "10116:10116" # they can't be the same
     environment:
@@ -37,7 +37,7 @@ services:
       platforms:
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/phrase-picker:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/phrase-picker:${WORKSHOP_VERSION}
     ports:
       - "10117:10117" # the outer ports can't be the same
     environment:
@@ -52,7 +52,7 @@ services:
       platforms:
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/image-picker:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/image-picker:${WORKSHOP_VERSION}
     ports:
       - "10118:10118" # the outer ports can't be the same
     environment:
@@ -70,7 +70,7 @@ services:
       platforms:
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/web:${IMAGE_VERSION}-honeydemo
+    image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
     # volumes: # uncomment this for faster development on the frontend
     #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
@@ -79,16 +79,16 @@ services:
   user-service:
     build:
       context: .
-      dockerfile: services/user-service-nodejs/Dockerfile
+      dockerfile: services/user-service-python/Dockerfile
       platforms:
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/user-service:${IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/user-service:${WORKSHOP_VERSION}
     ports:
       - "10119:10119"
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=user-service-nodejs
+      - OTEL_SERVICE_NAME=user-service-python
     volumes:
       - ./services/shared-data:/app/shared-data

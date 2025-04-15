@@ -4,7 +4,7 @@ services:
       context: services/backend-for-frontend-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
       cache_from:
-        - ${IMAGE_REPO_USER}/backend-for-frontend:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION}
+        - ${IMAGE_REPO_USER}/backend-for-frontend:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/backend-for-frontend:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
     ports:
       - "10115:10115"
@@ -18,7 +18,7 @@ services:
       context: services/meminator-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
       cache_from:
-        - ${IMAGE_REPO_USER}/meminator:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION}
+        - ${IMAGE_REPO_USER}/meminator:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/meminator:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
     ports:
       - "10116:10116"
@@ -32,7 +32,7 @@ services:
       context: services/phrase-picker-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
       cache_from:
-        - ${IMAGE_REPO_USER}/phrase-picker:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION}
+        - ${IMAGE_REPO_USER}/phrase-picker:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/phrase-picker:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
     ports:
       - "10117:10117"
@@ -46,7 +46,7 @@ services:
       context: services/image-picker-${PROGRAMMING_LANGUAGE}
       dockerfile: Dockerfile
       cache_from:
-        - ${IMAGE_REPO_USER}/image-picker:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION}
+        - ${IMAGE_REPO_USER}/image-picker:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/image-picker:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
     ports:
       - "10118:10118"
@@ -63,7 +63,7 @@ services:
       args:
         HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
       cache_from:
-        - ${IMAGE_REPO_USER}/web:${IMAGE_VERSION}
+        - ${IMAGE_REPO_USER}/web:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
     # volumes: # uncomment this for faster development on the frontend
     #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
@@ -77,7 +77,7 @@ services:
       context: .
       dockerfile: services/user-service-${PROGRAMMING_LANGUAGE}/Dockerfile
       cache_from:
-        - ${IMAGE_REPO_USER}/user-service:${IMAGE_VERSION}
+        - ${IMAGE_REPO_USER}/user-service:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/user-service:${WORKSHOP_VERSION}
     ports:
       - "10119:10119"

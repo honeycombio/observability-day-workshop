@@ -7,7 +7,7 @@ services:
         # this is useful for pushing to Dockerhub, not for local builds
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/backend-for-frontend:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
+    image: ${IMAGE_REPO_USER}/backend-for-frontend:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}
     ports:
       - "10115:10115" # Expose the port your Express app is listening on
     environment:
@@ -22,7 +22,7 @@ services:
       platforms:
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/meminator:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
+    image: ${IMAGE_REPO_USER}/meminator:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}
     ports:
       - "10116:10116" # they can't be the same
     environment:
@@ -37,7 +37,7 @@ services:
       platforms:
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/phrase-picker:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
+    image: ${IMAGE_REPO_USER}/phrase-picker:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}
     ports:
       - "10117:10117" # the outer ports can't be the same
     environment:
@@ -52,7 +52,7 @@ services:
       platforms:
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/image-picker:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
+    image: ${IMAGE_REPO_USER}/image-picker:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}
     ports:
       - "10118:10118" # the outer ports can't be the same
     environment:
@@ -70,7 +70,7 @@ services:
       platforms:
         - linux/amd64
         - linux/arm64
-    image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
+    image: ${IMAGE_REPO_USER}/web:${DOCKERHUB_IMAGE_VERSION}
     # volumes: # uncomment this for faster development on the frontend
     #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
