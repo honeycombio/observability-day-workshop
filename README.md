@@ -1,12 +1,60 @@
 # Meminator Workshop
 
-Open this repo in Codespaces (or clone it) and `./run` (docker compose up)
+It's the Meminator 10114!
 
-## github.com/honeycombio/meminator-workshop
+See the app live: [https://meminator.honeydemo.io]()
 
-This contains a sample application for use in various workshops. Note that "o11y" is a synonym for "observability". The application is implemented in various languages, so that you can play with instrumentation in any of them (or mix and match).
+In the workshop, you've inherited responsibility for this legacy application. People are complaining that it is slow and fails sometimes.
+You have no idea how it works. Good thing the team that it's instrumented with OpenTelemetry!
+
+Your objective is to run the Meminator, point OpenTelemetry to Honeycomb.io, learn something from the traces it sends, and then improve those traces.
+Make them express what matters in this application. Debug problems! Diagnose slowness! Understand this software and feel good about changing it.
+
+## Run the meminator
+
+### One-time setup
+
+```bash
+git clone https://github.com/honeycombio/meminator-workshop
+```
+
+Have Docker installed. If you don't have Docker locally, you can [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/meminator-workshop) or use Codespaces.
+
+Define your Honeycomb API key. Add this to the middle of `.env`: (or export it in your shell)
+
+```bash
+HONEYCOMB_API_KEY="paste your api key here"
+```
+
+If you don't have a Honeycomb account yet, it's free! Sign up here. It won't ask for payment ever.
+
+When you first sign up, it gives you an API key. Push the copy button.
+
+If you already have a Honeycomb account, create a new environment for Meminator, and it'll give you an API key. For all other cases, herea re the [API key docs](https://docs.honeycomb.io/get-started/configure/environments/manage-api-keys/#create-api-key).
+
+### run the app
+
+`./run`
+
+(this will run `docker compose` in daemon mode, and build containers)
+
+Access the app:
+
+[http://localhost:10114]()
+
+after making changes to a service, you can tell it to rebuild just that one:
+
+`./run [ meminator | backend-for-frontend | image-picker | phrase-picker ]`
+
+### Optional: choose a language
+
+The meminator is implemented in Node.js, Python, and .NET. The `./run` script runs a mixture of these.
+
+You can choose to run all services in your favorite language instead. Substitute: `./run-one-language [python|nodejs|dotnet]`
 
 ## Service Architecture
+
+hmm, is this up to date?
 
 ```mermaid
 graph TD
@@ -42,7 +90,7 @@ graph TD
     class ExternalImage external;
 ```
 
-The application flow:
+The application flow, as described by an AI after looking at a trace:
 
 1. User clicks "GO" button in the web browser
 2. Browser sends HTTP request to the Web service (Nginx)
@@ -58,65 +106,13 @@ The application flow:
 10. Web service returns the image to the browser
 11. Browser displays the generated meme image to the user
 
-See it in action: [meminator.honeydemo.io](https://meminator.honeydemo.io)
-
-It generates images by combining a randomly chosen picture with a randomly chosen phrase.
-
-## Sessions using this repository
+## Some workshops using this repository
 
 Advanced Instrumentation Workshop ([instructions](docs/advanced-instrumentation.md)) - a 1.5 hour workshop on improving the instrumentation in this app.
 
 Instrumentation Strategies Session ([slides]())
 
-## Running the application
-
-Run this locally in docker-compose, sending traces to Honeycomb. Then you can practice improving the instrumentation for better observability.
-
-If you don't have Docker locally, you can [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/meminator-workshop) or use Codespaces.
-
-```
-export HONEYCOMB_API_KEY="paste your api key here"
-./run
-```
-
-### one-time setup
-
-Clone this repository.
-
-```bash
-git clone https://github.com/honeycombio/meminator-workshop
-```
-
-Have Docker installed.
-
-Define your Honeycomb API key. Add this to the middle of `.env`: (or export it in your shell)
-
-```bash
-HONEYCOMB_API_KEY="paste your api key here"
-```
-
-If you don't have an API key handy, here are the [docs](https://docs.honeycomb.io/get-started/configure/environments/manage-api-keys/#create-api-key).
-If you want more stepping-through of how to get an API key, there are instructions for this in [Observaquiz](https://quiz.honeydemo.io); type in a name to get to the second page.
-
-### run the app
-
-`./run`
-
-(this will run `docker compose` in daemon mode, and build containers)
-
-Access the app:
-
-[http://localhost:10114]()
-
-after making changes to a service, you can tell it to rebuild just that one:
-
-`./run [ meminator | backend-for-frontend | image-picker | phrase-picker ]`
-
-### Try it out
-
-Visit [http://localhost:10114]()
-
-Click the "GO" button. Then wait.
+Support Complexity with Observability, [Explore Conference 2025](https://exploreddd.com)
 
 ## Improving the tracing
 
@@ -125,7 +121,7 @@ The app begins with automatic instrumentation installed. Test the app, look at t
 Here's my daily for looking at the most recent traces:
 
 - log in to Honeycomb
-- (you should be in the same environment where you got the API key; if you're not sure, there's [my little app](https://honeycomb-whoami.glitch.me) that calls Honeycomb's auth endpoint and tells you.)
+- (you should be in the same environment where you got the API key; if you're not sure where your API key points, there's [my little app](https://util.jessitron.honeydemo.io) that calls Honeycomb's auth endpoint and tells you.)
 
 See the data:
 
@@ -141,6 +137,13 @@ Get more info (optional):
 - 'Run Query' again. (alt-enter also does it)
 - Now see the table under the graph. You should see all 4 services from this app listed.
 
+Get all the info (optional):
+
+- Click the Explore Data tab
+- expand a log line to look at the whole thing
+- click some field names to add them to the log line
+- try both the "table" and "log lines" view options (in the table header)
+
 Get to a trace:
 
 - In the graph, click on one of the lines. It brings up a popup menu.
@@ -148,7 +151,7 @@ Get to a trace:
 
 This should take you to a trace view!
 
-Does your trace include all 4 services?
+Does your trace include all 4 services... plus the web browser?
 
 ### Checklist before starting the session
 
