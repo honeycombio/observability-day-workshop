@@ -56,7 +56,6 @@ services:
     ports:
       - "10118:10118" # the outer ports can't be the same
     environment:
-      - BUCKET_NAME
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=image-picker-${PROGRAMMING_LANGUAGE}
@@ -75,6 +74,23 @@ services:
     #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
       - "10114:10114" # Expose port 10114, that is where it should be listening now
+
+  user-service:
+    build:
+      context: .
+      dockerfile: services/user-service-${PROGRAMMING_LANGUAGE}/Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    image: ${IMAGE_REPO_USER}/user-service:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}
+    ports:
+      - "10119:10119"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_HEADERS
+      - OTEL_SERVICE_NAME=user-service-${PROGRAMMING_LANGUAGE}
+    volumes:
+      - ./services/shared-data:/app/shared-data
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:${COLLECTOR_VERSION}
