@@ -1,9 +1,8 @@
 from flask import Flask, jsonify, Response, request, render_template_string
-from o11yday_lib import fetch_from_service
+from internal_library import fetch_from_service
 from opentelemetry import trace
-from opentelemetry.trace import SpanKind
 
-print("I am the backend-for-frontend!")
+print("I am the backend-for-frontend, in python!")
 
 app = Flask(__name__)
 
@@ -14,24 +13,24 @@ def health():
 
 @app.route('/createPicture', methods=['POST'])
 def create_picture():
-        # current_span = trace.get_current_span() # INSTRUMENTATION: pull the current span out of thin air
-        phrase_response = fetch_from_service('phrase-picker')
-        image_response = fetch_from_service('image-picker')
+    # current_span = trace.get_current_span() # INSTRUMENTATION: pull the current span out of thin air
+    phrase_response = fetch_from_service('phrase-picker')
+    image_response = fetch_from_service('image-picker')
 
-        phrase_result = phrase_response.json() if phrase_response and phrase_response.ok else {"phrase": "This is sparta"}
-        image_result = image_response.json() if image_response and image_response.ok else {"imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1360px-Banana-Single.jpg"}
-        # current_span.set_attribute("app.phrase", phrase_result['phrase']) # INSTRUMENTATION: add the mose important attributes from the trace
-        # current_span.set_attribute("app.image_url", image_result['imageUrl'])
+    phrase_result = phrase_response.json() if phrase_response and phrase_response.ok else {"phrase": "This is sparta"}
+    image_result = image_response.json() if image_response and image_response.ok else {"imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1360px-Banana-Single.jpg"}
+    # current_span.set_attribute("app.phrase", phrase_result['phrase']) # INSTRUMENTATION: add the mose important attributes from the trace
+    # current_span.set_attribute("app.image_url", image_result['imageUrl'])
 
-        body = {**phrase_result, **image_result}
-        meminator_response = fetch_from_service('meminator', method="POST", body=body)
+    body = {**phrase_result, **image_result}
+    meminator_response = fetch_from_service('meminator', method="POST", body=body)
 
-        if not meminator_response.ok or meminator_response.content is None:
-            raise Exception(f"Failed to fetch picture from meminator: {meminator_response.status_code} {meminator_response.reason}")
+    if not meminator_response.ok or meminator_response.content is None:
+        raise Exception(f"Failed to fetch picture from meminator: {meminator_response.status_code} {meminator_response.reason}")
 
-        flask_response = Response(meminator_response.content, status=meminator_response.status_code, content_type=meminator_response.headers.get('content-type'))
+    flask_response = Response(meminator_response.content, status=meminator_response.status_code, content_type=meminator_response.headers.get('content-type'))
 
-        return flask_response
+    return flask_response
 
 special_tracer = trace.get_tracer("report-rating")
 
@@ -46,9 +45,10 @@ def submit_rating():
         if 'ratingEmoji' in rating_data:
             current_span.set_attribute("app.rating.emoji", rating_data['ratingEmoji'])
 
+    # Watch out, this part is clever.
     # Create a special span that is attached to the picture-creation trace.
     if not rating_data or 'pictureSpanContext' not in rating_data:
-        return jsonify({"status": "error", "message": "Missing pictureSpanContext in request body"})
+        return jsonify({"status": "warning", "message": "Missing pictureSpanContext in request body"})
 
     trace_id_int = int(rating_data['pictureSpanContext']['traceId'], 16)
     span_id_int = int(rating_data['pictureSpanContext']['spanId'], 16)
@@ -63,7 +63,7 @@ def submit_rating():
                     trace_state=trace.TraceState(),
                 )
             ))
-    specialSpan = special_tracer.start_span("user rating", context=special_context)
+    specialSpan = special_tracer.start_span("user rating", context=special_context) # TODO: add a span link to the current span
     specialSpan.set_attribute("app.rating", rating_data['rating'])
     if 'ratingEmoji' in rating_data:
         specialSpan.set_attribute("app.rating.emoji", rating_data['ratingEmoji'])
@@ -71,27 +71,27 @@ def submit_rating():
 
     return jsonify({"status": "success"})
 
+# Default user data in case the service is unavailable
+default_user = {
+    "id": "0",
+    "name": "Anonymous User",
+    "avatarUrl": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+}
+
 @app.route('/user-info', methods=['GET'])
 def user_info():
-    current_span = trace.get_current_span()
 
     # Fetch user data from user-service
     user_response = fetch_from_service('user-service')
-
-    # Default user data in case the service is unavailable
-    default_user = {
-        "id": "0",
-        "name": "Anonymous User",
-        "avatarUrl": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
-    }
 
     # Parse the user data from the response
     user_data = user_response.json() if user_response and user_response.ok else default_user
 
     # Add user info to the current span
-    if current_span:
-        current_span.set_attribute("user.id", user_data.get("id", "0"))
-        current_span.set_attribute("user.name", user_data.get("name", "Anonymous User"))
+    current_span = trace.get_current_span()
+    current_span.set_attribute("app.fallback_activated", not(user_response and user_response.ok))
+    current_span.set_attribute("user.id", user_data.get("id", "missing"))
+    current_span.set_attribute("user.name", user_data.get("name", "missing"))
 
     # HTML template for the user info
     user_info_template = '''
