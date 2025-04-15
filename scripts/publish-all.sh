@@ -2,7 +2,7 @@
 
 # Publish all images in all languages
 
-# goal: each of the ((4 services x 3 languages ) + 1 web) x 2 tags (latest & IMAGE_VERSION) = 26 tags updated in dockerhub
+# goal: each of the ((4 services x 3 languages ) + 1 web) x 2 tags (latest & DOCKERHUB_IMAGE_VERSION) = 26 tags updated in dockerhub
 set -x
 set -e
 
@@ -10,16 +10,6 @@ source .env
 
 for lang in $(echo "python nodejs dotnet" ); do
   export PROGRAMMING_LANGUAGE=$lang
-  echo "##########\n#\n# Let's publish the services in $PROGRAMMING_LANGUAGE in $IMAGE_VERSION\n#\n##########"
-  # hmm, web is gonna get triple-published. do we care? not yet.
-  WORKSHOP_VERSION=${IMAGE_VERSION} docker compose -f docker-compose-publish.yaml build --push
-
-  # now publish the latest tag
-  for srv in $(echo "meminator image-picker phrase-picker backend-for-frontend"); do
-    docker tag ${IMAGE_REPO_USER}/$srv:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION} ${IMAGE_REPO_USER}/$srv:${PROGRAMMING_LANGUAGE}-latest
-    docker push ${IMAGE_REPO_USER}/$srv:${PROGRAMMING_LANGUAGE}-latest
-  done
+  echo "##########\n#\n# Let's publish the services in $PROGRAMMING_LANGUAGE in $DOCKERHUB_IMAGE_VERSION\n#\n##########"
+  WORKSHOP_VERSION=${DOCKERHUB_IMAGE_VERSION} docker compose -f docker-compose-publish.yaml build --push
 done
-
-srv=web docker tag ${IMAGE_REPO_USER}/$srv:${PROGRAMMING_LANGUAGE}-${IMAGE_VERSION} ${IMAGE_REPO_USER}/$srv:${PROGRAMMING_LANGUAGE}-latest
-srv=web docker push ${IMAGE_REPO_USER}/$srv:${PROGRAMMING_LANGUAGE}-latest
