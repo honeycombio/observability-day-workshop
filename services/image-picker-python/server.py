@@ -62,7 +62,8 @@ filenames = [
 
 print("I am the image picker!")
 
-BUCKET_NAME = os.environ.get("BUCKET_NAME", "random-pictures")
+# Hard-coded bucket name
+BUCKET_NAME = "random-pictures"
 # Generate URLs using list comprehension
 IMAGE_URLS = [f"https://{BUCKET_NAME}.s3.amazonaws.com/{filename}" for filename in filenames]
 

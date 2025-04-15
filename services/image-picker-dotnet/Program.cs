@@ -57,7 +57,8 @@ var images = new [] {
     "yellow-lines.JPG"
 };
 
-var bucketname = Environment.GetEnvironmentVariable("BUCKET_NAME");
+// Hard-coded bucket name
+var bucketname = "random-pictures";
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHealthChecks();
@@ -75,7 +76,7 @@ var app = builder.Build();
 app.MapHealthChecks("/health");
 
 app.MapGet("/imageUrl", () => {
-    return new { 
+    return new {
         imageUrl = $"https://{bucketname}.s3.amazonaws.com/{images[Random.Shared.Next(images.Length)]}"
     };
 });

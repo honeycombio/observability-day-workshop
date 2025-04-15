@@ -5,7 +5,7 @@ import { trace } from "@opentelemetry/api";
 const app = express();
 const PORT = process.env.PORT || 10118;
 
-const BUCKET_NAME = process.env.BUCKET_NAME || "random-pictures";
+const BUCKET_NAME = "random-pictures";
 
 app.use(express.json());
 
