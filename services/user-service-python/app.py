@@ -4,6 +4,11 @@ import random
 import os
 import sqlite3
 
+from opentelemetry.instrumentation.sqlite3 import SQLite3Instrumentor
+
+# Call instrument() to wrap all database connections
+SQLite3Instrumentor().instrument()
+
 app = Flask(__name__)
 
 # Use environment variable for port with a different default for local development
@@ -12,12 +17,13 @@ PORT = int(os.environ.get("PORT", 3000))  # Docker uses 10119, local dev uses 30
 # Path to the SQLite database
 db_path = os.path.join(os.path.dirname(__file__), "../shared-data/users.db")
 
-# Initialize database connection
+# Initialize database connection with read-only mode
 def get_db_connection():
     try:
-        conn = sqlite3.connect(db_path)
+        # Open the database in read-only mode using URI parameters
+        conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
         conn.row_factory = sqlite3.Row  # This enables column access by name
-        print(f"Connected to the SQLite database at {db_path}")
+        print(f"Connected to the SQLite database at {db_path} in read-only mode")
         return conn
     except sqlite3.Error as e:
         print(f"Error connecting to database at {db_path}: {e}")
@@ -206,8 +212,9 @@ fallback_users = [
 def get_random_user():
     conn = get_db_connection()
     if conn is None:
-        # Fall back to the array if the database connection fails
-        return random.choice(fallback_users)
+        # Return None to indicate failure instead of falling back
+        print("Failed to connect to database")
+        return None
 
     try:
         # Count the total number of users
@@ -217,7 +224,8 @@ def get_random_user():
 
         if count == 0:
             conn.close()
-            return random.choice(fallback_users)
+            print("No users found in database")
+            return None
 
         # Get a random user from the database
         random_id = str(random.randint(1, count))
@@ -226,7 +234,8 @@ def get_random_user():
 
         if user is None:
             conn.close()
-            return random.choice(fallback_users)
+            print(f"User with ID {random_id} not found")
+            return None
 
         # Convert the sqlite3.Row to a dictionary
         user_dict = {key: user[key] for key in user.keys()}
@@ -237,7 +246,7 @@ def get_random_user():
         print(f"Error getting random user: {e}")
         if conn:
             conn.close()
-        return random.choice(fallback_users)
+        return None
 
 # Health check endpoint
 @app.route("/health", methods=["GET"])
@@ -252,6 +261,15 @@ def current_user():
     # Get a random user
     user = get_random_user()
 
+    # Return a 500 error if we couldn't get a user
+    if user is None:
+        error_message = {"error": "Failed to retrieve user data"}
+        if current_span:
+            current_span.set_attribute("error", True)
+            current_span.set_attribute("error.message", "Failed to retrieve user data")
+        return jsonify(error_message), 500
+
+    # Add user info to the current span
     if current_span:
         current_span.set_attribute("user.id", user["id"])
         current_span.set_attribute("user.name", user["name"])
