@@ -87,11 +87,11 @@ def user_info():
     # Parse the user data from the response
     user_data = user_response.json() if user_response and user_response.ok else default_user
 
-    # Add user info to the current span
-    current_span = trace.get_current_span()
-    current_span.set_attribute("app.fallback_activated", not(user_response and user_response.ok))
-    current_span.set_attribute("user.id", user_data.get("id", "missing"))
-    current_span.set_attribute("user.name", user_data.get("name", "missing"))
+    # INSTRUMENTATION: add what matters to the current span
+    # current_span = trace.get_current_span()
+    # current_span.set_attribute("app.fallback_activated", not(user_response and user_response.ok))
+    # current_span.set_attribute("user.id", user_data.get("id", "missing"))
+    # current_span.set_attribute("user.name", user_data.get("name", "missing"))
 
     # HTML template for the user info
     user_info_template = '''

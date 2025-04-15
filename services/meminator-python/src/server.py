@@ -7,7 +7,7 @@ from download import generate_random_filename, download_image
 from custom_span_processor import CustomSpanProcessor
 
 # tracer_provider = trace.get_tracer_provider() # an entry_point: https://github.com/open-telemetry/opentelemetry-python/blob/main/opentelemetry-sdk/pyproject.toml
-# tracer_provider.add_span_processor(CustomSpanProcessor()) # INSTRUMENTATION: add custom span processor, which puts the free_space on every span.
+# tracer_provider.add_span_processor(CustomSpanProcessor()) # INSTRUMENTATION: add custom span processor, which puts free_space on every span. This is an alternative to infrastructure metrics
 
 # # Acquire a tracer
 tracer = trace.get_tracer("meminator-tracer")
@@ -15,10 +15,9 @@ tracer = trace.get_tracer("meminator-tracer")
 IMAGE_MAX_WIDTH_PX=1000
 IMAGE_MAX_HEIGHT_PX=1000
 
-print("I am the meminator! I put phrases on images")
+print("I am the meminator, in python! I put phrases on images")
 
 app = Flask(__name__)
-# Route for health check
 @app.route('/health')
 def health():
     result = {"message": "I am here", "status_code": 0}
@@ -26,11 +25,11 @@ def health():
 
 @app.route('/applyPhraseToPicture', methods=['POST', 'GET'])
 def apply_phrase_to_picture():
-    input = request.json or { "phrase": "I got you"}
+    input = request.json or { "phrase": "We practice error hiding"}
     # request_span = trace.get_current_span()
 
     phrase = input.get("phrase", "words go here").upper()
-    # request_span.set_attribute("app.phrase", phrase) # INSINSTRUMENTATIONTR: add important bits
+    # request_span.set_attribute("app.phrase", phrase) # INSTRUMENTATION: add important bits
 
     imageUrl = input.get("imageUrl", "http://missing.booo/no-url-here.png")
     # request_span.set_attribute("app.imageUrl", imageUrl)
@@ -38,7 +37,7 @@ def apply_phrase_to_picture():
     # Get the absolute path to the PNG file
     input_image_path = download_image(imageUrl)
 
-    # Check if the file exists
+    # Check whether the file exists
     if not os.path.exists(input_image_path):
         return 'downloaded image file not found', 500
     
