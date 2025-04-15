@@ -3,10 +3,8 @@ from opentelemetry import trace
 import random
 import os
 import sqlite3
-import tracing
 
 app = Flask(__name__)
-tracing.instrument_app(app)
 
 # Use environment variable for port with a different default for local development
 PORT = int(os.environ.get("PORT", 3000))  # Docker uses 10119, local dev uses 3000
