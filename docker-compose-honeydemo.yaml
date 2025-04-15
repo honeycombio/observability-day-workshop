@@ -78,8 +78,8 @@ services:
 
   user-service:
     build:
-      context: services/user-service-nodejs
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/user-service-nodejs/Dockerfile
       platforms:
         - linux/amd64
         - linux/arm64
@@ -90,3 +90,5 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=user-service-nodejs
+    volumes:
+      - ./services/shared-data:/app/shared-data
