@@ -15,4 +15,4 @@ COPY services/user-service-python/ .
 ENV PORT=10119
 EXPOSE 10119
 
-CMD ["opentelemetry-instrument", "python", "app.py"]
+CMD ["opentelemetry-instrument","--metrics-exporter", "none", "python", "app.py"]
