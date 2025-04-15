@@ -2,13 +2,7 @@ import "./tracing";
 import express from "express";
 import type { Request, Response } from "express";
 import { fetchFromService } from "./o11yday-lib";
-import {
-  trace,
-  SpanStatusCode,
-  context,
-  SpanContext,
-  SpanKind,
-} from "@opentelemetry/api";
+import { trace, context, SpanStatusCode } from "@opentelemetry/api";
 
 const app = express();
 const PORT = 10115;
@@ -21,10 +15,7 @@ app.get("/health", (req: Request, res: Response) => {
 app.post("/createPicture", async (req: Request, res: Response) => {
   // const span = trace.getActiveSpan();
   try {
-    const [phraseResponse, imageResponse] = await Promise.all([
-      fetchFromService("phrase-picker"),
-      fetchFromService("image-picker"),
-    ]);
+    const [phraseResponse, imageResponse] = await Promise.all([fetchFromService("phrase-picker"), fetchFromService("image-picker")]);
     const phraseText = phraseResponse.ok ? await phraseResponse.text() : "{}";
     const imageText = imageResponse.ok ? await imageResponse.text() : "{}";
     //    span?.setAttributes({ "app.phraseResponse": phraseText, "app.imageResponse": imageText }); // INSTRUMENTATION: add relevant info to span
@@ -46,14 +37,10 @@ app.post("/createPicture", async (req: Request, res: Response) => {
     });
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to fetch picture from meminator: ${response.status} ${response.statusText}`
-      );
+      throw new Error(`Failed to fetch picture from meminator: ${response.status} ${response.statusText}`);
     }
     if (response.body === null) {
-      throw new Error(
-        `Failed to fetch picture from meminator: ${response.status} ${response.statusText}`
-      );
+      throw new Error(`Failed to fetch picture from meminator: ${response.status} ${response.statusText}`);
     }
 
     res.contentType("image/png");
@@ -76,21 +63,20 @@ app.post("/createPicture", async (req: Request, res: Response) => {
   }
 });
 
+// Default user data in case the service is unavailable
+const defaultUser = {
+  id: "0",
+  name: "Anonymous User",
+  avatarUrl: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+};
+
 // User info endpoint to fetch and display user information
 app.get("/user-info", async (req: Request, res: Response) => {
-  const currentSpan = trace.getActiveSpan();
+  const span = trace.getActiveSpan();
 
   try {
     // Fetch user data from user-service
     const userResponse = await fetchFromService("user-service");
-
-    // Default user data in case the service is unavailable
-    const defaultUser = {
-      id: "0",
-      name: "Anonymous User",
-      avatarUrl:
-        "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
-    };
 
     // Parse the user data from the response
     let userData;
@@ -102,10 +88,8 @@ app.get("/user-info", async (req: Request, res: Response) => {
     }
 
     // Add user info to the current span
-    if (currentSpan) {
-      currentSpan.setAttribute("user.id", userData.id || "0");
-      currentSpan.setAttribute("user.name", userData.name || "Anonymous User");
-    }
+    span?.setAttribute("user.id", userData.id || "0");
+    span?.setAttribute("user.name", userData.name || "Anonymous User");
 
     // HTML template for the user info
     const userInfoTemplate = `
@@ -120,12 +104,10 @@ app.get("/user-info", async (req: Request, res: Response) => {
     // Return the rendered template
     res.send(userInfoTemplate);
   } catch (error) {
+    span?.recordException(error as Error);
+    span?.setStatus({ code: SpanStatusCode.ERROR }); // the instrumentation does this on a 500
     console.error("Error fetching user info:", error);
-    res
-      .status(500)
-      .send(
-        '<div class="user-info" id="user-info">Error loading user information</div>'
-      );
+    res.status(500).send('<div class="user-info" id="user-info">Error loading user information</div>');
   }
 });
 
@@ -146,6 +128,7 @@ app.post("/rating", (req: Request, res: Response) => {
 
   // Create a special span that is attached to the picture-creation trace
   if (!ratingData || !ratingData.pictureSpanContext) {
+    currentSpan?.setAttribute("warning", "Missing pictureSpanContext in request body");
     res.status(400).json({
       status: "error",
       message: "Missing pictureSpanContext in request body",
