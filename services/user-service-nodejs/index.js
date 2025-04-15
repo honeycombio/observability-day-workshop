@@ -1,8 +1,9 @@
 require("./tracing");
 const express = require("express");
 const { trace } = require("@opentelemetry/api");
-const sqlite3 = require("sqlite3").verbose();
+const Database = require("better-sqlite3");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 // Use environment variable for port with a different default for local development
@@ -11,230 +12,32 @@ const PORT = process.env.PORT || 3000; // Docker uses 10119, local dev uses 3000
 app.use(express.json());
 
 // Path to the SQLite database
-const dbPath = path.join(__dirname, "../shared-data/users.db");
-
-// Initialize database connection
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error(`Error opening database at ${dbPath}:`, err.message);
-  } else {
-    console.log(`Connected to the SQLite database at ${dbPath}`);
+let dbPath = path.join(__dirname, "../shared-data/users.db");
+// For Docker, use this path if the above doesn't exist
+if (!fs.existsSync(dbPath)) {
+  const dockerPath = path.join("/app/shared-data/users.db");
+  if (fs.existsSync(dockerPath)) {
+    dbPath = dockerPath;
   }
-});
+}
 
-// Fallback array of users in case the database is not available
-const fallbackUsers = [
-  {
-    id: "1",
-    name: "Lisa Gherardini",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Mona_Lisa-restored.jpg/250px-Mona_Lisa-restored.jpg",
-  },
-  {
-    id: "2",
-    name: "Girl with Pearl Earring",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Girl_with_a_Pearl_Earring.jpg/250px-Girl_with_a_Pearl_Earring.jpg",
-  },
-  {
-    id: "3",
-    name: "Vincent van Gogh",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg/250px-Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg",
-  },
-  {
-    id: "4",
-    name: "Rembrandt",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Rembrandt_Harmensz._van_Rijn_135.jpg/162px-Rembrandt_Harmensz._van_Rijn_135.jpg",
-  },
-  {
-    id: "5",
-    name: "Albrecht Dürer",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/D%C3%BCrer_Alte_Pinakothek.jpg/142px-D%C3%BCrer_Alte_Pinakothek.jpg",
-  },
-  {
-    id: "6",
-    name: "Judith Leyster",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Self-portrait_by_Judith_Leyster.jpg/175px-Self-portrait_by_Judith_Leyster.jpg",
-  },
-  {
-    id: "7",
-    name: "Elisabeth Vigée-Lebrun",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Self-portrait_with_Her_Daughter_by_Elisabeth-Louise_Vig%C3%A9e_Le_Brun.jpg/148px-Self-portrait_with_Her_Daughter_by_Elisabeth-Louise_Vig%C3%A9e_Le_Brun.jpg",
-  },
-  {
-    id: "8",
-    name: "Artemisia Gentileschi",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Self-portrait_as_the_Allegory_of_Painting_%28La_Pittura%29_-_Artemisia_Gentileschi.jpg/148px-Self-portrait_as_the_Allegory_of_Painting_%28La_Pittura%29_-_Artemisia_Gentileschi.jpg",
-  },
-  {
-    id: "9",
-    name: "Nobleman in Blue",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Man_with_Blue_Sleeve_2.jpg/250px-Man_with_Blue_Sleeve_2.jpg",
-  },
-  {
-    id: "10",
-    name: "American Gothic Couple",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Grant_DeVolson_Wood_-_American_Gothic.jpg/250px-Grant_DeVolson_Wood_-_American_Gothic.jpg",
-  },
-  {
-    id: "11",
-    name: "Pope Innocent X",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PopeInnocentX.jpg/250px-PopeInnocentX.jpg",
-  },
-  {
-    id: "12",
-    name: "Madame Récamier",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Jacques-Louis_David_016.jpg/330px-Jacques-Louis_David_016.jpg",
-  },
-  {
-    id: "13",
-    name: "Adele Bloch-Bauer",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Gustav_Klimt%2C_1907%2C_Adele_Bloch-Bauer_I%2C_Neue_Galerie_New_York.jpg/250px-Gustav_Klimt%2C_1907%2C_Adele_Bloch-Bauer_I%2C_Neue_Galerie_New_York.jpg",
-  },
-  {
-    id: "14",
-    name: "Madame X",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Sargent_MadameX.jpeg/105px-Sargent_MadameX.jpeg",
-  },
-  {
-    id: "15",
-    name: "Dr. Gachet",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Portrait_of_Dr._Gachet.jpg/250px-Portrait_of_Dr._Gachet.jpg",
-  },
-  {
-    id: "16",
-    name: "Giovanna Tornabuoni",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Ghirlandaio-Giovanna_Tornabuoni_cropped.jpg/120px-Ghirlandaio-Giovanna_Tornabuoni_cropped.jpg",
-  },
-  {
-    id: "17",
-    name: "Baldassare Castiglione",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Baldassare_Castiglione%2C_by_Raffaello_Sanzio%2C_from_C2RMF_retouched.jpg/161px-Baldassare_Castiglione%2C_by_Raffaello_Sanzio%2C_from_C2RMF_retouched.jpg",
-  },
-  {
-    id: "18",
-    name: "The Laughing Cavalier",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Frans_Hals_%E2%80%93_The_Laughing_Cavalier.jpg/164px-Frans_Hals_%E2%80%93_The_Laughing_Cavalier.jpg",
-  },
-  {
-    id: "19",
-    name: "Susanna Fourment",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Le_Chapeau_de_Paille_by_Peter_Paul_Rubens.jpg/250px-Le_Chapeau_de_Paille_by_Peter_Paul_Rubens.jpg",
-  },
-  {
-    id: "20",
-    name: "Charles I of England",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Charles_I_of_England.jpg/153px-Charles_I_of_England.jpg",
-  },
-  {
-    id: "21",
-    name: "Doge Leonardo Loredan",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Giovanni_Bellini%2C_portrait_of_Doge_Leonardo_Loredan.jpg/142px-Giovanni_Bellini%2C_portrait_of_Doge_Leonardo_Loredan.jpg",
-  },
-  {
-    id: "22",
-    name: "Eleonora di Toledo",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Bronzino_-_Eleonora_di_Toledo_col_figlio_Giovanni_-_Google_Art_Project.jpg/250px-Bronzino_-_Eleonora_di_Toledo_col_figlio_Giovanni_-_Google_Art_Project.jpg",
-  },
-  {
-    id: "23",
-    name: "Mary Tudor",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Anthonis_Mor_001.jpg/250px-Anthonis_Mor_001.jpg",
-  },
-  {
-    id: "24",
-    name: "Elizabeth I",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Elizabeth_I_%28Armada_Portrait%29.jpg/250px-Elizabeth_I_%28Armada_Portrait%29.jpg",
-  },
-  {
-    id: "25",
-    name: "Louis XIV of France",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Louis_XIV_of_France.jpg/141px-Louis_XIV_of_France.jpg",
-  },
-  {
-    id: "26",
-    name: "The Beautiful Strasbourg Woman",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Largilli%C3%A8re_-_Die_sch%C3%B6ne_Stra%C3%9Fburgerin.jpg/250px-Largilli%C3%A8re_-_Die_sch%C3%B6ne_Stra%C3%9Fburgerin.jpg",
-  },
-  {
-    id: "27",
-    name: "Lady with the Veil",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Alexander_Roslin_-_The_Lady_with_the_Veil_%28the_Artist%27s_Wife%29_-_Google_Art_Project.jpg/250px-Alexander_Roslin_-_The_Lady_with_the_Veil_%28the_Artist%27s_Wife%29_-_Google_Art_Project.jpg",
-  },
-  {
-    id: "28",
-    name: "Blue Boy",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/The_Blue_Boy.jpg/135px-The_Blue_Boy.jpg",
-  },
-  {
-    id: "29",
-    name: "Lady Caroline Scott",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Lady_Caroline_Scott_-_Sir_Joshua_Reynolds.png/157px-Lady_Caroline_Scott_-_Sir_Joshua_Reynolds.png",
-  },
-  {
-    id: "30",
-    name: "Manuel Osorio Manrique",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Manuel_Osorio_Manrique_de_Zu%C3%B1iga_%281784%E2%80%931792%29_MET_DP287624.jpg/147px-Manuel_Osorio_Manrique_de_Zu%C3%B1iga_%281784%E2%80%931792%29_MET_DP287624.jpg",
-  },
-  {
-    id: "31",
-    name: "Pinkie",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Thomas_Lawrence_Pinkie.jpg/250px-Thomas_Lawrence_Pinkie.jpg",
-  },
-  {
-    id: "32",
-    name: "George Washington",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Gilbert_Stuart%2C_George_Washington_%28Lansdowne_portrait%2C_1796%29.jpg/124px-Gilbert_Stuart%2C_George_Washington_%28Lansdowne_portrait%2C_1796%29.jpg",
-  },
-  {
-    id: "33",
-    name: "Maja Vestida",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Goya_Maja_ubrana2.jpg/300px-Goya_Maja_ubrana2.jpg",
-  },
-  {
-    id: "34",
-    name: "Napoleon Bonaparte",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project.jpg/120px-Jacques-Louis_David_-_The_Emperor_Napoleon_in_His_Study_at_the_Tuileries_-_Google_Art_Project.jpg",
-  },
-  {
-    id: "35",
-    name: "Eugène Delacroix",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/F%C3%A9lix_Nadar_1820-1910_portraits_Eug%C3%A8ne_Delacroix_restored.jpg/250px-F%C3%A9lix_Nadar_1820-1910_portraits_Eug%C3%A8ne_Delacroix_restored.jpg",
-  },
-];
+// Make sure the directory exists
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+// Initialize database connection with read-only mode
+let db;
+try {
+  // Open the database in read-only mode
+  db = new Database(dbPath, { readonly: true });
+  console.log(
+    `Connected to the SQLite database at ${dbPath} in read-only mode`
+  );
+} catch (err) {
+  console.error(`Error opening database at ${dbPath}:`, err.message);
+}
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -243,39 +46,42 @@ app.get("/health", (req, res) => {
 
 // Helper function to get a random user from the database
 function getRandomUser(callback) {
-  // Count the total number of users
-  db.get("SELECT COUNT(*) as count FROM users", (err, row) => {
-    if (err) {
-      console.error("Error counting users:", err.message);
-      // Fall back to the array if there's an error
-      const randomIndex = Math.floor(Math.random() * fallbackUsers.length);
-      callback(fallbackUsers[randomIndex]);
+  try {
+    // Count the total number of users
+    const countRow = db.prepare("SELECT COUNT(*) as count FROM users").get();
+    if (!countRow) {
+      console.error("Error counting users: No result returned");
+      callback(null, {
+        message: "Database error: Unable to count users",
+        status: 500,
+      });
       return;
     }
 
     // Get a random user from the database
-    const count = row.count;
+    const count = countRow.count;
     const randomId = Math.floor(Math.random() * count) + 1;
 
-    db.get(
-      "SELECT * FROM users WHERE id = ?",
-      [randomId.toString()],
-      (err, user) => {
-        if (err || !user) {
-          console.error(
-            "Error getting random user:",
-            err ? err.message : "User not found"
-          );
-          // Fall back to the array if there's an error
-          const randomIndex = Math.floor(Math.random() * fallbackUsers.length);
-          callback(fallbackUsers[randomIndex]);
-          return;
-        }
+    const user = db
+      .prepare("SELECT * FROM users WHERE id = ?")
+      .get(randomId.toString());
+    if (!user) {
+      console.error("Error getting random user: User not found");
+      callback(null, {
+        message: "User not found",
+        status: 404,
+      });
+      return;
+    }
 
-        callback(user);
-      }
-    );
-  });
+    callback(user, null);
+  } catch (err) {
+    console.error("Database error:", err.message);
+    callback(null, {
+      message: `Database error: ${err.message}`,
+      status: 500,
+    });
+  }
 }
 
 // Get current user endpoint
@@ -283,11 +89,15 @@ app.get("/current-user", (req, res) => {
   const currentSpan = trace.getActiveSpan();
 
   // Get a random user
-  getRandomUser((user) => {
-    if (currentSpan) {
-      currentSpan.setAttribute("user.id", user.id);
-      currentSpan.setAttribute("user.name", user.name);
+  getRandomUser((user, error) => {
+    if (error) {
+      currentSpan.setAttribute("error", true);
+      currentSpan.setAttribute("error.message", error.message);
+      return res.status(error.status).json({ error: error.message });
     }
+
+    currentSpan.setAttribute("user.id", user.id);
+    currentSpan.setAttribute("user.name", user.name);
 
     res.json(user);
   });
@@ -300,29 +110,27 @@ const server = app.listen(PORT, () => {
 
 // Close database connection when the server is shut down
 process.on("SIGINT", () => {
-  db.close((err) => {
-    if (err) {
-      console.error("Error closing database:", err.message);
-    } else {
-      console.log("Database connection closed");
-    }
-    server.close(() => {
-      console.log("Server shut down");
-      process.exit(0);
-    });
+  try {
+    db.close();
+    console.log("Database connection closed");
+  } catch (err) {
+    console.error("Error closing database:", err.message);
+  }
+  server.close(() => {
+    console.log("Server shut down");
+    process.exit(0);
   });
 });
 
 process.on("SIGTERM", () => {
-  db.close((err) => {
-    if (err) {
-      console.error("Error closing database:", err.message);
-    } else {
-      console.log("Database connection closed");
-    }
-    server.close(() => {
-      console.log("Server shut down");
-      process.exit(0);
-    });
+  try {
+    db.close();
+    console.log("Database connection closed");
+  } catch (err) {
+    console.error("Error closing database:", err.message);
+  }
+  server.close(() => {
+    console.log("Server shut down");
+    process.exit(0);
   });
 });

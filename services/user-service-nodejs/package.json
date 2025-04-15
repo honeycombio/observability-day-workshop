@@ -13,6 +13,6 @@
     "@opentelemetry/sdk-node": "^0.48.0",
     "@opentelemetry/auto-instrumentations-node": "^0.41.1",
     "@opentelemetry/exporter-trace-otlp-http": "^0.48.0",
-    "sqlite3": "^5.1.6"
+    "better-sqlite3": "^9.4.3"
   }
 }
