@@ -11,9 +11,10 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=backend-for-frontend-python
 
+# Node, because I have some interesting feature flag stuff to show
   meminator:
     build:
-      context: services/meminator-python
+      context: services/meminator-nodejs
       dockerfile: Dockerfile
     image: ${IMAGE_REPO_USER}/meminator:${WORKSHOP_VERSION}
     ports:
@@ -21,8 +22,9 @@ services:
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=meminator-python
+      - OTEL_SERVICE_NAME=meminator-nodejs
 
+# .NET, for variety
   phrase-picker:
     build:
       context: services/phrase-picker-dotnet
@@ -47,18 +49,7 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=image-picker-nodejs
 
-  web:
-    build:
-      context: services/web
-      dockerfile: Dockerfile
-      args:
-        HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
-    image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
-    # volumes: # uncomment this for faster development on the frontend
-    #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
-    ports:
-      - "10114:10114" # Expose port 10114, that is where it should be listening now
-
+# python, because it has sqlite3 instrumentation
   user-service:
     build:
       context: .
@@ -72,3 +63,16 @@ services:
       - OTEL_SERVICE_NAME=user-service-python
     volumes:
       - ./services/shared-data:/app/shared-data
+
+  web:
+    build:
+      context: services/web
+      dockerfile: Dockerfile
+      args:
+        HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
+    image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
+    # volumes: # uncomment this for faster development on the frontend
+    #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
+    ports:
+      - "10114:10114" # Expose port 10114, that is where it should be listening now
+
