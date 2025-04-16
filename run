@@ -7,7 +7,7 @@
 
 set -x # print what you run
 set -e
-docker compose -f docker-compose-honeydemo.yaml up --build -d $*
+docker compose -f docker-compose-variety.yaml up --build -d $*
 
 source .env
 export HONEYCOMB_API_KEY
