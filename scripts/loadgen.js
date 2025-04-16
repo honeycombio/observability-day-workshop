@@ -28,6 +28,23 @@ function log(message) {
   fs.appendFileSync(config.logFile, logMessage + "\n");
 }
 
+// Function to determine user-specific behavior
+function getUserBehavior(userName, userId) {
+  // Default behavior is random
+  let behavior = "random";
+
+  // User 10 (American Gothic Couple) always chooses "not great"
+  if (userId === "10" || userName.includes("American Gothic")) {
+    behavior = "thumbs-down";
+  }
+  // User 18 (The Laughing Cavalier) always chooses "love it"
+  else if (userId === "18" || userName.includes("Laughing Cavalier")) {
+    behavior = "thumbs-up";
+  }
+
+  return behavior;
+}
+
 // Global variable to track if we should stop
 let shouldStop = false;
 
@@ -67,7 +84,12 @@ async function runLoadTest() {
 
     // Get the initial user info
     const userName = (await page.textContent(".user-name")) || "Unknown";
-    log(`User loaded: ${userName}`);
+    const userId = await page.$eval(".user-info", (el) => el.getAttribute("data-user-id")).catch(() => "unknown");
+    log(`User loaded: ${userName} (ID: ${userId})`);
+
+    // Determine this user's behavior
+    const userBehavior = getUserBehavior(userName, userId);
+    log(`User behavior: ${userBehavior}`);
 
     // Perform multiple iterations of clicking GO and rating
     for (let i = 0; i < config.iterations && !shouldStop; i++) {
@@ -111,8 +133,16 @@ async function runLoadTest() {
         const hasRatingButtons = (await page.isVisible("#thumbs-up")) || (await page.isVisible("#thumbs-down"));
 
         if (hasRatingButtons) {
-          // Give a random rating (thumbs up or down)
-          const ratingSelector = Math.random() > 0.5 ? "#thumbs-up" : "#thumbs-down";
+          // Determine rating based on user behavior
+          let ratingSelector;
+          if (userBehavior === "thumbs-up") {
+            ratingSelector = "#thumbs-up";
+          } else if (userBehavior === "thumbs-down") {
+            ratingSelector = "#thumbs-down";
+          } else {
+            // Random behavior for other users
+            ratingSelector = Math.random() > 0.5 ? "#thumbs-up" : "#thumbs-down";
+          }
           const ratingText = ratingSelector === "#thumbs-up" ? "thumbs up" : "thumbs down";
           log(`Giving rating: ${ratingText}`);
 
