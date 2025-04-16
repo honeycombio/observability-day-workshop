@@ -107,7 +107,7 @@ services:
         - ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
       args:
         HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
-    image: ${IMAGE_REPO_USER}/web:${DOCKERHUB_IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/web:${DOCKERHUB_IMAGE_VERSION}-honeydemo
     # volumes: # uncomment this for faster development on the frontend
     #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
