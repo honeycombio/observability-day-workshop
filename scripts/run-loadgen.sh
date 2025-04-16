@@ -22,7 +22,7 @@ fi
 # Display configuration
 echo "Starting load generator with configuration:"
 echo "BASE_URL=${BASE_URL:-http://localhost:10114}"
-echo "ITERATIONS=${ITERATIONS:-10}"
+echo "ITERATIONS=${ITERATIONS:-∞ (infinite)}"
 echo "MIN_DELAY=${MIN_DELAY:-2000}ms"
 echo "MAX_DELAY=${MAX_DELAY:-5000}ms"
 echo "HEADLESS=${HEADLESS:-true}"

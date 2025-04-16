@@ -4,7 +4,7 @@ const fs = require("fs");
 // Configuration
 const config = {
   baseUrl: process.env.BASE_URL || "http://localhost:10114",
-  iterations: parseInt(process.env.ITERATIONS || "10"), // Number of times to click GO and rate
+  iterations: process.env.ITERATIONS ? parseInt(process.env.ITERATIONS) : Infinity, // Number of times to click GO and rate (Infinity = run forever)
   minDelay: parseInt(process.env.MIN_DELAY || "2000"), // Minimum delay between actions in ms
   maxDelay: parseInt(process.env.MAX_DELAY || "5000"), // Maximum delay between actions in ms
   headless: process.env.HEADLESS !== "false", // Set to false to see the browser
@@ -28,9 +28,24 @@ function log(message) {
   fs.appendFileSync(config.logFile, logMessage + "\n");
 }
 
+// Global variable to track if we should stop
+let shouldStop = false;
+
+// Handle graceful shutdown
+process.on("SIGINT", async () => {
+  log("Received SIGINT (Ctrl+C). Gracefully shutting down...");
+  shouldStop = true;
+  // Give the script a chance to clean up
+  setTimeout(() => {
+    log("Forcing exit...");
+    process.exit(0);
+  }, 5000); // Force exit after 5 seconds if cleanup doesn't complete
+});
+
 // Main function
 async function runLoadTest() {
-  log(`Starting load test with ${config.iterations} iterations`);
+  const iterationsDisplay = config.iterations === Infinity ? "infinite" : config.iterations;
+  log(`Starting load test with ${iterationsDisplay} iterations`);
 
   // Initialize log file
   if (fs.existsSync(config.logFile)) {
@@ -55,8 +70,9 @@ async function runLoadTest() {
     log(`User loaded: ${userName}`);
 
     // Perform multiple iterations of clicking GO and rating
-    for (let i = 0; i < config.iterations; i++) {
-      log(`Starting iteration ${i + 1}/${config.iterations}`);
+    for (let i = 0; i < config.iterations && !shouldStop; i++) {
+      const iterationDisplay = config.iterations === Infinity ? `${i + 1}/∞` : `${i + 1}/${config.iterations}`;
+      log(`Starting iteration ${iterationDisplay}`);
 
       // Click the GO button
       log("Clicking GO button");
@@ -140,7 +156,8 @@ async function runLoadTest() {
     console.error(error);
   } finally {
     await browser.close();
-    log("Browser closed");
+    const stopReason = shouldStop ? " (stopped by user)" : "";
+    log(`Browser closed${stopReason}`);
   }
 }
 
