@@ -18,7 +18,7 @@ Make them express what matters in this application. Debug problems! Diagnose slo
 git clone https://github.com/honeycombio/meminator-workshop
 ```
 
-Option 1, recommended for hotel wifi: [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/meminator-workshop) or in GitHub Codespaces (there's a button in the top right of the repo's [page](https://github.com/honeycombio/meminator-workshop)).
+Option 1, recommended for hotel wifi: [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/meminator-workshop) or in GitHub Codespaces -- at the top of this repo's [page](https://github.com/honeycombio/meminator-workshop), click "Code" and then on the "Codespaces" tab there's "New Codespace on main".
 
 Option 2, clone this repo. `git clone https://github.com/honeycombio/meminator-workshop && cd meminator-workshop`
 Log in to Docker so it doesn't rate-limit you.
