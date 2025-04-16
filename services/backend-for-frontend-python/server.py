@@ -13,14 +13,18 @@ def health():
 
 @app.route('/createPicture', methods=['POST'])
 def create_picture():
-    # current_span = trace.get_current_span() # INSTRUMENTATION: pull the current span out of thin air
+    current_span = trace.get_current_span() # INSTRUMENTATION: pull the current span out of thin air
+    input = request.json
+    current_span.set_attribute("user.id", input["userId"])
+    current_span.set_attribute("user.name", input["userName"])
+
     phrase_response = fetch_from_service('phrase-picker')
     image_response = fetch_from_service('image-picker')
 
     phrase_result = phrase_response.json() if phrase_response and phrase_response.ok else {"phrase": "This is sparta"}
     image_result = image_response.json() if image_response and image_response.ok else {"imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1360px-Banana-Single.jpg"}
-    # current_span.set_attribute("app.phrase", phrase_result['phrase']) # INSTRUMENTATION: add the mose important attributes from the trace
-    # current_span.set_attribute("app.image_url", image_result['imageUrl'])
+    current_span.set_attribute("app.phrase", phrase_result['phrase']) # INSTRUMENTATION: add the mose important attributes from the trace
+    current_span.set_attribute("app.image_url", image_result['imageUrl'])
 
     body = {**phrase_result, **image_result}
     meminator_response = fetch_from_service('meminator', method="POST", body=body)
