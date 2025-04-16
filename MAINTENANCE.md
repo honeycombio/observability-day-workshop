@@ -17,6 +17,9 @@ To deploy,
 - log in to AWS
 - go to the demo repo, meminator directory
 - run the update script there.
+- check it in k9s, sa-demo cluster, meminator namespace
+- check that it works at [https://meminator.honeydemo.io]()
+- check that you see traces in [https://ui.honeycomb.io/demo/environments/meminator/]()
 
 ## Structure of the Application
 
