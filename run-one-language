@@ -10,7 +10,6 @@ set -e
 
 if [[ "$1" == "python" || "$1" == "nodejs" || "$1" == "dotnet" ]]; then
   PROGRAMMING_LANGUAGE_FROM_ARG=$1
- 
   shift
 fi
 
@@ -22,7 +21,7 @@ if [[ -n "$PROGRAMMING_LANGUAGE_FROM_ARG" ]]; then
 fi
 export PROGRAMMING_LANGUAGE
 
-docker compose up --build -d $*
+docker compose -f docker-compose.yaml up --build -d $*
 
 ./scripts/honeycomb-whoami.sh
 
