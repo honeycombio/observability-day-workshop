@@ -18,7 +18,12 @@ Make them express what matters in this application. Debug problems! Diagnose slo
 git clone https://github.com/honeycombio/meminator-workshop
 ```
 
-Have Docker installed. If you don't have Docker locally, you can [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/meminator-workshop) or use Codespaces.
+Option 1, recommended for hotel wifi: [run this in GitPod](https://gitpod.io/#https://github.com/honeycombio/meminator-workshop) or in GitHub Codespaces (there's a button in the top right of the repo's [page](https://github.com/honeycombio/meminator-workshop)).
+
+Option 2, clone this repo. `git clone https://github.com/honeycombio/meminator-workshop && cd meminator-workshop`
+Log in to Docker so it doesn't rate-limit you.
+
+Once you have the project open:
 
 Define your Honeycomb API key. Add this to the middle of `.env`: (or export it in your shell)
 
