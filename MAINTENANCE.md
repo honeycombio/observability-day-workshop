@@ -10,7 +10,7 @@ To deploy,
 - log in to Docker as o11yday user
 - update the IMAGE_VERSION in .env
 - update the HONEYCOMB_API_KEY to an ingest key for demo/meminator environment - this gets built into the web image
-- run `scripts/publish-honeydemo.sh`
+- run `scripts/publish-variety.sh`
 - check that something was indeed pushed to Dockerhub
 - log in to AWS
 - go to the demo repo, meminator directory
