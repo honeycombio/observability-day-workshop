@@ -8,10 +8,11 @@ const config = {
   minDelay: parseInt(process.env.MIN_DELAY || "2000"), // Minimum delay between actions in ms
   maxDelay: parseInt(process.env.MAX_DELAY || "5000"), // Maximum delay between actions in ms
   headless: process.env.HEADLESS !== "false", // Set to false to see the browser
-  logFile: process.env.LOG_FILE || "./loadgen.log",
+  logFile: process.env.LOG_FILE || "./loadgen_logs/loadgen.log",
   timeout: parseInt(process.env.TIMEOUT || "15000"), // Timeout for waiting for elements in ms
   ratingTimeout: parseInt(process.env.RATING_TIMEOUT || "5000"), // Timeout for waiting for rating confirmation
   continueOnError: process.env.CONTINUE_ON_ERROR !== "false", // Whether to continue on errors
+  instanceId: process.env.INSTANCE_ID || "1", // Unique identifier for this instance
 };
 
 // Helper function to sleep for a random amount of time
@@ -23,7 +24,7 @@ function sleep(min, max) {
 // Helper function to log messages
 function log(message) {
   const timestamp = new Date().toISOString();
-  const logMessage = `${timestamp} - ${message}`;
+  const logMessage = `${timestamp} - [Instance ${config.instanceId}] ${message}`;
   console.log(logMessage);
   fs.appendFileSync(config.logFile, logMessage + "\n");
 }
