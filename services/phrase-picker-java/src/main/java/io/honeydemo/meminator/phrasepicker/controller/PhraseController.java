@@ -13,7 +13,7 @@ import io.opentelemetry.api.trace.Span;
 @RestController
 public class PhraseController {
 
-     private static final Logger logger = LogManager.getLogger("io.honeydemo.meminator.phrasepicker");
+    private static final Logger logger = LogManager.getLogger("io.honeydemo.meminator.phrasepicker");
 
     private static List<String> PhraseList = Arrays.asList(
             "you're muted",
@@ -40,20 +40,34 @@ public class PhraseController {
             "Hold on, pausing for GC", // JAVA
             "AbstractSingletonProxyFactoryBean", // JAVA
             "Generics were a mistake", // JAVA
-            "give my kids a completablefuture",
-            "I'm a software engineer, I have feelings",
-            "Hello Wrold"
-            );
+            "give my kids a completablefuture", // JAVA
+            "Hello Wrold",
+            "Can you give me a concrete example?",
+            "Roll forward",
+            "there is no root cause",
+            "the system is broken",
+            "i deploy whenever i want",
+            "nobody saw me",
+            "run less software",
+            "the tooth fairy told me to",
+            "everything is an experiment",
+            "idk what i'm doing as a service",
+            "what if we just fix it",
+            "do it with style",
+            "certainty is a feeling",
+            "joyfully adding capabilities",
+            "quick, blame the human"
+    );
 
     @GetMapping("/phrase")
     public PhraseResult hello() {
         // choose a random phrase from the list
         int choice = (int) (Math.random() * PhraseList.size());
-        
+
         logger.info("app.listSize=" + PhraseList.size() + ", app.choice=" + choice);
-        
+
         String chosenPhrase = PhraseList.get(choice);
-        
+
         logger.info("app.phrase=" + chosenPhrase);
         Span span = Span.current();
         span.setAttribute("app.listSize", PhraseList.size());
@@ -63,6 +77,7 @@ public class PhraseController {
     }
 
     public static class PhraseResult {
+
         private String phrase;
 
         public PhraseResult(String phrase) {
