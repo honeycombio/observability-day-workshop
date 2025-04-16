@@ -25,7 +25,20 @@ var phrases = new [] {
     "all the best things are stupid",
     "entropy comes for us all",
     "I'm down if you're up for it",
-    "Can you give me a concrete example?"
+    "Can you give me a concrete example?",
+    "Roll forward",
+    "there is no root cause",
+    "the system is broken",
+    "i deploy whenever i want",
+    "nobody saw me",
+    "run less software",
+    "the tooth fairy told me to",
+    "everything is an experiment", 
+    "idk what i'm doing as a service",
+    "what if we just fix it",
+    "do it with style",
+    "certainty is a feeling",
+    "joyfully adding capabilities"
 };
 
 var builder = WebApplication.CreateBuilder(args);
