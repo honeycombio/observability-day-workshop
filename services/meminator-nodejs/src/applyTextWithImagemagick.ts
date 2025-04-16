@@ -51,7 +51,7 @@ export async function applyTextWithImagemagick(phrase: string, inputImagePath: s
   await spawnProcess("convert", args);
 
   // Step 1: Notice how often it happens that the text does not fit
-  // checkWhetherTextFits(pointsize, DEFAULT_FONT, phrase, outputImagePath);
+  checkWhetherTextFits(pointsize, DEFAULT_FONT, phrase, outputImagePath);
 
   return outputImagePath;
 }

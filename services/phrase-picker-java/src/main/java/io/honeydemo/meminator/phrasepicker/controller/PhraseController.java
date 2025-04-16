@@ -56,7 +56,8 @@ public class PhraseController {
             "do it with style",
             "certainty is a feeling",
             "joyfully adding capabilities",
-            "quick, blame the human"
+            "quick, blame the human",
+            "You're absolutely right. Let me try again"
     );
 
     @GetMapping("/phrase")
