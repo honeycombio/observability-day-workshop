@@ -10,6 +10,6 @@ set -e
 
 echo "You're shipping this API key: $HONEYCOMB_API_KEY"
 
-docker compose -f docker-compose-honeydemo-publish.yaml build --push
+docker compose -f docker-compose-honeydemo-publish.yaml build --push $*
 
 echo "https://hub.docker.com/r/o11yday/web/tags"

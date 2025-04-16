@@ -3,6 +3,8 @@ services:
     build:
       context: services/backend-for-frontend-python
       dockerfile: Dockerfile
+      cache_from: 
+        - ${IMAGE_REPO_USER}/backend-for-frontend:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/backend-for-frontend:${WORKSHOP_VERSION}
     ports:
       - "10115:10115"
@@ -16,6 +18,8 @@ services:
     build:
       context: services/meminator-nodejs
       dockerfile: Dockerfile
+      cache_from: 
+        - ${IMAGE_REPO_USER}/meminator:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/meminator:${WORKSHOP_VERSION}
     ports:
       - "10116:10116" # they can't be the same
@@ -29,6 +33,8 @@ services:
     build:
       context: services/phrase-picker-java
       dockerfile: Dockerfile
+      cache_from: 
+        - ${IMAGE_REPO_USER}/phrase-picker:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/phrase-picker:${WORKSHOP_VERSION}
     ports:
       - "10117:10117" # the outer ports can't be the same
@@ -41,6 +47,8 @@ services:
     build:
       context: services/image-picker-dotnet
       dockerfile: Dockerfile
+      cache_from: 
+        - ${IMAGE_REPO_USER}/image-picker:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/image-picker:${WORKSHOP_VERSION}
     ports:
       - "10118:10118" # the outer ports can't be the same
@@ -54,6 +62,8 @@ services:
     build:
       context: .
       dockerfile: services/user-service-python/Dockerfile
+      cache_from: 
+        - ${IMAGE_REPO_USER}/user-service:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/user-service:${WORKSHOP_VERSION}
     ports:
       - "10119:10119"
@@ -68,6 +78,8 @@ services:
     build:
       context: services/web
       dockerfile: Dockerfile
+      cache_from: 
+        - ${IMAGE_REPO_USER}/web:${DOCKERHUB_IMAGE_VERSION}
       args:
         HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
     image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
@@ -80,6 +92,8 @@ services:
     build:
       context: services/shared-data
       dockerfile: Dockerfile
+      cache_from: 
+        - ${IMAGE_REPO_USER}/init-db:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/init-db:${WORKSHOP_VERSION}
     volumes:
       - dbdata:/put-the-db-here
