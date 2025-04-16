@@ -27,7 +27,7 @@ services:
 # .NET, for variety
   phrase-picker:
     build:
-      context: services/phrase-picker-dotnet
+      context: services/phrase-picker-java
       dockerfile: Dockerfile
     image: ${IMAGE_REPO_USER}/phrase-picker:${WORKSHOP_VERSION}
     ports:
@@ -35,11 +35,11 @@ services:
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=phrase-picker-dotnet
+      - OTEL_SERVICE_NAME=phrase-picker-java
 
   image-picker:
     build:
-      context: services/image-picker-nodejs
+      context: services/image-picker-dotnet
       dockerfile: Dockerfile
     image: ${IMAGE_REPO_USER}/image-picker:${WORKSHOP_VERSION}
     ports:
@@ -47,7 +47,7 @@ services:
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
-      - OTEL_SERVICE_NAME=image-picker-nodejs
+      - OTEL_SERVICE_NAME=image-picker-dotnet
 
 # python, because it has sqlite3 instrumentation
   user-service:
