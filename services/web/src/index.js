@@ -28,8 +28,10 @@ function getPictureCreationSpanContext() {
   const storedSpanId = document.body.getAttribute("data-span-id") || "unknown";
 
   // When being clever, make the actions clearer to your future self
-  span.setAttribute("picture.trace_id", storedTraceId);
-  span.setAttribute("picture.span_id", storedSpanId);
+  window.Hny.setAttributes({
+    "picture.trace_id": storedTraceId,
+    "picture.span_id": storedSpanId,
+  });
 
   return {
     traceId: storedTraceId,
