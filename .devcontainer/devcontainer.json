@@ -17,7 +17,7 @@
   // "forwardPorts": [],
 
   // Run during prebuild, after source files are available
-  "updateContentCommand": "./build"
+  "updateContentCommand": "./scripts/build-everything.sh"
 
   // Configure tool-specific properties.
   // "customizations": {},

@@ -40,11 +40,11 @@ docker compose -f docker-compose-variety.yaml build
 
 # echo "=== Building services from docker-compose.yaml for all languages (build-only) ==="
 
-# # Build services from docker-compose.yaml for all languages
-# for LANG in "${LANGUAGES[@]}"; do
-#   echo "Building services for $LANG..."
-#   PROGRAMMING_LANGUAGE=$LANG docker compose -f docker-compose.yaml build
-# done
+# Build services from docker-compose.yaml for all languages
+for LANG in "${LANGUAGES[@]}"; do
+  echo "Building services for $LANG..."
+  PROGRAMMING_LANGUAGE=$LANG docker compose -f docker-compose.yaml build
+done
 
 echo "=== Build completed ==="
 echo "Docker cache is now populated with all required layers for codespace prebuild"

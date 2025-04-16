@@ -1,5 +1,7 @@
 # For workshop facilitators
 
+After making changes and before a workshop, deploy. Also get the cached images and Codespaces prebuild updated. See below & then far below.
+
 ## Deploying
 
 This is deployed to meminator.honeydemo.io in the SA Demo k8s cluster.
@@ -8,9 +10,9 @@ The yaml for this is in the honeycombio/demo repo (private).
 To deploy,
 
 - log in to Docker as o11yday user
-- update the IMAGE_VERSION in .env
-- update the HONEYCOMB_API_KEY to an ingest key for demo/meminator environment - this gets built into the web image
-- run `scripts/publish-variety.sh`
+- update the DOCKERHUB_IMAGE_VERSION in .env
+- Set DEMO_TEAM_INGEST_KEY_FOR_MEMINATOR to an ingest key for demo/meminator environment - this gets built into the web image
+- run `scripts/publish-honeydemo.sh`
 - check that something was indeed pushed to Dockerhub
 - log in to AWS
 - go to the demo repo, meminator directory
@@ -52,12 +54,28 @@ It downloads the image to the local filesystem, then runs imagemagick to overlay
 
 It throws files in /tmp, which it never cleans out.
 
+### user-service
+
+this one uses a sqlite database to hold its random users. Only Python has instrumentation for sqlite.
+
 ## Publishing images to attempt to make Advanced Instrumentation loading faster
 
-(I don't think this really works)
+`cache_from` in the Dockerfile says "hey, the layers in this image may help you."
+These layers include the install steps, which are what take forever (especially on hotel wifi) because they download stuff.
+So we push some images, and then we have the scripts pull them so that the layers are available locally. Downloading the layers beats
+downloading all the apt-install etc etc.
 
-To get new versions of the containers on Dockerhub for caching, log in appropriately.
+Increment the DOCKERHUB_IMAGE_VERSION in .env (if you haven't already)
 
 Be logged in to Docker as [o11yday](https://hub.docker.com/u/o11yday). This is in 1Password somewhere.
 
-Run `scripts/publish.sh`
+Run `scripts/publish-all.sh`
+
+Go to [Dockerhub](https://hub.docker.com/u/o11yday) and see some new tags
+
+### Better: the Codespaces prebuild
+
+With a prebuild for a Codespace, people can actually start the app in 2-3 minutes ON HOTEL WIFI. Amazing!
+
+Trigger creation of a new prebuild by changing something in .devcontainer/devcontainer.json, and pushing.
+Maybe pass an argument to the build script, it'll ignore it.

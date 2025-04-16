@@ -28,7 +28,7 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=meminator-nodejs
 
-# .NET, for variety
+# Java, for variety. I brought it one service from jessitron/meminator, which copied it from Howard's impl
   phrase-picker:
     build:
       context: services/phrase-picker-java
@@ -43,6 +43,7 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=phrase-picker-java
 
+# .NET, for variety
   image-picker:
     build:
       context: services/image-picker-dotnet
