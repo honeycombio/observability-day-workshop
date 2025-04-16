@@ -62,7 +62,7 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=user-service-python
     volumes:
-      - ./services/shared-data:/app/shared-data
+      - dbdata:/app/shared-data:ro
 
   web:
     build:
@@ -76,3 +76,14 @@ services:
     ports:
       - "10114:10114" # Expose port 10114, that is where it should be listening now
 
+  init-db:
+    build:
+      context: services/shared-data
+      dockerfile: Dockerfile
+    image: ${IMAGE_REPO_USER}/init-db:${WORKSHOP_VERSION}
+    volumes:
+      - dbdata:/put-the-db-here
+    command: cp /db/users.db /put-the-db-here/
+
+volumes:
+  dbdata:
