@@ -1,19 +1,17 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const sqlite3 = require("sqlite3").verbose();
+const path = require("path");
 
 // Array of users with famous portraits from Wikimedia Commons
 const users = [
   {
     id: "1",
     name: "Lisa Gherardini",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Mona_Lisa-restored.jpg/250px-Mona_Lisa-restored.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Mona_Lisa-restored.jpg/250px-Mona_Lisa-restored.jpg",
   },
   {
     id: "2",
     name: "Girl with Pearl Earring",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Girl_with_a_Pearl_Earring.jpg/250px-Girl_with_a_Pearl_Earring.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Girl_with_a_Pearl_Earring.jpg/250px-Girl_with_a_Pearl_Earring.jpg",
   },
   {
     id: "3",
@@ -24,20 +22,17 @@ const users = [
   {
     id: "4",
     name: "Rembrandt",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Rembrandt_Harmensz._van_Rijn_135.jpg/162px-Rembrandt_Harmensz._van_Rijn_135.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Rembrandt_Harmensz._van_Rijn_135.jpg/162px-Rembrandt_Harmensz._van_Rijn_135.jpg",
   },
   {
     id: "5",
     name: "Albrecht Dürer",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/D%C3%BCrer_Alte_Pinakothek.jpg/142px-D%C3%BCrer_Alte_Pinakothek.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/D%C3%BCrer_Alte_Pinakothek.jpg/142px-D%C3%BCrer_Alte_Pinakothek.jpg",
   },
   {
     id: "6",
     name: "Judith Leyster",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Self-portrait_by_Judith_Leyster.jpg/175px-Self-portrait_by_Judith_Leyster.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Self-portrait_by_Judith_Leyster.jpg/175px-Self-portrait_by_Judith_Leyster.jpg",
   },
   {
     id: "7",
@@ -54,8 +49,7 @@ const users = [
   {
     id: "9",
     name: "Nobleman in Blue",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Man_with_Blue_Sleeve_2.jpg/250px-Man_with_Blue_Sleeve_2.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Man_with_Blue_Sleeve_2.jpg/250px-Man_with_Blue_Sleeve_2.jpg",
   },
   {
     id: "10",
@@ -66,14 +60,12 @@ const users = [
   {
     id: "11",
     name: "Pope Innocent X",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PopeInnocentX.jpg/250px-PopeInnocentX.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PopeInnocentX.jpg/250px-PopeInnocentX.jpg",
   },
   {
     id: "12",
     name: "Madame Récamier",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Jacques-Louis_David_016.jpg/330px-Jacques-Louis_David_016.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Jacques-Louis_David_016.jpg/330px-Jacques-Louis_David_016.jpg",
   },
   {
     id: "13",
@@ -84,14 +76,12 @@ const users = [
   {
     id: "14",
     name: "Madame X",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Sargent_MadameX.jpeg/105px-Sargent_MadameX.jpeg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Sargent_MadameX.jpeg/105px-Sargent_MadameX.jpeg",
   },
   {
     id: "15",
     name: "Dr. Gachet",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Portrait_of_Dr._Gachet.jpg/250px-Portrait_of_Dr._Gachet.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Portrait_of_Dr._Gachet.jpg/250px-Portrait_of_Dr._Gachet.jpg",
   },
   {
     id: "16",
@@ -120,14 +110,13 @@ const users = [
   {
     id: "20",
     name: "Charles I of England",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Charles_I_of_England.jpg/153px-Charles_I_of_England.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Charles_I_of_England.jpg/153px-Charles_I_of_England.jpg",
   },
   {
     id: "21",
-    name: "Doge Leonardo Loredan",
+    name: "Severan Tondo",
     avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Giovanni_Bellini%2C_portrait_of_Doge_Leonardo_Loredan.jpg/142px-Giovanni_Bellini%2C_portrait_of_Doge_Leonardo_Loredan.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Portrait_of_family_of_Septimius_Severus_-_Altes_Museum_-_Berlin_-_Germany_2017.jpg/500px-Portrait_of_family_of_Septimius_Severus_-_Altes_Museum_-_Berlin_-_Germany_2017.jpghttps://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Giovanni_Bellini%2C_portrait_of_Doge_Leonardo_Loredan.jpg/142px-Giovanni_Bellini%2C_portrait_of_Doge_Leonardo_Loredan.jpg",
   },
   {
     id: "22",
@@ -138,20 +127,17 @@ const users = [
   {
     id: "23",
     name: "Mary Tudor",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Anthonis_Mor_001.jpg/250px-Anthonis_Mor_001.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Anthonis_Mor_001.jpg/250px-Anthonis_Mor_001.jpg",
   },
   {
     id: "24",
     name: "Elizabeth I",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Elizabeth_I_%28Armada_Portrait%29.jpg/250px-Elizabeth_I_%28Armada_Portrait%29.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Elizabeth_I_%28Armada_Portrait%29.jpg/250px-Elizabeth_I_%28Armada_Portrait%29.jpg",
   },
   {
     id: "25",
     name: "Louis XIV of France",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Louis_XIV_of_France.jpg/141px-Louis_XIV_of_France.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Louis_XIV_of_France.jpg/141px-Louis_XIV_of_France.jpg",
   },
   {
     id: "26",
@@ -168,8 +154,7 @@ const users = [
   {
     id: "28",
     name: "Blue Boy",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/The_Blue_Boy.jpg/135px-The_Blue_Boy.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/The_Blue_Boy.jpg/135px-The_Blue_Boy.jpg",
   },
   {
     id: "29",
@@ -186,8 +171,7 @@ const users = [
   {
     id: "31",
     name: "Pinkie",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Thomas_Lawrence_Pinkie.jpg/250px-Thomas_Lawrence_Pinkie.jpg",
+    avatarUrl: "https://upload.wikximedia.org/wikipedia/commons/thumb/1/18/Thomas_Lawrence_Pinkie.jpg/250px-Thomas_Lawrence_Pinkie.jpg",
   },
   {
     id: "32",
@@ -198,8 +182,7 @@ const users = [
   {
     id: "33",
     name: "Maja Vestida",
-    avatarUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Goya_Maja_ubrana2.jpg/300px-Goya_Maja_ubrana2.jpg",
+    avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Goya_Maja_ubrana2.jpg/300px-Goya_Maja_ubrana2.jpg",
   },
   {
     id: "34",
@@ -216,7 +199,7 @@ const users = [
 ];
 
 // Database file path
-const dbPath = path.join(__dirname, 'users.db');
+const dbPath = path.join(__dirname, "users.db");
 
 // Create a new database connection
 const db = new sqlite3.Database(dbPath);
@@ -224,8 +207,8 @@ const db = new sqlite3.Database(dbPath);
 // Create the users table and insert data
 db.serialize(() => {
   // Drop the table if it exists
-  db.run('DROP TABLE IF EXISTS users');
-  
+  db.run("DROP TABLE IF EXISTS users");
+
   // Create the users table
   db.run(`
     CREATE TABLE users (
@@ -234,26 +217,26 @@ db.serialize(() => {
       avatarUrl TEXT NOT NULL
     )
   `);
-  
+
   // Prepare the insert statement
-  const stmt = db.prepare('INSERT INTO users (id, name, avatarUrl) VALUES (?, ?, ?)');
-  
+  const stmt = db.prepare("INSERT INTO users (id, name, avatarUrl) VALUES (?, ?, ?)");
+
   // Insert each user
-  users.forEach(user => {
+  users.forEach((user) => {
     stmt.run(user.id, user.name, user.avatarUrl);
   });
-  
+
   // Finalize the statement
   stmt.finalize();
-  
+
   // Verify the data was inserted
-  db.all('SELECT COUNT(*) as count FROM users', (err, rows) => {
+  db.all("SELECT COUNT(*) as count FROM users", (err, rows) => {
     if (err) {
-      console.error('Error counting users:', err);
+      console.error("Error counting users:", err);
     } else {
       console.log(`Inserted ${rows[0].count} users into the database`);
     }
-    
+
     // Close the database connection
     db.close();
   });
