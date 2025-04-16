@@ -19,6 +19,15 @@ if [ ! -d "node_modules" ]; then
     npm install
 fi
 
+# Display configuration
+echo "Starting load generator with configuration:"
+echo "BASE_URL=${BASE_URL:-http://localhost:10114}"
+echo "ITERATIONS=${ITERATIONS:-10}"
+echo "MIN_DELAY=${MIN_DELAY:-2000}ms"
+echo "MAX_DELAY=${MAX_DELAY:-5000}ms"
+echo "HEADLESS=${HEADLESS:-true}"
+echo "TIMEOUT=${TIMEOUT:-15000}ms"
+
 # Run the load generator
 echo "Starting load generator..."
 node loadgen.js
