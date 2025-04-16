@@ -1,0 +1,118 @@
+# purpose: roughly mimic docker
+services:
+  backend-for-frontend:
+    build:
+      context: services/backend-for-frontend-python
+      dockerfile: Dockerfile
+      platforms:
+        # this is useful for pushing to Dockerhub, not for local builds
+        - linux/amd64
+        - linux/arm64
+    image: ${IMAGE_REPO_USER}/backend-for-frontend:${DOCKERHUB_IMAGE_VERSION}
+    ports:
+      - "10115:10115"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_HEADERS
+      - OTEL_SERVICE_NAME=backend-for-frontend-python
+
+# Node, because I have some interesting feature flag stuff to show
+  meminator:
+    build:
+      context: services/meminator-nodejs
+      dockerfile: Dockerfile
+      platforms:
+        # this is useful for pushing to Dockerhub, not for local builds
+        - linux/amd64
+        - linux/arm64
+    image: ${IMAGE_REPO_USER}/meminator:${DOCKERHUB_IMAGE_VERSION}
+    ports:
+      - "10116:10116" # they can't be the same
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_HEADERS
+      - OTEL_SERVICE_NAME=meminator-nodejs
+
+# .NET, for variety
+  phrase-picker:
+    build:
+      context: services/phrase-picker-java
+      dockerfile: Dockerfile
+      platforms:
+        # this is useful for pushing to Dockerhub, not for local builds
+        - linux/amd64
+        - linux/arm64
+    image: ${IMAGE_REPO_USER}/phrase-picker:${DOCKERHUB_IMAGE_VERSION}
+    ports:
+      - "10117:10117" # the outer ports can't be the same
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_HEADERS
+      - OTEL_SERVICE_NAME=phrase-picker-java
+
+  image-picker:
+    build:
+      context: services/image-picker-dotnet
+      dockerfile: Dockerfile
+      platforms:
+        # this is useful for pushing to Dockerhub, not for local builds
+        - linux/amd64
+        - linux/arm64
+    image: ${IMAGE_REPO_USER}/image-picker:${DOCKERHUB_IMAGE_VERSION}
+    ports:
+      - "10118:10118" # the outer ports can't be the same
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_HEADERS
+      - OTEL_SERVICE_NAME=image-picker-dotnet
+
+# python, because it has sqlite3 instrumentation
+  user-service:
+    build:
+      context: .
+      dockerfile: services/user-service-python/Dockerfile
+      platforms:
+        # this is useful for pushing to Dockerhub, not for local builds
+        - linux/amd64
+        - linux/arm64
+    image: ${IMAGE_REPO_USER}/user-service:${DOCKERHUB_IMAGE_VERSION}
+    ports:
+      - "10119:10119"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_HEADERS
+      - OTEL_SERVICE_NAME=user-service-python
+    volumes:
+      - dbdata:/app/shared-data:ro
+
+  web:
+    build:
+      context: services/web
+      dockerfile: Dockerfile
+      platforms:
+        # this is useful for pushing to Dockerhub, not for local builds
+        - linux/amd64
+        - linux/arm64
+      args:
+        HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
+    image: ${IMAGE_REPO_USER}/web:${DOCKERHUB_IMAGE_VERSION}
+    # volumes: # uncomment this for faster development on the frontend
+    #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
+    ports:
+      - "10114:10114" # Expose port 10114, that is where it should be listening now
+
+  init-db:
+    build:
+      context: services/shared-data
+      dockerfile: Dockerfile
+      platforms:
+        # this is useful for pushing to Dockerhub, not for local builds
+        - linux/amd64
+        - linux/arm64
+    image: ${IMAGE_REPO_USER}/init-db:${DOCKERHUB_IMAGE_VERSION}
+    volumes:
+      - dbdata:/put-the-db-here
+    command: cp /db/users.db /put-the-db-here/
+
+volumes:
+  dbdata:
