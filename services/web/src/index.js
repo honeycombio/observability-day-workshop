@@ -39,6 +39,27 @@ function getPictureCreationSpanContext() {
   };
 }
 
+function recordPictureCreationSpanContext() {
+  // Get the current trace ID and span ID from Honeycomb SDK
+  let traceId = "unknown";
+  let spanId = "unknown";
+  try {
+    const spanContext = window.Hny.activeSpanContext();
+    if (spanContext) {
+      console.log("Span context when hitting Go: ", spanContext);
+      traceId = spanContext.traceId || "unknown";
+      spanId = spanContext.spanId || "unknown";
+    }
+
+    // add them as data attributes to the body for later access
+    document.body.setAttribute("data-trace-id", traceId);
+    document.body.setAttribute("data-span-id", spanId);
+    console.log(`Stored trace_id: ${traceId} and span_id: ${spanId} in body attributes`);
+  } catch (error) {
+    console.error("Error getting trace/span IDs:", error);
+  }
+}
+
 // Function to fetch the image binary data from the server
 async function fetchPicture() {
   try {
@@ -48,51 +69,9 @@ async function fetchPicture() {
     document.getElementById("message").innerText = "Generating meme...";
     document.getElementById("message").style = "display:block";
 
-    // Hide feedback and dimensions when loading a new image
-    const feedbackElement = document.getElementById("feedback");
-    feedbackElement.style = "display:none";
+    resetFeedback();
 
-    // Reset the feedback box to its original state with rating buttons
-    feedbackElement.innerHTML = `
-      <div class="rating-options">
-        <button id="thumbs-up" class="rating-button">
-          <span class="emoji">🥰</span>
-          <span class="label">Love it!</span>
-        </button>
-        <button id="thumbs-down" class="rating-button">
-          <span class="emoji">😒</span>
-          <span class="label">Not great</span>
-        </button>
-      </div>
-    `;
-
-    // Re-attach event listeners to the rating buttons
-    setupRatingButtonListeners();
-
-    // Hide dimensions display if it exists
-    const dimensionsElement = document.getElementById("image-dimensions");
-    if (dimensionsElement) {
-      dimensionsElement.style = "display:none";
-    }
-
-    // Get the current trace ID and span ID from Honeycomb SDK
-    let traceId = "unknown";
-    let spanId = "unknown";
-    try {
-      const spanContext = window.Hny.activeSpanContext();
-      if (spanContext) {
-        console.log("Span context when hitting Go: ", spanContext);
-        traceId = spanContext.traceId || "unknown";
-        spanId = spanContext.spanId || "unknown";
-      }
-
-      // add them as data attributes to the body for later access
-      document.body.setAttribute("data-trace-id", traceId);
-      document.body.setAttribute("data-span-id", spanId);
-      console.log(`Stored trace_id: ${traceId} and span_id: ${spanId} in body attributes`);
-    } catch (error) {
-      console.error("Error getting trace/span IDs:", error);
-    }
+    recordPictureCreationSpanContext();
 
     // Get user data from the user-info div
     const { userId, userName } = getUserData();
@@ -137,6 +116,29 @@ async function fetchPicture() {
     document.getElementById("message").innerText = "There was an error fetching a picture. Please retry.";
     document.getElementById("message").style = "display:block;";
   }
+}
+
+function resetFeedback() {
+  // Hide feedback and dimensions when loading a new image
+  const feedbackElement = document.getElementById("feedback");
+  feedbackElement.style = "display:none";
+
+  // Reset the feedback box to its original state with rating buttons
+  feedbackElement.innerHTML = `
+        <div class="rating-options">
+          <button id="thumbs-up" class="rating-button">
+            <span class="emoji">🥰</span>
+            <span class="label">Love it!</span>
+          </button>
+          <button id="thumbs-down" class="rating-button">
+            <span class="emoji">😒</span>
+            <span class="label">Not great</span>
+          </button>
+        </div>
+      `;
+
+  // Re-attach event listeners to the rating buttons
+  setupRatingButtonListeners();
 }
 
 // Function to set up rating button event listeners
