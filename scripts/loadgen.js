@@ -30,16 +30,25 @@ function log(message) {
 
 // Function to determine user-specific behavior
 function getUserBehavior(userName, userId) {
-  // Default behavior is random
-  let behavior = "random";
+  // Default behavior object
+  let behavior = {
+    ratingStyle: "random", // How they rate (thumbs-up, thumbs-down, or random)
+    ratingFrequency: 0.33, // Probability of rating (0-1)
+  };
 
   // User 10 (American Gothic Couple) always chooses "not great"
   if (userId === "10" || userName.includes("American Gothic")) {
-    behavior = "thumbs-down";
+    behavior = {
+      ratingStyle: "thumbs-down",
+      ratingFrequency: 1.0, // Always rates
+    };
   }
   // User 18 (The Laughing Cavalier) always chooses "love it"
   else if (userId === "18" || userName.includes("Laughing Cavalier")) {
-    behavior = "thumbs-up";
+    behavior = {
+      ratingStyle: "thumbs-up",
+      ratingFrequency: 1.0, // Always rates
+    };
   }
 
   return behavior;
@@ -89,7 +98,7 @@ async function runLoadTest() {
 
     // Determine this user's behavior
     const userBehavior = getUserBehavior(userName, userId);
-    log(`User behavior: ${userBehavior}`);
+    log(`User behavior: ${userBehavior.ratingStyle} rating style, ${Math.round(userBehavior.ratingFrequency * 100)}% chance of rating`);
 
     // Perform multiple iterations of clicking GO and rating
     for (let i = 0; i < config.iterations && !shouldStop; i++) {
@@ -128,16 +137,19 @@ async function runLoadTest() {
       // Try to give a rating if the feedback element is visible
       const isFeedbackVisible = await page.isVisible("#feedback");
 
-      if (isFeedbackVisible) {
+      // Determine if this user will rate this meme based on their rating frequency
+      const willRate = Math.random() < userBehavior.ratingFrequency;
+
+      if (isFeedbackVisible && willRate) {
         // Check if rating buttons are available
         const hasRatingButtons = (await page.isVisible("#thumbs-up")) || (await page.isVisible("#thumbs-down"));
 
         if (hasRatingButtons) {
           // Determine rating based on user behavior
           let ratingSelector;
-          if (userBehavior === "thumbs-up") {
+          if (userBehavior.ratingStyle === "thumbs-up") {
             ratingSelector = "#thumbs-up";
-          } else if (userBehavior === "thumbs-down") {
+          } else if (userBehavior.ratingStyle === "thumbs-down") {
             ratingSelector = "#thumbs-down";
           } else {
             // Random behavior for other users
@@ -169,7 +181,11 @@ async function runLoadTest() {
           log("Rating buttons not available");
         }
       } else {
-        log("Feedback form not visible, skipping rating");
+        if (!isFeedbackVisible) {
+          log("Feedback form not visible, skipping rating");
+        } else {
+          log(`User chose not to rate this meme (${Math.round(userBehavior.ratingFrequency * 100)}% chance)`);
+        }
       }
 
       // Wait before the next iteration
