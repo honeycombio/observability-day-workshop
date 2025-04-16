@@ -4,3 +4,5 @@ obj/
 .mono/
 .vscode
 node_modules/
+loadgen.log
+loadgen_logs/
