@@ -41,31 +41,31 @@ def get_random_user():
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) as count FROM users")
         count = cursor.fetchone()[0]
+        current_span.set_attribute("app.user_count", count)
 
         if count == 0:
             conn.close()
-            if current_span:
-                current_span.add_event(
-                    name="database.query.error",
-                    attributes={"error.message": "No users found in database"}
-                )
+            current_span.add_event(
+                name="database.query.error",
+                attributes={"error.message": "No users found in database"}
+            )
             return None
 
         # Get a random user from the database
         random_id = str(random.randint(1, count))
+        current_span.set_attribute("app.random_user_id", random_id)
         cursor.execute("SELECT * FROM users WHERE id = ?", (random_id,))
         user = cursor.fetchone()
 
         if user is None:
             conn.close()
-            if current_span:
-                current_span.add_event(
-                    name="database.query.error",
-                    attributes={
-                        "error.message": f"User with ID {random_id} not found",
-                        "user.id": random_id
-                    }
-                )
+            current_span.add_event(
+                name="database.query.error",
+                attributes={
+                    "error.message": f"User with ID {random_id} not found",
+                    "user.id": random_id
+                }
+            )
             return None
 
         # Convert the sqlite3.Row to a dictionary
@@ -75,14 +75,13 @@ def get_random_user():
 
     except sqlite3.Error as e:
         error_message = f"Error getting random user: {e}"
-        if current_span:
-            current_span.add_event(
-                name="database.query.exception",
-                attributes={
-                    "error.message": error_message,
-                    "error.type": "sqlite3.Error"
-                }
-            )
+        current_span.add_event(
+            name="database.query.exception",
+            attributes={
+                "error.message": error_message,
+                "error.type": "sqlite3.Error"
+            }
+        )
         if conn:
             conn.close()
         return None
@@ -103,30 +102,13 @@ def current_user():
     # Return a 500 error if we couldn't get a user
     if user is None:
         error_message = {"error": "Failed to retrieve user data"}
-        if current_span:
-            current_span.set_attribute("error", True)
-            current_span.set_attribute("error.message", "Failed to retrieve user data")
-            current_span.add_event(
-                name="api.error",
-                attributes={
-                    "error.message": "Failed to retrieve user data",
-                    "http.status_code": 500,
-                    "service.name": "user-service-python"
-                }
-            )
+        current_span.set_attribute("error", True)
+        current_span.set_attribute("error.message", "Failed to retrieve user data")
         return jsonify(error_message), 500
 
     # Add user info to the current span
-    if current_span:
-        current_span.set_attribute("user.id", user["id"])
-        current_span.set_attribute("user.name", user["name"])
-        current_span.add_event(
-            name="user.retrieved",
-            attributes={
-                "user.id": user["id"],
-                "user.name": user["name"]
-            }
-        )
+    current_span.set_attribute("user.id", user["id"])
+    current_span.set_attribute("user.name", user["name"])
 
     return jsonify(user)
 
