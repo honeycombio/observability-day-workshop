@@ -91,6 +91,24 @@ async function runLoadTest() {
     await page.waitForSelector(".user-info", { state: "attached" });
     log("Page loaded successfully");
 
+    // Wait for the user info to be fully populated (not Anonymous)
+    log("Waiting for user info to be populated...");
+    try {
+      await page.waitForFunction(
+        () => {
+          const userName = document.querySelector(".user-name")?.textContent;
+          return userName && userName !== "Anonymous";
+        },
+        { timeout: 10000 }
+      );
+      log("User info populated successfully");
+    } catch (error) {
+      log(`Warning: Timed out waiting for user info to be populated: ${error.message}`);
+    }
+
+    // Add a small delay to ensure all data attributes are set
+    await sleep(1000, 2000);
+
     // Get the initial user info
     const userName = (await page.textContent(".user-name")) || "Unknown";
     const userId = await page.$eval(".user-info", (el) => el.getAttribute("data-user-id")).catch(() => "unknown");
