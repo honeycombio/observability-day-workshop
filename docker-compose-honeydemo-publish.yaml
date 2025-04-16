@@ -27,8 +27,6 @@ services:
         # this is useful for pushing to Dockerhub, not for local builds
         - linux/amd64
         - linux/arm64
-      cache_from:
-        - ${IMAGE_REPO_USER}/meminator:${WORKSHOP_VERSION}
     image: ${IMAGE_REPO_USER}/meminator:${DOCKERHUB_IMAGE_VERSION}
     ports:
       - "10116:10116" # they can't be the same
@@ -46,8 +44,6 @@ services:
         # this is useful for pushing to Dockerhub, not for local builds
         - linux/amd64
         - linux/arm64
-      cache_from:
-        - ${IMAGE_REPO_USER}/phrase-picker:${WORKSHOP_VERSION}
     image: ${IMAGE_REPO_USER}/phrase-picker:${DOCKERHUB_IMAGE_VERSION}
     ports:
       - "10117:10117" # the outer ports can't be the same
@@ -64,8 +60,6 @@ services:
         # this is useful for pushing to Dockerhub, not for local builds
         - linux/amd64
         - linux/arm64
-      cache_from:
-        - ${IMAGE_REPO_USER}/image-picker:${WORKSHOP_VERSION}
     image: ${IMAGE_REPO_USER}/image-picker:${DOCKERHUB_IMAGE_VERSION}
     ports:
       - "10118:10118" # the outer ports can't be the same
@@ -83,8 +77,6 @@ services:
         # this is useful for pushing to Dockerhub, not for local builds
         - linux/amd64
         - linux/arm64
-      cache_from:
-        - ${IMAGE_REPO_USER}/user-service:${WORKSHOP_VERSION}
     image: ${IMAGE_REPO_USER}/user-service:${DOCKERHUB_IMAGE_VERSION}
     ports:
       - "10119:10119"
@@ -103,8 +95,6 @@ services:
         # this is useful for pushing to Dockerhub, not for local builds
         - linux/amd64
         - linux/arm64
-      cache_from:
-        - ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
       args:
         HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
     image: ${IMAGE_REPO_USER}/web:${DOCKERHUB_IMAGE_VERSION}-honeydemo
@@ -121,8 +111,6 @@ services:
         # this is useful for pushing to Dockerhub, not for local builds
         - linux/amd64
         - linux/arm64
-      cache_from:
-        - ${IMAGE_REPO_USER}/init-db:${WORKSHOP_VERSION}
     image: ${IMAGE_REPO_USER}/init-db:${DOCKERHUB_IMAGE_VERSION}
     volumes:
       - dbdata:/put-the-db-here
