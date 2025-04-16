@@ -17,6 +17,6 @@ echo "You're shipping this API key: $HONEYCOMB_API_KEY"
 
 export HONEYCOMB_API_KEY=$DEMO_TEAM_INGEST_KEY_FOR_MEMINATOR
 
-docker compose -f scripts/docker-compose-honeydemo-publish.yaml build --push $*
+docker compose -f docker-compose-honeydemo-publish.yaml build --push $*
 
 echo "https://hub.docker.com/r/o11yday/web/tags"

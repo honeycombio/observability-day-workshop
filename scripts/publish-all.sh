@@ -12,7 +12,7 @@ source .env
 for lang in $(echo "python nodejs dotnet" ); do
   export PROGRAMMING_LANGUAGE=$lang
   echo "##########\n#\n# Let's publish the services in $PROGRAMMING_LANGUAGE in $DOCKERHUB_IMAGE_VERSION\n#\n##########"
-  docker compose -f scripts/docker-compose-publish.yaml build --push
+  docker compose -f docker-compose-publish.yaml build --push
 done
 
 # and one stray, until we bring in a full java option

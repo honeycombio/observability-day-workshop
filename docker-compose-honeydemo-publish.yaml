@@ -28,8 +28,8 @@ services:
         - linux/amd64
         - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/meminator:${DOCKERHUB_IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/meminator:${WORKSHOP_VERSION}
+        - ${IMAGE_REPO_USER}/meminator:${WORKSHOP_VERSION}
+    image: ${IMAGE_REPO_USER}/meminator:${DOCKERHUB_IMAGE_VERSION}
     ports:
       - "10116:10116" # they can't be the same
     environment:
@@ -47,8 +47,8 @@ services:
         - linux/amd64
         - linux/arm64
       cache_from:
-        - ${IMAGE_REPO_USER}/phrase-picker:${DOCKERHUB_IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/phrase-picker:${}
+        - ${IMAGE_REPO_USER}/phrase-picker:${WORKSHOP_VERSION}
+    image: ${IMAGE_REPO_USER}/phrase-picker:${DOCKERHUB_IMAGE_VERSION}
     ports:
       - "10117:10117" # the outer ports can't be the same
     environment:
