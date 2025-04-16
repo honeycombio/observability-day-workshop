@@ -16,5 +16,5 @@ FROM eclipse-temurin:21-jdk-jammy
 WORKDIR /app
 COPY --from=build /app/target/phrase-picker-0.0.1-SNAPSHOT.jar ./phrase-picker.jar
 COPY --from=dependencies /app/opentelemetry-javaagent.jar .
-EXPOSE 10118
+EXPOSE 10117
 CMD ["java", "-javaagent:./opentelemetry-javaagent.jar", "-jar", "phrase-picker.jar"]

@@ -1,4 +1,4 @@
-# purpose: roughly mimic docker
+# purpose: roughly mimic docker-compose-variety, but for pushing to dockerhub for later k8s deployment.
 services:
   backend-for-frontend:
     build:
