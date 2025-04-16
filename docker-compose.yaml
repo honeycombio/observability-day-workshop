@@ -76,8 +76,8 @@ services:
       context: .
       dockerfile: services/user-service-${PROGRAMMING_LANGUAGE}/Dockerfile
       cache_from:
-        - ${IMAGE_REPO_USER}/user-service:${DOCKERHUB_IMAGE_VERSION}
-    image: ${IMAGE_REPO_USER}/user-service:${WORKSHOP_VERSION}
+        - ${IMAGE_REPO_USER}/user-service:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}
+    image: ${IMAGE_REPO_USER}/user-service:${PROGRAMMING_LANGUAGE}-${WORKSHOP_VERSION}
     ports:
       - "10119:10119"
     environment:
