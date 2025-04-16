@@ -7,11 +7,49 @@
 
 set -x # print what you run
 set -e
-docker compose -f docker-compose-variety.yaml up --build -d $*
-
+# Source environment variables first
 source .env
 export HONEYCOMB_API_KEY
-export PROGRAMMING_LANGUAGE=python # this should to match the backend-for-frontend language in the docker config
+export PROGRAMMING_LANGUAGE=python # this should match the backend-for-frontend language in the docker config
+
+# Define services and their programming languages in the variety configuration
+declare -A SERVICE_LANGUAGES=(
+  ["backend-for-frontend"]="python"
+  ["meminator"]="nodejs"
+  ["phrase-picker"]="java"
+  ["image-picker"]="dotnet"
+  ["user-service"]="python"
+)
+
+# Define services to pull cache for
+SERVICES=("backend-for-frontend" "meminator" "phrase-picker" "image-picker" "user-service" "web")
+
+# If specific services were provided as arguments, only pull those
+if [ $# -gt 0 ]; then
+  SERVICES=($*)
+fi
+
+# Pull cache images for each service
+for SERVICE in "${SERVICES[@]}"; do
+  if [ "$SERVICE" == "web" ]; then
+    # Web service doesn't have a language suffix
+    CACHE_IMAGE="${IMAGE_REPO_USER}/web:${DOCKERHUB_IMAGE_VERSION}"
+    echo "Pulling web cache image: $CACHE_IMAGE"
+    docker pull "$CACHE_IMAGE" || echo "Web cache image not found, will build from scratch"
+  elif [[ -v SERVICE_LANGUAGES[$SERVICE] ]]; then
+    # Get the language for this service
+    LANG=${SERVICE_LANGUAGES[$SERVICE]}
+    CACHE_IMAGE="${IMAGE_REPO_USER}/${SERVICE}:${LANG}-${DOCKERHUB_IMAGE_VERSION}"
+    echo "Pulling cache image: $CACHE_IMAGE"
+    docker pull "$CACHE_IMAGE" || echo "Cache image not found, will build from scratch"
+  fi
+done
+
+# Now build and start the services
+echo "Building and starting services..."
+docker compose -f docker-compose-variety.yaml up --build -d $*
+
+# Environment variables already sourced above
 ./scripts/honeycomb-whoami.sh
 
 echo "http://localhost:10114"

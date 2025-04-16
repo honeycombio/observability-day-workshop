@@ -21,6 +21,33 @@ if [[ -n "$PROGRAMMING_LANGUAGE_FROM_ARG" ]]; then
 fi
 export PROGRAMMING_LANGUAGE
 
+# Pull cache images before building
+echo "Pulling cache images for $PROGRAMMING_LANGUAGE..."
+
+# Define services to pull cache for
+SERVICES=("backend-for-frontend" "meminator" "phrase-picker" "image-picker" "user-service")
+
+# If specific services were provided as arguments, only pull those
+if [ $# -gt 0 ]; then
+  SERVICES=($*)
+fi
+
+# Pull cache images for each service
+for SERVICE in "${SERVICES[@]}"; do
+  CACHE_IMAGE="${IMAGE_REPO_USER}/${SERVICE}:${PROGRAMMING_LANGUAGE}-${DOCKERHUB_IMAGE_VERSION}"
+  echo "Pulling cache image: $CACHE_IMAGE"
+  docker pull "$CACHE_IMAGE" || echo "Cache image not found, will build from scratch"
+done
+
+# Pull web cache image separately (doesn't depend on programming language)
+if [[ " ${SERVICES[*]} " =~ "web" ]] || [ $# -eq 0 ]; then
+  WEB_CACHE_IMAGE="${IMAGE_REPO_USER}/web:${DOCKERHUB_IMAGE_VERSION}"
+  echo "Pulling web cache image: $WEB_CACHE_IMAGE"
+  docker pull "$WEB_CACHE_IMAGE" || echo "Web cache image not found, will build from scratch"
+fi
+
+# Now build and start the services
+echo "Building and starting services..."
 docker compose -f docker-compose.yaml up --build -d $*
 
 ./scripts/honeycomb-whoami.sh
