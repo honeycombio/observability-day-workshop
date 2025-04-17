@@ -17,10 +17,10 @@ export async function download(inputImageUrl: string): Promise<string> {
     throw new Error("No input image URL provided");
   }
   const downloadDestinationPath = `/tmp/${generateRandomFilename(path.extname(inputImageUrl))}`;
-
+  const timeoutMs = 5000; //ms
   // Set a timeout of 5 seconds for the fetch operation
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs); // 5 second timeout
 
   await fetch(inputImageUrl, {
     signal: controller.signal,
@@ -57,9 +57,10 @@ export async function download(inputImageUrl: string): Promise<string> {
       span?.setAttributes({
         error: true,
         "error.type": isTimeout ? "timeout" : "download_error",
-        "warn.message": isTimeout ? "Image download timed out after 5 seconds" : "Image failed to download: " + err.message,
-        "app.inputImageUrl": inputImageUrl,
+        "error.message": isTimeout ? "Image download timed out after 5 seconds" : "Image failed to download: " + err.message,
+        "http.timeout_ms": timeoutMs,
         "app.default.imagePath": DEFAULT_IMAGE_PATH,
+        "http.url": inputImageUrl,
       });
       return path.join(__dirname, DEFAULT_IMAGE_PATH);
     });

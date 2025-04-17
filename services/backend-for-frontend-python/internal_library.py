@@ -33,7 +33,7 @@ def fetch_from_service(service, method='GET', body=None, timeout=5):
     except requests.Timeout as e:
         trace.get_current_span().set_attribute("error", True)
         trace.get_current_span().set_attribute("error.type", "timeout")
-        trace.record_exception(e, { "http.url": url })
+        trace.record_exception(e, { "http.url": url, "http.timeout": timeout })
         print(f"Timeout error fetching data from {url} (exceeded {timeout}s): {e}")
         return None
     except requests.RequestException as e:
