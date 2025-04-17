@@ -23,19 +23,28 @@ builder.Services.AddOpenTelemetry()
 var app = builder.Build();
 
 app.MapPost("/createPicture", async (HttpClient client, CreatePictureRequest request) => {
+    // Add user info to the current activity (span)
+    var currentActivity = Activity.Current;
+    if (currentActivity != null)
+    {
+        currentActivity.SetTag("user.id", request.UserId ?? "unknown");
+        currentActivity.SetTag("user.name", request.UserName ?? "Anonymous User");
+    }
+
     var imagePickerResponse = await client.GetFromJsonAsync<ImagePickerResponse>("http://image-picker:10118/imageUrl");
     var phrasePickerResponse = await client.GetFromJsonAsync<PhrasePickerResponse>("http://phrase-picker:10117/phrase");
 
-    // Extract user data from the request
-    var userId = request.UserId ?? "unknown";
-    var userName = request.UserName ?? "Anonymous User";
+    // Add image URL and phrase to the current activity
+    if (currentActivity != null)
+    {
+        currentActivity.SetTag("app.imageUrl", imagePickerResponse!.ImageUrl);
+        currentActivity.SetTag("app.phrase", phrasePickerResponse!.Phrase);
+    }
 
     var image = await client.PostAsJsonAsync($"http://meminator:10116/applyPhraseToImage",
         new {
             imageUrl = imagePickerResponse!.ImageUrl,
-            inputPhrase = phrasePickerResponse!.Phrase,
-            userId = userId,
-            userName = userName
+            inputPhrase = phrasePickerResponse!.Phrase
         });
     if (!image.IsSuccessStatusCode)
     {
