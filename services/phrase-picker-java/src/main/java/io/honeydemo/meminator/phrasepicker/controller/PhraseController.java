@@ -63,18 +63,25 @@ public class PhraseController {
     @GetMapping("/phrase")
     public PhraseResult hello() {
         // choose a random phrase from the list
-        int choice = (int) (Math.random() * PhraseList.size());
+        String chosenPhrase = choosePhrase();
 
+        return new PhraseResult(chosenPhrase);
+    }
+
+    // @WithSpan("choosePhrase")
+    private String choosePhrase() {
+        int choice = (int) (Math.random() * PhraseList.size());
         logger.info("app.listSize=" + PhraseList.size() + ", app.choice=" + choice);
 
         String chosenPhrase = PhraseList.get(choice);
-
         logger.info("app.phrase=" + chosenPhrase);
+
         Span span = Span.current();
         span.setAttribute("app.listSize", PhraseList.size());
         span.setAttribute("app.choice", choice);
         span.setAttribute("app.phrase", chosenPhrase);
-        return new PhraseResult(chosenPhrase);
+
+        return chosenPhrase;
     }
 
     public static class PhraseResult {
