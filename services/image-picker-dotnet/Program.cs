@@ -57,7 +57,6 @@ var images = new [] {
     "yellow-lines.JPG"
 };
 
-// Hard-coded bucket name
 var bucketname = "random-pictures";
 var builder = WebApplication.CreateBuilder(args);
 
