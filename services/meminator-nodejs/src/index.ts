@@ -24,25 +24,25 @@ app.post("/applyPhraseToPicture", async (req, res) => {
     let { phrase: inputPhrase, imageUrl } = input;
     span?.setAttributes({
       // INSTRUMENTATION: record important things
-      "app.phrase": inputPhrase,
-      "app.imageUrl": imageUrl,
-      "app.imageExtension": imageUrl ? path.extname(imageUrl) : "none",
+    //   "app.phrase": inputPhrase,
+    //   "app.imageUrl": imageUrl,
+    //   "app.imageExtension": imageUrl ? path.extname(imageUrl) : "none",
     });
     const phrase = inputPhrase.toLocaleUpperCase();
 
     // download the image, defaulting to a local image
     const inputImagePath = await download(imageUrl);
 
-    await trace.getTracer("meminator").startActiveSpan("apply text", async (newSpan) => {
-      // INSTRUMENTATION 2: a span that will have children
-      //const newSpan = trace.getTracer('meminator').startSpan('apply text'); // INSTRUMENTATION 1: put a span around it.... but it doesn't have children
-      const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
-      res.sendFile(outputImagePath);
-      newSpan.end(); // INSTRUMENTATION: you don't get telemetry for creating spans. You get it for ending spans
-    }); // INSTRUMENTATION 2: end the callback
+    // `await trace.getTracer("meminator").startActiveSpan("apply text", async (newSpan) => {
+    // INSTRUMENTATION 2: a span that will have children
+    //const newSpan = trace.getTracer('meminator').startSpan('apply text'); // INSTRUMENTATION 1: put a span around it.... but it doesn't have children
+    const outputImagePath = await applyTextWithImagemagick(phrase, inputImagePath);
+    res.sendFile(outputImagePath);
+    //   newSpan.end(); // INSTRUMENTATION: you don't get telemetry for creating spans. You get it for ending spans
+    // }); // INSTRUMENTATION 2: end the callback
   } catch (error) {
-    span?.recordException(error as Error); // INSTRUMENTATION: record exceptions. This will someday happen automatically in express instrumentation
-    span?.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message });
+    // span?.recordException(error as Error); // INSTRUMENTATION: record exceptions. This will someday happen automatically in express instrumentation
+    // span?.setStatus({ code: SpanStatusCode.ERROR, message: (error as Error).message });
     console.error("Error creating picture:", error);
     res.status(500).send("Internal Server Error");
   }

@@ -12,13 +12,13 @@ export async function applyTextWithImagemagick(phrase: string, inputImagePath: s
   const outputImagePath = `/tmp/${generateRandomFilename("png")}`;
   const span = trace.getActiveSpan();
 
-  span?.setAttributes({
-    "app.phrase": phrase,
-    "app.meminate.inputImagePath": inputImagePath,
-    "app.meminate.outputImagePath": outputImagePath,
-    "app.meminate.maxHeightPx": IMAGE_MAX_HEIGHT_PX,
-    "app.meminate.maxWidthPx": IMAGE_MAX_WIDTH_PX,
-  });
+  // span?.setAttributes({
+  //   "app.phrase": phrase,
+  //   "app.meminate.inputImagePath": inputImagePath,
+  //   "app.meminate.outputImagePath": outputImagePath,
+  //   "app.meminate.maxHeightPx": IMAGE_MAX_HEIGHT_PX,
+  //   "app.meminate.maxWidthPx": IMAGE_MAX_WIDTH_PX,
+  // });
 
   // Step 2: see if we can predict the width of the image
   // reportPredictedWidth(inputImagePath);
