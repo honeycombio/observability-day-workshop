@@ -23,23 +23,23 @@ builder.Services.AddOpenTelemetry()
 var app = builder.Build();
 
 app.MapPost("/createPicture", async (HttpClient client, CreatePictureRequest request) => {
-    // Add user info to the current activity (span)
-    var currentActivity = Activity.Current;
-    if (currentActivity != null)
-    {
-        currentActivity.SetTag("user.id", request.UserId ?? "unknown");
-        currentActivity.SetTag("user.name", request.UserName ?? "Anonymous User");
-    }
+    // INSTRUMENTATION: add the important stuff to the activity
+    // var currentActivity = Activity.Current;
+    // if (currentActivity != null)
+    // {
+    //     currentActivity.SetTag("user.id", request.UserId ?? "unknown");
+    //     currentActivity.SetTag("user.name", request.UserName ?? "Anonymous User");
+    // }
 
     var imagePickerResponse = await client.GetFromJsonAsync<ImagePickerResponse>("http://image-picker:10118/imageUrl");
     var phrasePickerResponse = await client.GetFromJsonAsync<PhrasePickerResponse>("http://phrase-picker:10117/phrase");
 
-    // Add image URL and phrase to the current activity
-    if (currentActivity != null)
-    {
-        currentActivity.SetTag("app.imageUrl", imagePickerResponse!.ImageUrl);
-        currentActivity.SetTag("app.phrase", phrasePickerResponse!.Phrase);
-    }
+    // INSTRUMENTATION: more important stuff here
+    // if (currentActivity != null)
+    // {
+    //     currentActivity.SetTag("app.imageUrl", imagePickerResponse!.ImageUrl);
+    //     currentActivity.SetTag("app.phrase", phrasePickerResponse!.Phrase);
+    // }
 
     var image = await client.PostAsJsonAsync($"http://meminator:10116/applyPhraseToImage",
         new {
