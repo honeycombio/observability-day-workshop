@@ -13,18 +13,18 @@ def health():
 
 @app.route('/createPicture', methods=['POST'])
 def create_picture():
-    current_span = trace.get_current_span() # INSTRUMENTATION: pull the current span out of thin air
+    # current_span = trace.get_current_span() # INSTRUMENTATION: pull the current span out of thin air
     input = request.json
-    current_span.set_attribute("user.id", input["userId"])
-    current_span.set_attribute("user.name", input["userName"])
+    # current_span.set_attribute("user.id", input["userId"])
+    # current_span.set_attribute("user.name", input["userName"])
 
     phrase_response = fetch_from_service('phrase-picker')
     image_response = fetch_from_service('image-picker')
 
     phrase_result = phrase_response.json() if phrase_response and phrase_response.ok else {"phrase": "This is sparta"}
     image_result = image_response.json() if image_response and image_response.ok else {"imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1360px-Banana-Single.jpg"}
-    current_span.set_attribute("app.phrase", phrase_result['phrase']) # INSTRUMENTATION: add the mose important attributes from the trace
-    current_span.set_attribute("app.image_url", image_result['imageUrl'])
+    # current_span.set_attribute("app.phrase", phrase_result['phrase']) # INSTRUMENTATION: add the mose important attributes from the trace
+    # current_span.set_attribute("app.image_url", image_result['imageUrl'])
 
     body = {**phrase_result, **image_result}
     meminator_response = fetch_from_service('meminator', method="POST", body=body)
@@ -37,43 +37,6 @@ def create_picture():
     return flask_response
 
 special_tracer = trace.get_tracer("report-rating")
-
-@app.route('/rating', methods=['POST'])
-def submit_rating():
-    rating_data = request.json
-    current_span = trace.get_current_span()
-
-    # Set rating attributes on current span
-    if current_span and rating_data and 'rating' in rating_data:
-        current_span.set_attribute("app.rating", rating_data['rating'])
-        if 'ratingEmoji' in rating_data:
-            current_span.set_attribute("app.rating.emoji", rating_data['ratingEmoji'])
-
-    # Watch out, this part is clever.
-    # Create a special span that is attached to the picture-creation trace.
-    if not rating_data or 'pictureSpanContext' not in rating_data:
-        return jsonify({"status": "warning", "message": "Missing pictureSpanContext in request body"})
-
-    trace_id_int = int(rating_data['pictureSpanContext']['traceId'], 16)
-    span_id_int = int(rating_data['pictureSpanContext']['spanId'], 16)
-    special_context = trace.set_span_in_context(
-            trace.NonRecordingSpan(
-                trace.SpanContext(
-                    # trace an span ids are encoded in hex, so must be converted
-                    trace_id=trace_id_int,
-                    span_id=span_id_int,
-                    is_remote=True,
-                    trace_flags=trace.TraceFlags(trace.TraceFlags.SAMPLED),
-                    trace_state=trace.TraceState(),
-                )
-            ))
-    specialSpan = special_tracer.start_span("user rating", context=special_context) # TODO: add a span link to the current span
-    specialSpan.set_attribute("app.rating", rating_data['rating'])
-    if 'ratingEmoji' in rating_data:
-        specialSpan.set_attribute("app.rating.emoji", rating_data['ratingEmoji'])
-    specialSpan.end()
-
-    return jsonify({"status": "success"})
 
 # Default user data in case the service is unavailable
 default_user = {
@@ -114,6 +77,44 @@ def user_info():
         user_name=user_data.get("name", default_user["name"]),
         avatar_url=user_data.get("avatarUrl", default_user["avatarUrl"])
     )
+
+@app.route('/rating', methods=['POST'])
+def submit_rating():
+    rating_data = request.json
+    current_span = trace.get_current_span()
+
+    # Set rating attributes on current span
+    if current_span and rating_data and 'rating' in rating_data:
+        current_span.set_attribute("app.rating", rating_data['rating'])
+        if 'ratingEmoji' in rating_data:
+            current_span.set_attribute("app.rating.emoji", rating_data['ratingEmoji'])
+
+    # Watch out, this part is clever.
+    # Create a special span that is attached to the picture-creation trace.
+    if not rating_data or 'pictureSpanContext' not in rating_data:
+        return jsonify({"status": "warning", "message": "Missing pictureSpanContext in request body"})
+
+    trace_id_int = int(rating_data['pictureSpanContext']['traceId'], 16)
+    span_id_int = int(rating_data['pictureSpanContext']['spanId'], 16)
+    special_context = trace.set_span_in_context(
+            trace.NonRecordingSpan(
+                trace.SpanContext(
+                    # trace an span ids are encoded in hex, so must be converted
+                    trace_id=trace_id_int,
+                    span_id=span_id_int,
+                    is_remote=True,
+                    trace_flags=trace.TraceFlags(trace.TraceFlags.SAMPLED),
+                    trace_state=trace.TraceState(),
+                )
+            ))
+    specialSpan = special_tracer.start_span("user rating", context=special_context) # TODO: add a span link to the current span
+    specialSpan.set_attribute("app.rating", rating_data['rating'])
+    if 'ratingEmoji' in rating_data:
+        specialSpan.set_attribute("app.rating.emoji", rating_data['ratingEmoji'])
+    specialSpan.end()
+
+    return jsonify({"status": "success"})
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=10115)

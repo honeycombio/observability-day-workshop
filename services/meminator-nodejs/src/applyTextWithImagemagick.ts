@@ -21,13 +21,13 @@ export async function applyTextWithImagemagick(phrase: string, inputImagePath: s
   });
 
   // Step 2: see if we can predict the width of the image
-  reportPredictedWidth(inputImagePath);
+  // reportPredictedWidth(inputImagePath);
 
-  //  Step 3: implement the text fitting
-  const pointsize = await reducePointsizeToFit(inputImagePath, phrase, DEFAULT_POINTSIZE);
-  span?.setAttribute("text.pointsize", pointsize);
+  // Step 3: implement the text fitting
+  // const pointsize = await reducePointsizeToFit(inputImagePath, phrase, DEFAULT_POINTSIZE);
+  // span?.setAttribute("text.pointsize", pointsize);
 
-  // const pointsize = DEFAULT_POINTSIZE;
+  const pointsize = DEFAULT_POINTSIZE;
   const args = [
     inputImagePath,
     "-resize",
@@ -51,7 +51,7 @@ export async function applyTextWithImagemagick(phrase: string, inputImagePath: s
   await spawnProcess("convert", args);
 
   // Step 1: Notice how often it happens that the text does not fit
-  checkWhetherTextFits(pointsize, DEFAULT_FONT, phrase, outputImagePath);
+  // checkWhetherTextFits(pointsize, DEFAULT_FONT, phrase, outputImagePath);
 
   return outputImagePath;
 }
