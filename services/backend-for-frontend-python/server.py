@@ -30,7 +30,7 @@ def create_picture():
     meminator_response = fetch_from_service('meminator', method="POST", body=body)
 
     if not meminator_response.ok or meminator_response.content is None:
-        raise Exception(f"Failed to fetch picture from meminator: {meminator_response.status_code} {meminator_response.reason}")
+        return Response("Failed to fetch picture from meminator", status=500)
 
     flask_response = Response(meminator_response.content, status=meminator_response.status_code, content_type=meminator_response.headers.get('content-type'))
 
