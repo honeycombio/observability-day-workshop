@@ -74,14 +74,17 @@ string? GetRandomPhrase()
     // Use the configured database path - no fallbacks
     string dbPath = "/app/shared-data/phrases.db";
 
-    // Log the database path for debugging
-    Console.WriteLine($"Using database path: {dbPath}");
-    Console.WriteLine($"Database exists: {File.Exists(dbPath)}");
+    // Add database path info to the activity
+    if (activity != null)
+    {
+        activity.SetTag("app.db_path", dbPath);
+        activity.SetTag("app.db_exists", File.Exists(dbPath));
+    }
 
     // If database doesn't exist, return null to indicate failure
     if (!File.Exists(dbPath))
     {
-        Console.WriteLine("Database not found, returning error");
+        // Error is already logged via activity tags
         if (activity != null)
         {
             activity.SetTag("error", true);
@@ -102,23 +105,39 @@ string? GetRandomPhrase()
 
     try
     {
-        Console.WriteLine($"Opening connection with: {connectionString}");
+        if (activity != null)
+        {
+            activity.SetTag("app.db_connection_string", connectionString);
+        }
+
         using (var connection = new SqliteConnection(connectionString))
         {
             connection.Open();
-            Console.WriteLine("Connection opened successfully");
+
+            if (activity != null)
+            {
+                activity.AddEvent(new ActivityEvent("database.connection.opened"));
+            }
 
             // Count the total number of phrases
             using (var countCommand = connection.CreateCommand())
             {
                 countCommand.CommandText = "SELECT COUNT(*) as count FROM phrases";
-                Console.WriteLine("Executing count query");
+
+                if (activity != null)
+                {
+                    activity.AddEvent(new ActivityEvent("database.query.count",
+                        tags: new ActivityTagsCollection
+                        {
+                            { "query", countCommand.CommandText }
+                        }));
+                }
+
                 var count = Convert.ToInt32(countCommand.ExecuteScalar());
-                Console.WriteLine($"Found {count} phrases in database");
 
                 if (count == 0)
                 {
-                    Console.WriteLine("No phrases found in database, returning error");
+                    // Error is already logged via activity tags
                     if (activity != null)
                     {
                         activity.SetTag("error", true);
@@ -135,7 +154,6 @@ string? GetRandomPhrase()
 
                 // Get a random phrase from the database
                 var randomId = new Random().Next(1, count + 1);
-                Console.WriteLine($"Selected random phrase ID: {randomId}");
                 if (activity != null)
                 {
                     activity.SetTag("app.random_phrase_id", randomId);
@@ -146,13 +164,22 @@ string? GetRandomPhrase()
                 {
                     phraseCommand.CommandText = "SELECT text FROM phrases WHERE id = @id";
                     phraseCommand.Parameters.AddWithValue("@id", randomId);
-                    Console.WriteLine("Executing phrase query");
+
+                    if (activity != null)
+                    {
+                        activity.AddEvent(new ActivityEvent("database.query.phrase",
+                            tags: new ActivityTagsCollection
+                            {
+                                { "query", phraseCommand.CommandText },
+                                { "phrase.id", randomId }
+                            }));
+                    }
 
                     var phrase = phraseCommand.ExecuteScalar()?.ToString();
 
                     if (string.IsNullOrEmpty(phrase))
                     {
-                        Console.WriteLine($"Phrase with ID {randomId} not found, returning error");
+                        // Error is already logged via activity tags
                         if (activity != null)
                         {
                             activity.SetTag("error", true);
@@ -169,7 +196,10 @@ string? GetRandomPhrase()
                         return null;
                     }
 
-                    Console.WriteLine($"Returning phrase: {phrase}");
+                    if (activity != null)
+                    {
+                        activity.SetTag("app.phrase", phrase);
+                    }
                     return phrase;
                 }
             }
@@ -177,8 +207,7 @@ string? GetRandomPhrase()
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Exception: {ex.GetType().Name}: {ex.Message}");
-        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        // Error is already logged via activity tags
 
         if (activity != null)
         {
