@@ -34,7 +34,6 @@ public class EfPhraseRepository : IPhraseRepository
 
         try
         {
-            // Get the count of phrases
             var count = await GetPhraseCountAsync();
 
             if (count == 0)
@@ -53,7 +52,6 @@ public class EfPhraseRepository : IPhraseRepository
                 return null;
             }
 
-            // Generate a random ID between 1 and count
             var randomId = _random.Next(1, count + 1);
 
             if (activity != null)
@@ -62,8 +60,6 @@ public class EfPhraseRepository : IPhraseRepository
                 activity.SetTag("app.phrase_count", count);
             }
 
-            // Use a parameterized query with EF Core's built-in methods
-            // I wish: This will be properly instrumented and show the SQL statement in the span attributes
             var phrase = await _context.Phrases
                 .Where(p => p.Id == randomId)
                 .FirstOrDefaultAsync();
@@ -112,14 +108,8 @@ public class EfPhraseRepository : IPhraseRepository
         }
     }
 
-    /// <summary>
-    /// Gets the total count of phrases in the repository
-    /// </summary>
-    /// <returns>The number of phrases</returns>
     public async Task<int> GetPhraseCountAsync()
     {
-        // Use a simple CountAsync to get the count
-        // This will be properly instrumented by EF Core
         return await _context.Phrases.CountAsync();
     }
 
