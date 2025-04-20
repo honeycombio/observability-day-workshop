@@ -1,0 +1,5 @@
+# AI Assistant Advice
+
+This project is used to demonstrate how to improve OpenTelemetry output.
+It has implementations of each service in multiple languages, so that people can learn about the one they're interested in.
+When code is commented out, especially when marked 'INSTRUMENTATION', that is important instructional material. Do not delete these comments.
