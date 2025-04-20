@@ -11,33 +11,41 @@ const PORT = process.env.PORT || 10117; // Docker uses 10117, local dev can use 
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// Path to the SQLite database
-let dbPath = path.join(__dirname, "../../shared-data/phrases.db");
-// For Docker, use this path if the above doesn't exist
-if (!fs.existsSync(dbPath)) {
-  const dockerPath = path.join("/usr/src/app/shared-data/phrases.db");
-  if (fs.existsSync(dockerPath)) {
-    dbPath = dockerPath;
-  }
-}
+// Path to the SQLite database - use a single, consistent path
+const dbPath = "/app/shared-data/phrases.db";
 
-// Make sure the directory exists
-const dbDir = path.dirname(dbPath);
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir, { recursive: true });
-}
+// We don't create directories or handle missing databases
+// If the database doesn't exist, the service should fail
+// This is better for instructional purposes to demonstrate error telemetry
 
 // Initialize database connection with read-only mode
 let db: Database.Database;
 try {
+  // Get the active span for telemetry
+  const currentSpan = trace.getActiveSpan();
+  currentSpan?.setAttribute("app.db_path", dbPath);
+  currentSpan?.setAttribute("app.db_exists", fs.existsSync(dbPath));
+
   // Open the database in read-only mode
   db = new Database(dbPath, { readonly: true });
-  console.log(`Connected to the SQLite database at ${dbPath} in read-only mode`);
+
+  // Record successful connection in telemetry
+  currentSpan?.setAttribute("app.db_connected", true);
 } catch (err) {
-  console.error(`Error opening database at ${dbPath}:`, err);
+  // Get the active span for telemetry
+  const currentSpan = trace.getActiveSpan();
+  currentSpan?.setAttribute("error", true);
+  currentSpan?.setAttribute("error.message", `Error opening database at ${dbPath}: ${err}`);
+  currentSpan?.setAttribute("error.type", "database.connection.error");
+  currentSpan?.addEvent("database.connection.error", {
+    "error.message": `Error opening database at ${dbPath}: ${err}`,
+    "error.type": err instanceof Error ? err.name : "unknown",
+  });
+
   // Don't use fallback behavior - let the error propagate
   // This will cause the service to fail if the database is not available
   // which is the desired behavior for instructional purposes
+  throw err;
 }
 
 app.get("/health", (req: Request, res: Response) => {
@@ -59,9 +67,15 @@ app.get("/phrase", async (req, res) => {
       res.status(500).json({ error: "Failed to retrieve phrase data" });
     }
   } catch (error) {
-    console.error("Error getting random phrase:", error);
+    // Record error in telemetry
     currentSpan?.setAttribute("error", true);
     currentSpan?.setAttribute("error.message", String(error));
+    currentSpan?.setAttribute("error.type", "route.handler.exception");
+    currentSpan?.addEvent("route.handler.exception", {
+      "error.message": String(error),
+      "error.type": error instanceof Error ? error.name : "unknown",
+    });
+
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -74,7 +88,6 @@ function getRandomPhrase(): string | null {
     const countRow = db.prepare("SELECT COUNT(*) as count FROM phrases").get();
     if (!countRow) {
       const errorMsg = "Error counting phrases: No result returned";
-      console.error(errorMsg);
       currentSpan?.setAttribute("error", true);
       currentSpan?.setAttribute("error.message", errorMsg);
       currentSpan?.setAttribute("error.type", "database.query.error");
@@ -93,7 +106,6 @@ function getRandomPhrase(): string | null {
 
     if (!phrase) {
       const errorMsg = `Error getting random phrase: Phrase with ID ${randomId} not found`;
-      console.error(errorMsg);
       currentSpan?.setAttribute("error", true);
       currentSpan?.setAttribute("error.message", errorMsg);
       currentSpan?.setAttribute("error.type", "database.query.error");
@@ -108,7 +120,6 @@ function getRandomPhrase(): string | null {
     return phrase.text;
   } catch (err) {
     const errorMsg = `Database error: ${err}`;
-    console.error(errorMsg);
     currentSpan?.setAttribute("error", true);
     currentSpan?.setAttribute("error.message", errorMsg);
     currentSpan?.setAttribute("error.type", "database.query.exception");
@@ -122,5 +133,6 @@ function getRandomPhrase(): string | null {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  // Server is now running - we don't log to console
+  // Any important information should be in span attributes
 });
