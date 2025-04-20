@@ -62,10 +62,10 @@ public class EfPhraseRepository : IPhraseRepository
                 activity.SetTag("app.phrase_count", count);
             }
 
-            // Use a parameterized query instead of FindAsync to get better telemetry
-            // This will show the SQL statement in the span attributes
+            // Use a parameterized query with EF Core's built-in methods
+            // This will be properly instrumented and show the SQL statement in the span attributes
             var phrase = await _context.Phrases
-                .FromSqlInterpolated($"SELECT * FROM phrases WHERE id = {randomId}")
+                .Where(p => p.Id == randomId)
                 .FirstOrDefaultAsync();
 
             if (phrase == null)
@@ -118,13 +118,9 @@ public class EfPhraseRepository : IPhraseRepository
     /// <returns>The number of phrases</returns>
     public async Task<int> GetPhraseCountAsync()
     {
-        // Use a raw SQL query to get better telemetry
-        // This will show the SQL statement in the span attributes
-        var result = await _context.Phrases
-            .FromSqlRaw("SELECT * FROM phrases")
-            .CountAsync();
-
-        return result;
+        // Use a simple CountAsync to get the count
+        // This will be properly instrumented by EF Core
+        return await _context.Phrases.CountAsync();
     }
 
     /// <summary>
