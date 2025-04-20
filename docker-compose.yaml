@@ -40,6 +40,8 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=phrase-picker-${PROGRAMMING_LANGUAGE}
+    volumes:
+      - ./services/shared-data:/app/shared-data
 
   image-picker:
     build:
