@@ -71,28 +71,8 @@ string? GetRandomPhrase()
 {
     var activity = Activity.Current;
 
-    // Determine the database path
+    // Use the configured database path - no fallbacks
     string dbPath = "/app/shared-data/phrases.db";
-
-    // Try alternative paths if the default doesn't exist
-    if (!File.Exists(dbPath))
-    {
-        // Try relative path from current directory
-        string relativePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../shared-data/phrases.db");
-        if (File.Exists(relativePath))
-        {
-            dbPath = relativePath;
-        }
-        else
-        {
-            // Try another common location
-            string altPath = Path.Combine(Directory.GetCurrentDirectory(), "shared-data/phrases.db");
-            if (File.Exists(altPath))
-            {
-                dbPath = altPath;
-            }
-        }
-    }
 
     // Log the database path for debugging
     Console.WriteLine($"Using database path: {dbPath}");
