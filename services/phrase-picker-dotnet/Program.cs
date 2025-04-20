@@ -3,21 +3,9 @@ using Microsoft.Data.Sqlite;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-// Fallback phrases in case the database is not available
-var fallbackPhrases = new [] {
-    "you're muted",
-    "not dead yet",
-    "Let them.",
-    "This is fine",
-    "It's a trap!",
-    "Not Today",
-    "You had one job",
-    "bruh",
-    "have you tried restarting?",
-    "try again after coffee",
-    "not a bug, it's a feature",
-    "test in prod"
-};
+// We don't use fallback phrases as per project guidelines
+// Instead, we'll let the service fail if the database is not available
+// This is better for instructional purposes to demonstrate error telemetry
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -110,15 +98,23 @@ string? GetRandomPhrase()
     Console.WriteLine($"Using database path: {dbPath}");
     Console.WriteLine($"Database exists: {File.Exists(dbPath)}");
 
-    // If database doesn't exist, use fallback phrases
+    // If database doesn't exist, return null to indicate failure
     if (!File.Exists(dbPath))
     {
-        Console.WriteLine("Database not found, using fallback phrases");
+        Console.WriteLine("Database not found, returning error");
         if (activity != null)
         {
-            activity.SetTag("app.using_fallback", true);
+            activity.SetTag("error", true);
+            activity.SetTag("error.message", "Database file not found");
+            activity.SetTag("error.type", "database.file.missing");
+            activity.AddEvent(new ActivityEvent("database.file.missing",
+                tags: new ActivityTagsCollection
+                {
+                    { "error.message", "Database file not found" },
+                    { "app.db_path", dbPath }
+                }));
         }
-        return fallbackPhrases[Random.Shared.Next(fallbackPhrases.Length)];
+        return null;
     }
 
     // Create connection string with read-only mode
@@ -142,17 +138,19 @@ string? GetRandomPhrase()
 
                 if (count == 0)
                 {
-                    Console.WriteLine("No phrases found in database, using fallback phrases");
+                    Console.WriteLine("No phrases found in database, returning error");
                     if (activity != null)
                     {
+                        activity.SetTag("error", true);
+                        activity.SetTag("error.message", "No phrases found in database");
+                        activity.SetTag("error.type", "database.query.error");
                         activity.AddEvent(new ActivityEvent("database.query.error",
                             tags: new ActivityTagsCollection
                             {
                                 { "error.message", "No phrases found in database" }
                             }));
-                        activity.SetTag("app.using_fallback", true);
                     }
-                    return fallbackPhrases[Random.Shared.Next(fallbackPhrases.Length)];
+                    return null;
                 }
 
                 // Get a random phrase from the database
@@ -174,18 +172,21 @@ string? GetRandomPhrase()
 
                     if (string.IsNullOrEmpty(phrase))
                     {
-                        Console.WriteLine($"Phrase with ID {randomId} not found, using fallback phrases");
+                        Console.WriteLine($"Phrase with ID {randomId} not found, returning error");
                         if (activity != null)
                         {
+                            activity.SetTag("error", true);
+                            activity.SetTag("error.message", $"Phrase with ID {randomId} not found");
+                            activity.SetTag("error.type", "database.query.error");
+                            activity.SetTag("phrase.id", randomId);
                             activity.AddEvent(new ActivityEvent("database.query.error",
                                 tags: new ActivityTagsCollection
                                 {
                                     { "error.message", $"Phrase with ID {randomId} not found" },
                                     { "phrase.id", randomId }
                                 }));
-                            activity.SetTag("app.using_fallback", true);
                         }
-                        return fallbackPhrases[Random.Shared.Next(fallbackPhrases.Length)];
+                        return null;
                     }
 
                     Console.WriteLine($"Returning phrase: {phrase}");
@@ -201,17 +202,19 @@ string? GetRandomPhrase()
 
         if (activity != null)
         {
+            activity.SetTag("error", true);
+            activity.SetTag("error.message", ex.Message);
+            activity.SetTag("error.type", "database.query.exception");
             activity.AddEvent(new ActivityEvent("database.query.exception",
                 tags: new ActivityTagsCollection
                 {
                     { "error.message", ex.Message },
                     { "error.type", ex.GetType().Name }
                 }));
-            activity.SetTag("app.using_fallback", true);
         }
 
-        // Use fallback phrases in case of error
-        return fallbackPhrases[Random.Shared.Next(fallbackPhrases.Length)];
+        // Return null to indicate failure
+        return null;
     }
 }
 

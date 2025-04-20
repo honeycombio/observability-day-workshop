@@ -35,8 +35,9 @@ try {
   console.log(`Connected to the SQLite database at ${dbPath} in read-only mode`);
 } catch (err) {
   console.error(`Error opening database at ${dbPath}:`, err);
-  // Fallback phrases in case the database is not available
-  console.warn("Using fallback phrases as database is not available");
+  // Don't use fallback behavior - let the error propagate
+  // This will cause the service to fail if the database is not available
+  // which is the desired behavior for instructional purposes
 }
 
 app.get("/health", (req: Request, res: Response) => {
@@ -72,7 +73,12 @@ function getRandomPhrase(): string | null {
     // Count the total number of phrases
     const countRow = db.prepare("SELECT COUNT(*) as count FROM phrases").get();
     if (!countRow) {
-      console.error("Error counting phrases: No result returned");
+      const errorMsg = "Error counting phrases: No result returned";
+      console.error(errorMsg);
+      currentSpan?.setAttribute("error", true);
+      currentSpan?.setAttribute("error.message", errorMsg);
+      currentSpan?.setAttribute("error.type", "database.query.error");
+      currentSpan?.addEvent("database.query.error", { "error.message": errorMsg });
       return null;
     }
 
@@ -86,13 +92,30 @@ function getRandomPhrase(): string | null {
     const phrase = db.prepare("SELECT text FROM phrases WHERE id = ?").get(randomId);
 
     if (!phrase) {
-      console.error("Error getting random phrase: Phrase not found");
+      const errorMsg = `Error getting random phrase: Phrase with ID ${randomId} not found`;
+      console.error(errorMsg);
+      currentSpan?.setAttribute("error", true);
+      currentSpan?.setAttribute("error.message", errorMsg);
+      currentSpan?.setAttribute("error.type", "database.query.error");
+      currentSpan?.setAttribute("phrase.id", randomId);
+      currentSpan?.addEvent("database.query.error", {
+        "error.message": errorMsg,
+        "phrase.id": randomId,
+      });
       return null;
     }
 
     return phrase.text;
   } catch (err) {
-    console.error("Database error:", err);
+    const errorMsg = `Database error: ${err}`;
+    console.error(errorMsg);
+    currentSpan?.setAttribute("error", true);
+    currentSpan?.setAttribute("error.message", errorMsg);
+    currentSpan?.setAttribute("error.type", "database.query.exception");
+    currentSpan?.addEvent("database.query.exception", {
+      "error.message": errorMsg,
+      "error.type": err instanceof Error ? err.name : "unknown",
+    });
     return null;
   }
 }

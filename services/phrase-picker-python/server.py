@@ -21,21 +21,9 @@ if not os.path.exists(db_path):
 print(f"Using database path: {db_path}")
 print(f"Database exists: {os.path.exists(db_path)}")
 
-# Fallback phrases in case the database is not available
-FALLBACK_PHRASES = [
-    "you're muted",
-    "not dead yet",
-    "Let them.",
-    "This is fine",
-    "It's a trap!",
-    "Not Today",
-    "You had one job",
-    "bruh",
-    "have you tried restarting?",
-    "try again after coffee",
-    "not a bug, it's a feature",
-    "test in prod"
-]
+# We don't use fallback phrases as per project guidelines
+# Instead, we'll let the service fail if the database is not available
+# This is better for instructional purposes to demonstrate error telemetry
 
 # Route for health check
 @app.route('/health')
@@ -64,10 +52,11 @@ def get_random_phrase():
     current_span = trace.get_current_span()
     conn = get_db_connection()
     if conn is None:
-        # Fallback to hardcoded phrases if database is not available
-        phrase = random.choice(FALLBACK_PHRASES)
-        current_span.set_attribute("app.using_fallback", True)
-        return phrase
+        # Don't use fallback behavior - instead, return None to indicate failure
+        current_span.set_attribute("error", True)
+        current_span.set_attribute("error.message", "Failed to connect to database")
+        current_span.set_attribute("error.type", "database.connection.error")
+        return None
 
     try:
         # Count the total number of phrases
@@ -78,14 +67,15 @@ def get_random_phrase():
 
         if count == 0:
             conn.close()
+            error_msg = "No phrases found in database"
+            current_span.set_attribute("error", True)
+            current_span.set_attribute("error.message", error_msg)
+            current_span.set_attribute("error.type", "database.query.error")
             current_span.add_event(
                 name="database.query.error",
-                attributes={"error.message": "No phrases found in database"}
+                attributes={"error.message": error_msg}
             )
-            # Fallback to hardcoded phrases
-            phrase = random.choice(FALLBACK_PHRASES)
-            current_span.set_attribute("app.using_fallback", True)
-            return phrase
+            return None
 
         # Get a random phrase from the database
         random_id = random.randint(1, count)
@@ -95,17 +85,19 @@ def get_random_phrase():
 
         if phrase_row is None:
             conn.close()
+            error_msg = f"Phrase with ID {random_id} not found"
+            current_span.set_attribute("error", True)
+            current_span.set_attribute("error.message", error_msg)
+            current_span.set_attribute("error.type", "database.query.error")
+            current_span.set_attribute("phrase.id", random_id)
             current_span.add_event(
                 name="database.query.error",
                 attributes={
-                    "error.message": f"Phrase with ID {random_id} not found",
+                    "error.message": error_msg,
                     "phrase.id": random_id
                 }
             )
-            # Fallback to hardcoded phrases
-            phrase = random.choice(FALLBACK_PHRASES)
-            current_span.set_attribute("app.using_fallback", True)
-            return phrase
+            return None
 
         # Get the phrase text
         phrase = phrase_row[0]
@@ -114,6 +106,9 @@ def get_random_phrase():
 
     except sqlite3.Error as e:
         error_message = f"Error getting random phrase: {e}"
+        current_span.set_attribute("error", True)
+        current_span.set_attribute("error.message", error_message)
+        current_span.set_attribute("error.type", "database.query.exception")
         current_span.add_event(
             name="database.query.exception",
             attributes={
@@ -123,10 +118,7 @@ def get_random_phrase():
         )
         if conn:
             conn.close()
-        # Fallback to hardcoded phrases
-        phrase = random.choice(FALLBACK_PHRASES)
-        current_span.set_attribute("app.using_fallback", True)
-        return phrase
+        return None
 
 # Route for getting a random phrase
 @app.route('/phrase')
@@ -135,6 +127,10 @@ def get_phrase():
 
     # Get a random phrase
     phrase = get_random_phrase()
+
+    # If we couldn't get a phrase, return a 500 error
+    if phrase is None:
+        return jsonify({"error": "Failed to retrieve phrase data"}), 500
 
     # Add phrase to the current span
     current_span.set_attribute("app.phrase", phrase)
