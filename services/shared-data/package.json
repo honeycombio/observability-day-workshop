@@ -5,7 +5,9 @@
   "main": "init-db.js",
   "scripts": {
     "init-db": "node init-db.js",
-    "init-db-py": "python init-db.py"
+    "init-db-py": "python init-db.py",
+    "init-phrases-db": "node init-phrases-db.js",
+    "init-phrases-db-py": "python init-phrases-db.py"
   },
   "dependencies": {
     "sqlite3": "^5.1.6"
