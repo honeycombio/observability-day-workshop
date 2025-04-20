@@ -19,7 +19,7 @@ const dbPath = "/app/shared-data/phrases.db";
 // This is better for instructional purposes to demonstrate error telemetry
 
 // Initialize database connection with read-only mode
-let db: Database.Database;
+let db: any;
 try {
   // Open the database in read-only mode
   db = new Database(dbPath, { readonly: true });
