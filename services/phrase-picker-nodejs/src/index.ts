@@ -1,6 +1,6 @@
 import "./tracing";
 import express, { Request, Response } from "express";
-import { trace, context } from "@opentelemetry/api";
+import { trace, context, SpanStatusCode } from "@opentelemetry/api";
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
@@ -21,25 +21,21 @@ const dbPath = "/app/shared-data/phrases.db";
 // Initialize database connection with read-only mode
 let db: Database.Database;
 try {
-  // Get the active span for telemetry
-  const currentSpan = trace.getActiveSpan();
-  currentSpan?.setAttribute("app.db_path", dbPath);
-  currentSpan?.setAttribute("app.db_exists", fs.existsSync(dbPath));
-
   // Open the database in read-only mode
   db = new Database(dbPath, { readonly: true });
-
-  // Record successful connection in telemetry
-  currentSpan?.setAttribute("app.db_connected", true);
 } catch (err) {
   // Get the active span for telemetry
   const currentSpan = trace.getActiveSpan();
-  currentSpan?.setAttribute("error", true);
-  currentSpan?.setAttribute("error.message", `Error opening database at ${dbPath}: ${err}`);
-  currentSpan?.setAttribute("error.type", "database.connection.error");
-  currentSpan?.addEvent("database.connection.error", {
-    "error.message": `Error opening database at ${dbPath}: ${err}`,
-    "error.type": err instanceof Error ? err.name : "unknown",
+
+  // Record the exception in telemetry
+  if (err instanceof Error) {
+    currentSpan?.recordException(err);
+  }
+
+  // Set the span status to error
+  currentSpan?.setStatus({
+    code: SpanStatusCode.ERROR,
+    message: `Error opening database at ${dbPath}: ${err}`,
   });
 
   // Don't use fallback behavior - let the error propagate
@@ -57,23 +53,24 @@ app.get("/phrase", async (req, res) => {
   try {
     const phrase = getRandomPhrase();
     if (phrase) {
-      // Add phrase to the current span
-      currentSpan?.setAttribute("app.phrase", phrase);
       res.send({ phrase });
     } else {
       // If we couldn't get a phrase, return a 500 error
-      currentSpan?.setAttribute("error", true);
-      currentSpan?.setAttribute("error.message", "Failed to retrieve phrase data");
+      currentSpan?.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: "Failed to retrieve phrase data",
+      });
       res.status(500).json({ error: "Failed to retrieve phrase data" });
     }
   } catch (error) {
     // Record error in telemetry
-    currentSpan?.setAttribute("error", true);
-    currentSpan?.setAttribute("error.message", String(error));
-    currentSpan?.setAttribute("error.type", "route.handler.exception");
-    currentSpan?.addEvent("route.handler.exception", {
-      "error.message": String(error),
-      "error.type": error instanceof Error ? error.name : "unknown",
+    if (error instanceof Error) {
+      currentSpan?.recordException(error);
+    }
+
+    currentSpan?.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: String(error),
     });
 
     res.status(500).json({ error: "Internal server error" });
@@ -87,46 +84,40 @@ function getRandomPhrase(): string | null {
     // Count the total number of phrases
     const countRow = db.prepare("SELECT COUNT(*) as count FROM phrases").get();
     if (!countRow) {
-      const errorMsg = "Error counting phrases: No result returned";
-      currentSpan?.setAttribute("error", true);
-      currentSpan?.setAttribute("error.message", errorMsg);
-      currentSpan?.setAttribute("error.type", "database.query.error");
-      currentSpan?.addEvent("database.query.error", { "error.message": errorMsg });
+      currentSpan?.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: "Error counting phrases: No result returned",
+      });
       return null;
     }
 
     // Get a random phrase from the database
     const count = countRow.count;
-    currentSpan?.setAttribute("app.phrase_count", count);
 
     const randomId = Math.floor(Math.random() * count) + 1;
-    currentSpan?.setAttribute("app.random_phrase_id", randomId);
 
     const phrase = db.prepare("SELECT text FROM phrases WHERE id = ?").get(randomId);
 
     if (!phrase) {
-      const errorMsg = `Error getting random phrase: Phrase with ID ${randomId} not found`;
-      currentSpan?.setAttribute("error", true);
-      currentSpan?.setAttribute("error.message", errorMsg);
-      currentSpan?.setAttribute("error.type", "database.query.error");
-      currentSpan?.setAttribute("phrase.id", randomId);
-      currentSpan?.addEvent("database.query.error", {
-        "error.message": errorMsg,
-        "phrase.id": randomId,
+      currentSpan?.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: `Error getting random phrase: Phrase with ID ${randomId} not found`,
       });
       return null;
     }
 
     return phrase.text;
   } catch (err) {
-    const errorMsg = `Database error: ${err}`;
-    currentSpan?.setAttribute("error", true);
-    currentSpan?.setAttribute("error.message", errorMsg);
-    currentSpan?.setAttribute("error.type", "database.query.exception");
-    currentSpan?.addEvent("database.query.exception", {
-      "error.message": errorMsg,
-      "error.type": err instanceof Error ? err.name : "unknown",
+    // Record the exception in telemetry
+    if (err instanceof Error) {
+      currentSpan?.recordException(err);
+    }
+
+    currentSpan?.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: `Database error: ${err}`,
     });
+
     return null;
   }
 }
