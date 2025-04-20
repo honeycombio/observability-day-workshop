@@ -31,12 +31,12 @@ public class EfPhraseRepository : IPhraseRepository
     public async Task<Phrase?> GetRandomPhraseAsync()
     {
         var activity = Activity.Current;
-        
+
         try
         {
             // Get the count of phrases
             var count = await GetPhraseCountAsync();
-            
+
             if (count == 0)
             {
                 if (activity != null)
@@ -52,19 +52,22 @@ public class EfPhraseRepository : IPhraseRepository
                 }
                 return null;
             }
-            
+
             // Generate a random ID between 1 and count
             var randomId = _random.Next(1, count + 1);
-            
+
             if (activity != null)
             {
                 activity.SetTag("app.random_phrase_id", randomId);
                 activity.SetTag("app.phrase_count", count);
             }
-            
-            // Get the phrase with the random ID
-            var phrase = await _context.Phrases.FindAsync(randomId);
-            
+
+            // Use a parameterized query instead of FindAsync to get better telemetry
+            // This will show the SQL statement in the span attributes
+            var phrase = await _context.Phrases
+                .FromSqlInterpolated($"SELECT * FROM phrases WHERE id = {randomId}")
+                .FirstOrDefaultAsync();
+
             if (phrase == null)
             {
                 if (activity != null)
@@ -82,12 +85,12 @@ public class EfPhraseRepository : IPhraseRepository
                 }
                 return null;
             }
-            
+
             if (activity != null)
             {
                 activity.SetTag("app.phrase", phrase.Text);
             }
-            
+
             return phrase;
         }
         catch (Exception ex)
@@ -104,7 +107,7 @@ public class EfPhraseRepository : IPhraseRepository
                         { "error.type", ex.GetType().Name }
                     }));
             }
-            
+
             return null;
         }
     }
@@ -115,7 +118,13 @@ public class EfPhraseRepository : IPhraseRepository
     /// <returns>The number of phrases</returns>
     public async Task<int> GetPhraseCountAsync()
     {
-        return await _context.Phrases.CountAsync();
+        // Use a raw SQL query to get better telemetry
+        // This will show the SQL statement in the span attributes
+        var result = await _context.Phrases
+            .FromSqlRaw("SELECT * FROM phrases")
+            .CountAsync();
+
+        return result;
     }
 
     /// <summary>
@@ -125,13 +134,13 @@ public class EfPhraseRepository : IPhraseRepository
     public bool DatabaseExists()
     {
         var activity = Activity.Current;
-        
+
         if (activity != null)
         {
             activity.SetTag("app.db_path", _dbPath);
             activity.SetTag("app.db_exists", File.Exists(_dbPath));
         }
-        
+
         return File.Exists(_dbPath);
     }
 }
