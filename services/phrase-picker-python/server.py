@@ -6,20 +6,12 @@ from opentelemetry import trace
 
 app = Flask(__name__)
 
-print("I am the phrase picker!")
+# Path to the SQLite database - use a single, consistent path
+db_path = "/app/shared-data/phrases.db"
 
-# Path to the SQLite database
-db_path = os.path.join(os.path.dirname(__file__), "shared-data/phrases.db")
-
-# Try alternative paths if the default doesn't exist
-if not os.path.exists(db_path):
-    # Try Docker path
-    docker_path = "/app/shared-data/phrases.db"
-    if os.path.exists(docker_path):
-        db_path = docker_path
-
-print(f"Using database path: {db_path}")
-print(f"Database exists: {os.path.exists(db_path)}")
+# We don't create directories or handle missing databases
+# If the database doesn't exist, the service should fail
+# This is better for instructional purposes to demonstrate error telemetry
 
 # We don't use fallback phrases as per project guidelines
 # Instead, we'll let the service fail if the database is not available
@@ -39,12 +31,12 @@ def get_db_connection():
         conn.row_factory = sqlite3.Row  # This enables column access by name
         return conn
     except sqlite3.Error as e:
-        if current_span:
-            current_span.add_event(
-                name="database.connection.error",
-                attributes={"error.message": f"Failed to connect to database: {e}", "app.db_path": db_path}
-            )
-        print(f"Error connecting to database at {db_path}: {e}")
+        current_span = trace.get_current_span()
+        # Record the exception in the span
+        current_span.record_exception(e)
+        # Set the span status to error
+        current_span.set_status(trace.StatusCode.ERROR, f"Failed to connect to database: {e}")
+        # Don't print to console - all error information is in the span
         return None
 
 # Helper function to get a random phrase from the database
@@ -53,9 +45,7 @@ def get_random_phrase():
     conn = get_db_connection()
     if conn is None:
         # Don't use fallback behavior - instead, return None to indicate failure
-        current_span.set_attribute("error", True)
-        current_span.set_attribute("error.message", "Failed to connect to database")
-        current_span.set_attribute("error.type", "database.connection.error")
+        # Error information is already recorded in get_db_connection
         return None
 
     try:
@@ -68,13 +58,8 @@ def get_random_phrase():
         if count == 0:
             conn.close()
             error_msg = "No phrases found in database"
-            current_span.set_attribute("error", True)
-            current_span.set_attribute("error.message", error_msg)
-            current_span.set_attribute("error.type", "database.query.error")
-            current_span.add_event(
-                name="database.query.error",
-                attributes={"error.message": error_msg}
-            )
+            # Set the span status to error
+            current_span.set_status(trace.StatusCode.ERROR, error_msg)
             return None
 
         # Get a random phrase from the database
@@ -86,17 +71,10 @@ def get_random_phrase():
         if phrase_row is None:
             conn.close()
             error_msg = f"Phrase with ID {random_id} not found"
-            current_span.set_attribute("error", True)
-            current_span.set_attribute("error.message", error_msg)
-            current_span.set_attribute("error.type", "database.query.error")
+            # Set the span status to error
+            current_span.set_status(trace.StatusCode.ERROR, error_msg)
+            # We can still add important attributes
             current_span.set_attribute("phrase.id", random_id)
-            current_span.add_event(
-                name="database.query.error",
-                attributes={
-                    "error.message": error_msg,
-                    "phrase.id": random_id
-                }
-            )
             return None
 
         # Get the phrase text
@@ -105,19 +83,12 @@ def get_random_phrase():
         return phrase
 
     except sqlite3.Error as e:
-        error_message = f"Error getting random phrase: {e}"
-        current_span.set_attribute("error", True)
-        current_span.set_attribute("error.message", error_message)
-        current_span.set_attribute("error.type", "database.query.exception")
-        current_span.add_event(
-            name="database.query.exception",
-            attributes={
-                "error.message": error_message,
-                "error.type": "sqlite3.Error"
-            }
-        )
         if conn:
             conn.close()
+        # Record the exception in the span
+        current_span.record_exception(e)
+        # Set the span status to error
+        current_span.set_status(trace.StatusCode.ERROR, f"Error getting random phrase: {e}")
         return None
 
 # Route for getting a random phrase
