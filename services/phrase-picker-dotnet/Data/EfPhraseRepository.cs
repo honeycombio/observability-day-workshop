@@ -63,7 +63,7 @@ public class EfPhraseRepository : IPhraseRepository
             }
 
             // Use a parameterized query with EF Core's built-in methods
-            // This will be properly instrumented and show the SQL statement in the span attributes
+            // I wish: This will be properly instrumented and show the SQL statement in the span attributes
             var phrase = await _context.Phrases
                 .Where(p => p.Id == randomId)
                 .FirstOrDefaultAsync();
