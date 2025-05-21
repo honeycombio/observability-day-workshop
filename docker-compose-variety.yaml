@@ -84,8 +84,9 @@ services:
       args:
         HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
     image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
-    volumes: # uncomment this for faster development on the frontend
-      - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
+    # TODO: This does not work, check on this later
+    # volumes: # uncomment this for faster development on the frontend
+    # - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
       - "10114:10114" # Expose port 10114, that is where it should be listening now
 
