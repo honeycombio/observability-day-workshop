@@ -3,7 +3,7 @@ services:
     build:
       context: services/backend-for-frontend-python
       dockerfile: Dockerfile
-      cache_from: 
+      cache_from:
         - ${IMAGE_REPO_USER}/backend-for-frontend:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/backend-for-frontend:${WORKSHOP_VERSION}
     ports:
@@ -13,12 +13,12 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=backend-for-frontend-python
 
-# Node, because I have some interesting feature flag stuff to show
+  # Node, because I have some interesting feature flag stuff to show
   meminator:
     build:
       context: services/meminator-nodejs
       dockerfile: Dockerfile
-      cache_from: 
+      cache_from:
         - ${IMAGE_REPO_USER}/meminator:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/meminator:${WORKSHOP_VERSION}
     ports:
@@ -28,12 +28,12 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=meminator-nodejs
 
-# Java, for variety. I brought it one service from jessitron/meminator, which copied it from Howard's impl
+  # Java, for variety. I brought it one service from jessitron/meminator, which copied it from Howard's impl
   phrase-picker:
     build:
       context: services/phrase-picker-java
       dockerfile: Dockerfile
-      cache_from: 
+      cache_from:
         - ${IMAGE_REPO_USER}/phrase-picker:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/phrase-picker:${WORKSHOP_VERSION}
     ports:
@@ -43,12 +43,12 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=phrase-picker-java
 
-# .NET, for variety
+  # .NET, for variety
   image-picker:
     build:
       context: services/image-picker-dotnet
       dockerfile: Dockerfile
-      cache_from: 
+      cache_from:
         - ${IMAGE_REPO_USER}/image-picker:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/image-picker:${WORKSHOP_VERSION}
     ports:
@@ -58,12 +58,12 @@ services:
       - OTEL_EXPORTER_OTLP_HEADERS
       - OTEL_SERVICE_NAME=image-picker-dotnet
 
-# python, because it has sqlite3 instrumentation
+  # python, because it has sqlite3 instrumentation
   user-service:
     build:
       context: .
       dockerfile: services/user-service-python/Dockerfile
-      cache_from: 
+      cache_from:
         - ${IMAGE_REPO_USER}/user-service:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/user-service:${WORKSHOP_VERSION}
     ports:
@@ -79,13 +79,13 @@ services:
     build:
       context: services/web
       dockerfile: Dockerfile
-      cache_from: 
+      cache_from:
         - ${IMAGE_REPO_USER}/web:${DOCKERHUB_IMAGE_VERSION}
       args:
         HONEYCOMB_API_KEY: ${HONEYCOMB_API_KEY}
     image: ${IMAGE_REPO_USER}/web:${WORKSHOP_VERSION}
-    # volumes: # uncomment this for faster development on the frontend
-    #   - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
+    volumes: # uncomment this for faster development on the frontend
+      - ./services/web/dist:/usr/share/nginx/html # Mount directory containing static files -- only do this for development
     ports:
       - "10114:10114" # Expose port 10114, that is where it should be listening now
 
@@ -93,12 +93,30 @@ services:
     build:
       context: services/shared-data
       dockerfile: Dockerfile
-      cache_from: 
+      cache_from:
         - ${IMAGE_REPO_USER}/init-db:${DOCKERHUB_IMAGE_VERSION}
     image: ${IMAGE_REPO_USER}/init-db:${WORKSHOP_VERSION}
     volumes:
       - dbdata:/put-the-db-here
     command: cp /db/users.db /put-the-db-here/
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.55
+    container_name: jaeger
+    ports:
+      - "16686:16686" # Jaeger UI
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.99.0
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./services/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    environment:
+      - HONEYCOMB_API_KEY=hcaik_01jvrszy8nfbkpdvj26tyn2997pd5vv342j1jf86ekge1pcwcxrncqtf0p
 
 volumes:
   dbdata:

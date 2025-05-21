@@ -27,6 +27,10 @@ processors:
 
 exporters:
   debug:
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
   otlp:
     endpoint: "api.honeycomb.io:443"
     headers:
@@ -38,7 +42,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, attributes/attribution, batch]
-      exporters: [otlp]
+      exporters: [otlp/jaeger, otlp]
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, attributes/attribution, batch]
